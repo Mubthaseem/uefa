@@ -167,7 +167,7 @@ const server = http.createServer((req, res) => {
 
     console.log(`[Proxy] Fetching: ${targetUrl}`);
 
-    const isPlaylist = targetUrl.includes('.m3u8');
+    const isPlaylist = targetUrl.split('?')[0].endsWith('.m3u8');
 
     // Extract client Range header
     const headers = {};
