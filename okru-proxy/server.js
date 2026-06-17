@@ -51,7 +51,7 @@ const server = http.createServer((req, res) => {
     try {
       const host = urlStr.replace(/^https?:\/\//i, '').split('/')[0].split(':')[0].toLowerCase();
       if (host === 'null' || host === '') return true;
-      return ALLOWED_DOMAINS.includes(host) || host.endsWith('.zetasports.online');
+      return ALLOWED_DOMAINS.includes(host);
     } catch (_) {
       return false;
     }
