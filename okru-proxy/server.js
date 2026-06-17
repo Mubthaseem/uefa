@@ -24,9 +24,12 @@ function requestUrl(targetUrl, headers = {}, callback) {
 
 const server = http.createServer((req, res) => {
   // CORS headers
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  const origin = req.headers.origin || '*';
+  res.setHeader('Access-Control-Allow-Origin', origin);
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Range');
+  res.setHeader('Access-Control-Expose-Headers', 'Content-Length, Content-Range');
 
   if (req.method === 'OPTIONS') {
     res.writeHead(200);
@@ -166,11 +169,38 @@ const server = http.createServer((req, res) => {
 
     const isPlaylist = targetUrl.includes('.m3u8');
 
-    const proxyReq = requestUrl(targetUrl, {}, (proxyRes) => {
-      // Set content type and status code
-      res.writeHead(proxyRes.statusCode, {
-        'Content-Type': proxyRes.headers['content-type'] || (isPlaylist ? 'application/vnd.apple.mpegurl' : 'application/octet-stream')
-      });
+    // Extract client Range header
+    const headers = {};
+    if (req.headers.range) {
+      headers['Range'] = req.headers.range;
+    }
+
+    const proxyReq = requestUrl(targetUrl, headers, (proxyRes) => {
+      // Clean Content-Type
+      let contentType = proxyRes.headers['content-type'] || '';
+      contentType = contentType.split(';')[0].trim();
+      if (!contentType) {
+        contentType = isPlaylist ? 'application/vnd.apple.mpegurl' : 'application/octet-stream';
+      }
+
+      // Prepare response headers
+      const responseHeaders = {
+        'Content-Type': contentType
+      };
+
+      // Expose and write range and length headers if they exist in the target response
+      if (proxyRes.headers['content-range']) {
+        responseHeaders['Content-Range'] = proxyRes.headers['content-range'];
+      }
+      if (proxyRes.headers['content-length']) {
+        responseHeaders['Content-Length'] = proxyRes.headers['content-length'];
+      }
+      if (proxyRes.headers['accept-ranges']) {
+        responseHeaders['Accept-Ranges'] = proxyRes.headers['accept-ranges'];
+      }
+
+      // Write head with correct status code
+      res.writeHead(proxyRes.statusCode, responseHeaders);
 
       if (isPlaylist) {
         // Rewrite sub-playlist absolute URLs
