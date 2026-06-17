@@ -1,0 +1,620 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>ZETAZETA LIVE</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="description" content="Live match stream player">
+  <meta name="author" content="ZETAZETA">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+  <link rel="preconnect" href="https://cdn.plyr.io" crossorigin>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css">
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.13/dist/hls.min.js"></script>
+  <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <script>
+    document.addEventListener("contextmenu", e => e.preventDefault(), false);
+    document.addEventListener("keydown", e => {
+      if (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74)) e.preventDefault();
+      if (e.ctrlKey && e.keyCode === 85) e.preventDefault();
+      if (e.keyCode === 123) e.preventDefault();
+    }, false);
+  </script>
+
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+    :root{
+      --red:      #00e676;
+      --red-glow: rgba(0,230,118,0.55);
+      --bg:       #040506;
+      --bg2:      #0c0e11;
+      --border:   rgba(0,230,118,0.22);
+      --text:     #c8d0da;
+    }
+
+    html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;font-family:'Rajdhani',sans-serif}
+
+    /* ── PLAYER ── */
+    #player-wrap{width:100%;height:100%;position:relative;background:#000}
+    video{width:100%;height:100%;display:block}
+    .plyr{
+      width:100%!important;height:100%!important;
+      --plyr-color-main:var(--red);
+      --plyr-video-background:#000;
+      --plyr-font-family:'Rajdhani',sans-serif;
+      --plyr-control-radius:3px;
+      font-weight:600;position:relative
+    }
+    .plyr--video,.plyr__video-wrapper{height:100%!important}
+    .plyr video{height:100%!important;object-fit:contain}
+
+    /* corner accents */
+    .ca{position:absolute;width:20px;height:20px;z-index:101;pointer-events:none}
+    .ca.tl{top:0;left:0;border-top:2px solid var(--red);border-left:2px solid var(--red)}
+    .ca.tr{top:0;right:0;border-top:2px solid var(--red);border-right:2px solid var(--red)}
+    .ca.bl{bottom:0;left:0;border-bottom:2px solid var(--red);border-left:2px solid var(--red)}
+    .ca.br{bottom:0;right:0;border-bottom:2px solid var(--red);border-right:2px solid var(--red)}
+
+    /* ── JOIN US BUTTON ── */
+    #join-btn{
+      position:absolute;top:6px;left:5px;z-index:102;
+      display:block;
+      height:30px;width:100px;
+      color:#ccc;border:2px solid #ccc;
+      padding:1px 0;border-radius:2px;
+      text-align:center;text-decoration:none;
+      font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;
+      line-height:26px;letter-spacing:1px;
+      background:rgba(0,0,0,0.35);
+      transition:color .2s,border-color .2s,background .2s
+    }
+    #join-btn:hover{color:#fff;border-color:#fff;background:rgba(0,0,0,0.55)}
+
+    /* ── WATERMARK ── */
+    #wm{
+      position:absolute;bottom:62px;left:50%;transform:translateX(-50%);
+      z-index:200;pointer-events:none;user-select:none;
+      display:flex;align-items:center;gap:8px;
+      opacity:.42;transition:opacity .5s
+    }
+    .plyr--hide-controls #wm{opacity:.28}
+    :fullscreen #wm,:-webkit-full-screen #wm,:-moz-full-screen #wm{opacity:.5;bottom:70px}
+    .wm-rule{width:18px;height:1px;background:linear-gradient(90deg,transparent,rgba(0,230,118,.75))}
+    .wm-rule.r{background:linear-gradient(90deg,rgba(0,230,118,.75),transparent)}
+    .wm-inner{display:flex;flex-direction:column;align-items:center;gap:1px}
+    .wm-name{
+      font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:4px;
+      line-height:1;color:#fff;white-space:nowrap;
+      text-shadow:0 1px 8px #000,0 0 24px rgba(0,0,0,.8)
+    }
+    .wm-name .r{color:var(--red)}
+    .wm-url{
+      font-family:'Rajdhani',sans-serif;font-size:9px;font-weight:600;
+      letter-spacing:3px;color:rgba(255,255,255,.55);white-space:nowrap;
+      text-shadow:0 1px 6px rgba(0,0,0,.9);text-transform:uppercase
+    }
+
+    /* ── ZETAZETA LOADER ── */
+    #loader{
+      position:fixed;inset:0;z-index:9999;
+      background:
+        radial-gradient(circle at 50% 38%, rgba(0,230,118,.14), transparent 32%),
+        linear-gradient(135deg,#050707 0%,#0b1110 45%,#020303 100%);
+      display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;
+      overflow:hidden;transition:opacity .6s,visibility .6s
+    }
+    #loader::before{
+      content:"";position:absolute;inset:-20%;
+      background:
+        linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);
+      background-size:42px 42px;
+      transform:perspective(500px) rotateX(62deg) translateY(80px);
+      animation:gridMove 2.8s linear infinite;opacity:.42
+    }
+    #loader::after{
+      content:"";position:absolute;width:260px;height:260px;border-radius:50%;
+      border:1px solid rgba(0,230,118,.18);box-shadow:0 0 60px rgba(0,230,118,.14) inset;
+      animation:pulseRing 2.2s ease-in-out infinite
+    }
+    #loader.off{opacity:0;visibility:hidden}
+    @keyframes gridMove{to{background-position:0 42px,42px 0}}
+    @keyframes pulseRing{0%,100%{transform:scale(.92);opacity:.35}50%{transform:scale(1.08);opacity:.75}}
+
+    .ld-logo{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:8px;animation:float 2s ease-in-out infinite}
+    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+    .ld-ball{
+      width:74px;height:74px;border-radius:50%;position:relative;
+      background:
+        radial-gradient(circle at 34% 28%,#fff 0 8%,transparent 9%),
+        radial-gradient(circle at 50% 50%,rgba(0,230,118,.22),rgba(0,0,0,.15) 62%),
+        #101514;
+      border:2px solid rgba(0,230,118,.85);
+      box-shadow:0 0 26px rgba(0,230,118,.5), inset 0 0 18px rgba(0,230,118,.2);
+      animation:ballSpin 1.4s linear infinite
+    }
+    .ld-ball::before,.ld-ball::after{content:"";position:absolute;inset:14px;border:2px solid rgba(255,255,255,.35);border-radius:50%}
+    .ld-ball::after{inset:26px;border-color:rgba(0,230,118,.75);box-shadow:0 0 10px rgba(0,230,118,.65)}
+    @keyframes ballSpin{to{transform:rotate(360deg)}}
+    .ld-wm{font-family:'Bebas Neue',sans-serif;font-size:44px;letter-spacing:5px;color:#fff;line-height:1;text-shadow:0 0 24px rgba(0,230,118,.25)}
+    .ld-wm .r{color:var(--red)}
+    .ld-domain{font-size:11px;font-weight:700;letter-spacing:5px;color:rgba(255,255,255,.42);text-transform:uppercase}
+
+    .ld-bar-wrap{position:relative;z-index:1;width:240px;height:3px;background:rgba(255,255,255,.09);border-radius:10px;overflow:hidden}
+    .ld-bar{height:100%;background:linear-gradient(90deg,transparent,var(--red),#9dffd0,transparent);box-shadow:0 0 16px var(--red-glow);animation:barSlide 1.25s ease-in-out infinite}
+    @keyframes barSlide{0%{width:0%;margin-left:0}50%{width:88%;margin-left:6%}100%{width:0%;margin-left:100%}}
+
+    .ld-dots{position:relative;z-index:1;display:flex;gap:7px}
+    .ld-dot{width:6px;height:6px;border-radius:50%;background:var(--red);box-shadow:0 0 10px var(--red-glow);animation:dotBounce 1.2s ease-in-out infinite}
+    .ld-dot:nth-child(2){animation-delay:.2s}.ld-dot:nth-child(3){animation-delay:.4s}
+    @keyframes dotBounce{0%,80%,100%{opacity:.25;transform:translateY(0) scale(.8)}40%{opacity:1;transform:translateY(-6px) scale(1.15)}}
+
+    .ld-status{position:relative;z-index:1;font-size:11px;font-weight:700;letter-spacing:3px;color:rgba(200,255,225,.58);text-transform:uppercase;animation:blink 2s ease-in-out infinite}
+    @keyframes blink{0%,100%{opacity:.45}50%{opacity:1}}
+
+    /* ── ERROR ── */
+    #err{
+      position:absolute;inset:0;display:none;flex-direction:column;
+      align-items:center;justify-content:center;gap:16px;
+      background:var(--bg);z-index:300
+    }
+    #err.on{display:flex}
+    .err-icon{font-size:48px;color:var(--red);opacity:.7}
+    .err-title{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:3px;color:#fff}
+    .err-msg{font-size:13px;color:var(--text);letter-spacing:1px;text-align:center;max-width:260px;line-height:1.6}
+    .err-retry{
+      margin-top:8px;padding:10px 28px;background:var(--red);color:#fff;
+      border:none;border-radius:3px;font-family:'Rajdhani',sans-serif;
+      font-weight:700;font-size:14px;letter-spacing:3px;text-transform:uppercase;
+      cursor:pointer;transition:background .2s,box-shadow .2s
+    }
+    .err-retry:hover{background:#00c767;box-shadow:0 0 20px var(--red-glow)}
+
+    /* ── iOS FULLSCREEN BUTTON ── */
+    #ios-fs-btn {
+      display: none;
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      z-index: 500;
+      background: rgba(0,0,0,0.55);
+      border: 1px solid rgba(0,230,118,0.5);
+      color: #fff;
+      padding: 6px 10px;
+      border-radius: 4px;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<!-- LOADER -->
+<div id="loader">
+  <div class="ld-logo">
+    <div class="ld-ball" aria-hidden="true"></div>
+    <div class="ld-wm">ZETA<span class="r">SPORTS</span></div>
+    <div class="ld-domain">Live Match Center</div>
+  </div>
+  <div class="ld-bar-wrap"><div class="ld-bar"></div></div>
+  <div class="ld-dots"><div class="ld-dot"></div><div class="ld-dot"></div><div class="ld-dot"></div></div>
+  <div class="ld-status" id="ld-status">Connecting to stream…</div>
+</div>
+
+<!-- PLAYER -->
+<div id="player-wrap">
+  <div class="ca tl"></div><div class="ca tr"></div>
+  <div class="ca bl"></div><div class="ca br"></div>
+
+  <a id="join-btn" href="https://www.whatsapp.com/channel/0029Vb7Jqva5K3zLauUJSv2s" target="_blank">Join us</a>
+
+  <div id="err">
+    <div class="err-icon">⚡</div>
+    <div class="err-title">Stream Unavailable</div>
+    <div class="err-msg" id="err-msg">The stream may have ended or the link expired.</div>
+    <button class="err-retry" onclick="location.reload()">Retry</button>
+  </div>
+
+  <!-- iOS native fullscreen button (shown only on iOS inside iframe) -->
+  <button id="ios-fs-btn" onclick="iosFullscreen()">⛶ Fullscreen</button>
+
+  <!-- KEY FIX: added webkit-playsinline + x5-playsinline for iOS iframe fullscreen -->
+  <video id="player" controls playsinline
+    webkit-playsinline
+    x5-playsinline
+    x5-video-player-type="h5"
+    x5-video-player-fullscreen="true"
+  ></video>
+</div>
+
+<!-- WATERMARK -->
+<div id="wm">
+  <div class="wm-rule"></div>
+  <div class="wm-inner">
+    <div class="wm-name">ZETA<span class="r">SPORTS</span></div>
+    <div class="wm-url">ZETAZSPORTS.ONLINE</div>
+  </div>
+  <div class="wm-rule r"></div>
+</div>
+
+<script>
+(function(){
+  const params     = new URLSearchParams(window.location.search);
+  const DIRECT_SRC = params.get('url') || params.get('stream') || params.get('get') || params.get('dtv') || params.get('src') || '';
+
+  const video    = document.getElementById('player');
+  const loader   = document.getElementById('loader');
+  const errBox   = document.getElementById('err');
+  const errMsg   = document.getElementById('err-msg');
+  const statusEl = document.getElementById('ld-status');
+  const wm       = document.getElementById('wm');
+  const iosFsBtn = document.getElementById('ios-fs-btn');
+
+  // ── Detect iOS ──
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  const isInIframe = window.self !== window.top;
+
+  // Show iOS fullscreen button when inside iframe on iOS
+  // because document.fullscreenElement API is blocked in iOS iframes
+  if (isIOS && isInIframe) {
+    iosFsBtn.style.display = 'block';
+  }
+
+  // iOS native fullscreen — uses webkitEnterFullscreen on the video element directly
+  window.iosFullscreen = function() {
+    if (video.webkitEnterFullscreen) {
+      video.webkitEnterFullscreen();
+    } else if (video.requestFullscreen) {
+      video.requestFullscreen().catch(() => {});
+    }
+  };
+
+  if (!DIRECT_SRC) {
+    errMsg.textContent = 'No stream URL provided. Add ?url=<m3u8-link> to the page URL.';
+    showError();
+    return;
+  }
+
+  const MSGS = ['Starting ZETA…','Fetching match feed…','Preparing live player…','Almost ready…'];
+  let msgIdx = 0;
+  const msgTimer = setInterval(() => {
+    msgIdx = (msgIdx + 1) % MSGS.length;
+    statusEl.textContent = MSGS[msgIdx];
+  }, 1400);
+
+  let hls  = null;
+  let plyr = null;
+  let _stallWatchdog = null;
+  let _rebuilding = false;
+
+  const MAX_HEIGHT = 720;
+
+  function mountWm(){
+    const p = document.querySelector('.plyr');
+    if (p && !p.contains(wm)) { p.style.position = 'relative'; p.appendChild(wm); }
+  }
+
+  function showPlayer(){
+    clearBootTimeout();
+    clearInterval(msgTimer);
+    loader.classList.add('off');
+    errBox.classList.remove('on');
+    mountWm();
+  }
+
+  function showError(msg){
+    if (msg) errMsg.textContent = msg;
+    clearInterval(msgTimer);
+    loader.classList.add('off');
+    errBox.classList.add('on');
+  }
+
+  let bootTimeout = setTimeout(() => {
+    showError('Player did not load. Check if the stream URL is valid, CORS is allowed, and the .m3u8 is reachable.');
+  }, 12000);
+
+  function clearBootTimeout(){
+    try { clearTimeout(bootTimeout); } catch(_) {}
+  }
+
+  function resetBootTimeout(){
+    clearBootTimeout();
+    bootTimeout = setTimeout(() => {
+      showError('Player did not load. Check if the stream URL is valid, CORS is allowed, and the .m3u8 is reachable.');
+    }, 12000);
+  }
+
+  // ── Auto landscape on fullscreen ──
+  function lockLandscape(){
+    try {
+      const scr = screen.orientation || screen.msOrientation;
+      if (scr && scr.lock) scr.lock('landscape').catch(() => {});
+      else if (screen.lockOrientation) screen.lockOrientation('landscape');
+    } catch(e) {}
+  }
+  function unlockOrientation(){
+    try {
+      const scr = screen.orientation || screen.msOrientation;
+      if (scr && scr.unlock) scr.unlock();
+      else if (screen.unlockOrientation) screen.unlockOrientation();
+    } catch(e) {}
+  }
+  document.addEventListener('fullscreenchange', () => {
+    if (document.fullscreenElement) lockLandscape(); else unlockOrientation();
+  });
+  document.addEventListener('webkitfullscreenchange', () => {
+    if (document.webkitFullscreenElement) lockLandscape(); else unlockOrientation();
+  });
+
+  // iOS native fullscreen events
+  video.addEventListener('webkitbeginfullscreen', lockLandscape);
+  video.addEventListener('webkitendfullscreen', unlockOrientation);
+
+  // ── Build Hls.js ──
+  function buildHls(){
+    return new Hls({
+      startLevel:               -1,
+      capLevelToPlayerSize:     false,
+      abrEwmaDefaultEstimate:   2500000,
+      maxBufferLength:          60,
+      maxMaxBufferLength:       120,
+      maxBufferSize:            60 * 1000 * 1000,
+      backBufferLength:         30,
+      maxBufferHole:            0.5,
+      liveSyncDuration:         8,
+      liveMaxLatencyDuration:   15,
+      maxLiveSyncPlaybackRate:  1.05,
+      liveDurationInfinity:     true,
+      abrBandWidthFactor:       0.80,
+      abrBandWidthUpFactor:     0.70,
+      abrEwmaFastLive:          3.0,
+      abrEwmaSlowLive:          9.0,
+      nudgeOffset:              0.2,
+      nudgeMaxRetry:            5,
+      highBufferWatchdogPeriod: 2,
+      fragLoadingMaxRetry:      6,
+      fragLoadingRetryDelay:    400,
+      manifestLoadingMaxRetry:  6,
+      manifestLoadingRetryDelay:500,
+      levelLoadingMaxRetry:     4,
+      startFragPrefetch:        true,
+      maxFragLookUpTolerance:   0.25,
+      enableWorker:             true,
+      lowLatencyMode:           false,
+    });
+  }
+
+  function rebuildPlayer(reasonMsg){
+    if (_rebuilding) return;
+    _rebuilding = true;
+
+    if (_stallWatchdog) { try { clearInterval(_stallWatchdog); } catch(_){} _stallWatchdog = null; }
+    if (hls)  { try { hls.destroy(); }  catch(_){} hls  = null; }
+    if (plyr) { try { plyr.destroy(); } catch(_){} plyr = null; }
+
+    try { video.removeAttribute('src'); video.load(); } catch(_) {}
+
+    loader.classList.remove('off');
+    errBox.classList.remove('on');
+    statusEl.textContent = reasonMsg || 'Reconnecting to stream…';
+    resetBootTimeout();
+
+    setTimeout(() => {
+      _rebuilding = false;
+      startPlayback(DIRECT_SRC);
+    }, 500);
+  }
+
+  function startPlayback(srcUrl){
+    // iOS / Safari native HLS
+    if (!Hls.isSupported()){
+      if (video.canPlayType('application/vnd.apple.mpegurl')){
+        video.src = srcUrl;
+        if (plyr) { try { plyr.destroy(); } catch(_){} plyr = null; }
+        plyr = new Plyr(video, {
+          controls: ['play-large','play','progress','current-time','mute','volume','fullscreen'],
+        });
+
+        // On iOS inside iframe: Plyr fullscreen button calls requestFullscreen
+        // which is blocked — override it to use webkitEnterFullscreen instead
+        if (isIOS) {
+          plyr.on('ready', () => {
+            const fsBtn = document.querySelector('.plyr__controls button[data-plyr="fullscreen"]');
+            if (fsBtn) {
+              fsBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                iosFullscreen();
+              }, true);
+            }
+          });
+        }
+
+        video.play().then(showPlayer).catch(showPlayer);
+
+        let _lastTimeN = -1, _stalledTicksN = 0;
+        _stallWatchdog = setInterval(() => {
+          if (video.paused) return;
+          if (video.currentTime === _lastTimeN) {
+            _stalledTicksN++;
+            if (_stalledTicksN >= 4) {
+              _stalledTicksN = 0;
+              rebuildPlayer('Reconnecting to stream…');
+            }
+          } else { _stalledTicksN = 0; }
+          _lastTimeN = video.currentTime;
+        }, 3000);
+      } else {
+        showError('Your browser does not support HLS playback.');
+      }
+      return;
+    }
+
+    if (hls) { try { hls.destroy(); } catch(e){} hls = null; }
+    hls = buildHls();
+    hls.loadSource(srcUrl);
+    hls.attachMedia(video);
+
+    hls.on(Hls.Events.MANIFEST_PARSED, () => {
+      const sortedByHeight = hls.levels
+        .map((l, i) => ({ idx: i, height: l.height || 0, bw: l.bitrate || 0 }))
+        .sort((a, b) => b.height - a.height);
+
+      let lockIdx = -1;
+      const eligible = sortedByHeight.filter(l => l.height <= MAX_HEIGHT && l.height > 0);
+      if (eligible.length) {
+        lockIdx = eligible[0].idx;
+      } else if (sortedByHeight.length) {
+        lockIdx = sortedByHeight[sortedByHeight.length - 1].idx;
+      }
+      if (lockIdx !== -1 && hls.levels.length > 1) {
+        hls.currentLevel = lockIdx;
+      }
+
+      const seen = new Set(), qualities = [];
+      hls.levels.forEach(l => {
+        if (l.height && l.height <= MAX_HEIGHT && !seen.has(l.height)) {
+          seen.add(l.height); qualities.push(l.height);
+        }
+      });
+      qualities.sort((a, b) => b - a);
+
+      if (plyr) { try { plyr.destroy(); } catch(e){} plyr = null; }
+      plyr = new Plyr(video, {
+        controls: qualities.length > 1
+          ? ['play-large','play','progress','current-time','mute','volume','settings','fullscreen']
+          : ['play-large','play','progress','current-time','mute','volume','fullscreen'],
+        settings: ['quality'],
+        quality: {
+          default:  qualities[0] || 'default',
+          options:  qualities,
+          forced:   true,
+          onChange: q => {
+            let bestIdx = -1, bestBw = 0;
+            hls.levels.forEach((l, i) => {
+              if (l.height === q && l.bitrate > bestBw) { bestBw = l.bitrate; bestIdx = i; }
+            });
+            if (bestIdx !== -1) hls.currentLevel = bestIdx;
+          }
+        },
+        tooltips: { controls: true, seek: false },
+        invertTime: false,
+      });
+
+      video.play().then(showPlayer).catch(showPlayer);
+    });
+
+    let _lastTime = -1, _stalledTicks = 0;
+    _stallWatchdog = setInterval(() => {
+      if (!hls) return;
+      if (video.paused) { _stalledTicks = 0; _lastTime = video.currentTime; return; }
+
+      if (video.currentTime === _lastTime) {
+        _stalledTicks++;
+        if (_stalledTicks === 2) {
+          try {
+            const buf = video.buffered;
+            if (buf.length > 0) {
+              const edge = buf.end(buf.length - 1);
+              if (edge > video.currentTime + 0.3) {
+                video.currentTime = edge - 0.3;
+                video.play().catch(() => {});
+              } else {
+                hls.startLoad(-1);
+              }
+            } else {
+              hls.startLoad(-1);
+            }
+          } catch(_) {
+            try { hls.startLoad(-1); } catch(__) {}
+          }
+        } else if (_stalledTicks === 3) {
+          try { hls.recoverMediaError(); } catch(_) {}
+        } else if (_stalledTicks >= 4) {
+          _stalledTicks = 0;
+          _lastTime = -1;
+          rebuildPlayer('Reconnecting to stream…');
+          return;
+        }
+      } else {
+        _stalledTicks = 0;
+      }
+      _lastTime = video.currentTime;
+    }, 3000);
+
+    hls.on(Hls.Events.DESTROYING, () => {
+      if (_stallWatchdog) { try { clearInterval(_stallWatchdog); } catch(_){} _stallWatchdog = null; }
+    });
+
+    hls.on(Hls.Events.ERROR, (e, data) => {
+      if (!data.fatal) return;
+      switch (data.type) {
+        case Hls.ErrorTypes.NETWORK_ERROR:
+          try { hls.startLoad(); } catch(_){}
+          break;
+        case Hls.ErrorTypes.MEDIA_ERROR:
+          try { hls.recoverMediaError(); } catch(_){}
+          break;
+        default:
+          rebuildPlayer('Reconnecting to stream…');
+      }
+    });
+  }
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) return;
+    if (_rebuilding) return;
+
+    let stalled = false;
+    try {
+      const t = video.currentTime || 0;
+      const b = video.buffered;
+      let inBuffer = false;
+      for (let i = 0; i < b.length; i++) {
+        if (t >= b.start(i) && t <= b.end(i) + 0.5) { inBuffer = true; break; }
+      }
+      stalled = !inBuffer || video.readyState < 2;
+    } catch(e) { stalled = true; }
+
+    if (stalled) {
+      rebuildPlayer('Reconnecting to stream…');
+    } else if (video.paused) {
+      video.play().catch(() => {});
+    } else if (hls && typeof hls.liveSyncPosition === 'number') {
+      try {
+        const target = hls.liveSyncPosition;
+        if (target && video.currentTime < target - 20) video.currentTime = target;
+      } catch(e) {}
+    }
+  });
+
+  video.addEventListener('play',  () => { setTimeout(() => { wm.style.opacity = '.30'; }, 3000); });
+  video.addEventListener('pause', () => { wm.style.opacity = '.55'; });
+  document.addEventListener('mousemove', () => {
+    wm.style.opacity = '.55';
+    clearTimeout(window._wmTimer);
+    window._wmTimer = setTimeout(() => { if (!video.paused) wm.style.opacity = '.30'; }, 3000);
+  });
+  document.addEventListener('touchstart', () => {
+    wm.style.opacity = '.55';
+    clearTimeout(window._wmTimer);
+    window._wmTimer = setTimeout(() => { if (!video.paused) wm.style.opacity = '.30'; }, 3000);
+  });
+
+  startPlayback(DIRECT_SRC);
+
+})();
+</script>
+</body>
+</html>
