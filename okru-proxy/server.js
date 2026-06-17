@@ -39,10 +39,8 @@ const server = http.createServer((req, res) => {
 
   // ── Domain Protection ─────────────────────────────────────────────────────
   const ALLOWED_DOMAINS = [
-    'zetasports.online',
-    'localhost',
-    '127.0.0.1',
-    'lordatomic.github.io'
+    'mubthaseem.github.io',
+    'zeta-stream.blogspot.com'
   ];
 
   const RESTRICTION_IMAGE_URL = 'https://lordatomic.github.io/uefa/restriction.png';
