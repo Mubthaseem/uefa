@@ -37,35 +37,6 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  // Domain protection - restrict stream hotlinking
-  const referer = req.headers.referer || '';
-  const originHeader = req.headers.origin || '';
-  
-  const allowedDomains = [
-    'zetasports.online',
-    'localhost',
-    '127.0.0.1',
-    'lordatomic.github.io'
-  ];
-
-  const isAllowed = (urlStr) => {
-    if (!urlStr) return true; // Allow direct browser access or missing headers
-    try {
-      const host = urlStr.replace(/^https?:\/\//i, '').split('/')[0].split(':')[0].toLowerCase();
-      if (host === 'null') return true;
-      return allowedDomains.includes(host) || host.endsWith('.zetasports.online');
-    } catch (_) {
-      return false;
-    }
-  };
-
-  if (!isAllowed(referer) || !isAllowed(originHeader)) {
-    console.warn(`[Proxy Blocked] Unauthorized request. Origin: ${originHeader}, Referer: ${referer}`);
-    res.writeHead(403, { 'Content-Type': 'text/plain' });
-    res.end('Access Denied: Stream restricted to zetasports.online');
-    return;
-  }
-
   const parsedUrl = url.parse(req.url);
   const pathname = parsedUrl.pathname;
 
