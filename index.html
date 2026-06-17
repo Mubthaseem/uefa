@@ -299,8 +299,8 @@
   <div class="app-layout">
     <!-- Left: Video Section -->
     <div class="player-section">
-      <div data-shaka-player-container class="shaka-video-container" id="player-container">
-        <video data-shaka-player id="video" autoplay playsinline></video>
+      <div class="shaka-video-container" id="player-container">
+        <video id="video" autoplay playsinline></video>
         
         <!-- Floating ZETA SPORTS Watermark -->
         <div id="wm">
@@ -482,9 +482,9 @@
       }
     }
 
-    // Initialize Shaka Player
+    // Initialize Shaka Player manually (disables auto-init conflicts)
     async function initApp() {
-      console.log("initApp triggered.");
+      console.log("initApp triggered manually.");
       // Install polyfills
       shaka.polyfill.installAll();
 
@@ -497,19 +497,11 @@
       videoElement = document.getElementById("video");
       const playerContainer = document.getElementById("player-container");
       
-      console.log("Searching for auto-initialized UI on video element...");
-      // Retrieve auto-initialized UI
-      let ui = videoElement.ui;
-      if (!ui) {
-        console.log("No auto-initialized UI found. Creating manual Overlay...");
-        // Fallback to manual initialization if auto-init hasn't fired yet
-        ui = new shaka.ui.Overlay(new shaka.Player(videoElement), playerContainer, videoElement);
-      } else {
-        console.log("Found auto-initialized UI.");
-      }
+      console.log("Creating manual Player and Overlay instances...");
+      const player = new shaka.Player(videoElement);
+      const ui = new shaka.ui.Overlay(player, playerContainer, videoElement);
+      shakaPlayer = player;
       
-      shakaPlayer = ui.getPlayer();
-
       // Configure UI
       ui.configure({
         controlPanelElements: [
@@ -534,17 +526,11 @@
       selectServer("NTV");
     }
 
-    console.log("App script loaded. Checking Shaka Player UI status...");
-    if (window.shaka && shaka.ui && shaka.ui.Overlay) {
-      console.log("Shaka UI already loaded. Initializing player immediately...");
-      if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", initApp);
-      } else {
-        initApp();
-      }
+    // Run initialization as soon as page resources are ready
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", initApp);
     } else {
-      console.log("Waiting for shaka-ui-loaded event...");
-      document.addEventListener("shaka-ui-loaded", initApp);
+      initApp();
     }
   </script>
 </body>
