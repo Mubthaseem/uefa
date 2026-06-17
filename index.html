@@ -495,8 +495,13 @@
       videoElement = document.getElementById("video");
       const playerContainer = document.getElementById("player-container");
       
-      // Initialize Shaka UI
-      const ui = new shaka.ui.Overlay(new shaka.Player(videoElement), playerContainer, videoElement);
+      // Retrieve auto-initialized UI
+      let ui = videoElement.ui;
+      if (!ui) {
+        // Fallback to manual initialization if auto-init hasn't fired yet
+        ui = new shaka.ui.Overlay(new shaka.Player(videoElement), playerContainer, videoElement);
+      }
+      
       shakaPlayer = ui.getPlayer();
 
       // Configure UI
