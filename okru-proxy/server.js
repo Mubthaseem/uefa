@@ -37,48 +37,6 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  // ── Domain Protection ─────────────────────────────────────────────────────
-  const ALLOWED_DOMAINS = [
-    'mubthaseem.github.io',
-    'zeta-stream.blogspot.com'
-  ];
-
-  const RESTRICTION_IMAGE_URL = 'https://lordatomic.github.io/uefa/restriction.png';
-
-  // Returns false if the URL string contains an unauthorized host
-  function isDomainAllowed(urlStr) {
-    if (!urlStr) return true; // no header = direct/server access → allow
-    try {
-      const host = urlStr.replace(/^https?:\/\//i, '').split('/')[0].split(':')[0].toLowerCase();
-      if (host === 'null' || host === '') return true;
-      return ALLOWED_DOMAINS.includes(host);
-    } catch (_) {
-      return false;
-    }
-  }
-
-  // Serves a fake HLS M3U8 that shows the restriction image inside any player
-  function serveRestrictionStream(res) {
-    const restrictionM3U8 = [
-      '#EXTM3U',
-      '#EXT-X-VERSION:3',
-      '#EXT-X-TARGETDURATION:10',
-      '#EXT-X-MEDIA-SEQUENCE:0',
-      '#EXTINF:10.0,',
-      RESTRICTION_IMAGE_URL,
-      '#EXT-X-ENDLIST'
-    ].join('\n');
-
-    res.writeHead(200, { 'Content-Type': 'application/vnd.apple.mpegurl' });
-    res.end(restrictionM3U8);
-  }
-
-  // Check Referer and Origin headers
-  const referer = req.headers.referer || '';
-  const originHeader = req.headers.origin || '';
-
-  const isAuthorized = isDomainAllowed(referer) && isDomainAllowed(originHeader);
-
   const parsedUrl = url.parse(req.url);
   const pathname = parsedUrl.pathname;
 
@@ -86,12 +44,6 @@ const server = http.createServer((req, res) => {
   // Retrieves the OK.ru stream, rewrites the master playlist, and returns it.
   const streamMatch = pathname.match(/^\/stream\/(\d+)(?:\/index\.m3u8)?$/);
   if (streamMatch) {
-    // If unauthorized domain → serve restriction image as HLS
-    if (!isAuthorized) {
-      console.warn(`[Stream Blocked] Unauthorized request. Serving restriction stream. Origin: ${originHeader}, Referer: ${referer}`);
-      return serveRestrictionStream(res);
-    }
-
     const videoId = streamMatch[1];
     const okEmbedUrl = `https://ok.ru/videoembed/${videoId}`;
     
@@ -208,12 +160,6 @@ const server = http.createServer((req, res) => {
   // Proxies sub-playlists and stream segments.
   const proxyMatch = pathname.match(/^\/proxy\/(https?)\/([^\/]+)\/(.+)$/);
   if (proxyMatch) {
-    // If unauthorized domain → serve restriction image as HLS
-    if (!isAuthorized) {
-      console.warn(`[Proxy Blocked] Unauthorized segment request. Serving restriction stream.`);
-      return serveRestrictionStream(res);
-    }
-
     const protocol = proxyMatch[1];
     const domain = proxyMatch[2];
     const pathAndQuery = proxyMatch[3] + (parsedUrl.search || '');
