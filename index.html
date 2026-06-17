@@ -268,6 +268,15 @@
       background: rgba(255, 255, 255, 0.25);
     }
 
+    /* ── Fullscreen / Embed Mode (sidebar hidden) ── */
+    body.fullscreen-mode .sidebar-section {
+      display: none;
+    }
+    body.fullscreen-mode .player-section {
+      width: 100vw;
+      height: 100vh;
+    }
+
     /* ── Responsive Layout (Mobile/Tablet) ── */
     @media (max-width: 768px) {
       .app-layout {
@@ -563,11 +572,52 @@
         console.error("Shaka error event:", event.detail);
       });
 
-      // Build List & Load First Active Stream
+      // Build List
       buildServerList();
-      const firstEnabled = Object.keys(streams).find(id => streams[id].enabled !== false);
-      if (firstEnabled) {
-        selectServer(firstEnabled);
+
+      // ── URL PARAM: ?server1, ?server2, ?NTV, ?M6, etc. ──
+      // Get the raw query string (everything after '?')
+      const rawParam = window.location.search.replace('?', '').trim();
+
+      let targetId = null;
+      let useFullscreen = false;
+
+      if (rawParam) {
+        // Check if it's a numbered param: server1, server2 …
+        const numMatch = rawParam.match(/^server(\d+)$/i);
+        if (numMatch) {
+          // Get the Nth enabled stream (1-indexed)
+          const n = parseInt(numMatch[1], 10);
+          const enabledIds = Object.keys(streams).filter(id => streams[id].enabled !== false);
+          targetId = enabledIds[n - 1] || enabledIds[0];
+          useFullscreen = true;
+        } else {
+          // Check if it matches a stream ID directly (case-insensitive)
+          const directId = Object.keys(streams).find(
+            id => id.toLowerCase() === rawParam.toLowerCase()
+          );
+          if (directId) {
+            targetId = directId;
+            useFullscreen = true;
+          }
+        }
+      }
+
+      if (useFullscreen) {
+        // Hide sidebar — player fills full screen
+        document.body.classList.add('fullscreen-mode');
+        await selectServer(targetId);
+        // Request browser fullscreen automatically
+        const elem = document.getElementById('player-container');
+        if (elem.requestFullscreen) {
+          elem.requestFullscreen().catch(() => {});
+        } else if (elem.webkitRequestFullscreen) {
+          elem.webkitRequestFullscreen();
+        }
+      } else {
+        // Default: load first enabled stream, show sidebar
+        const firstEnabled = Object.keys(streams).find(id => streams[id].enabled !== false);
+        if (firstEnabled) selectServer(firstEnabled);
       }
     }
 
