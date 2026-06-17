@@ -1,0 +1,10 @@
+{
+  "name": "okru-proxy",
+  "version": "1.0.0",
+  "description": "OK.ru video stream bypass proxy",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {}
+}
