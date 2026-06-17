@@ -19,8 +19,11 @@
       --primary: #00e676;
       --primary-glow: rgba(0, 230, 118, 0.4);
       --bg-dark: #05070a;
-      --bg-card: rgba(15, 22, 36, 0.7);
-      --border-glow: rgba(0, 230, 118, 0.25);
+      --bg-sidebar: #0a0f1a;
+      --bg-card: rgba(255, 255, 255, 0.03);
+      --bg-card-hover: rgba(0, 230, 118, 0.06);
+      --bg-card-active: rgba(0, 230, 118, 0.12);
+      --border: rgba(255, 255, 255, 0.08);
       --text: #e2e8f0;
       --text-muted: #94a3b8;
     }
@@ -41,13 +44,37 @@
       overflow: hidden;
     }
 
+    /* ── App Layout (Split Screen) ── */
+    .app-layout {
+      display: flex;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .player-section {
+      flex: 1;
+      height: 100%;
+      position: relative;
+      background-color: #000;
+    }
+
+    .sidebar-section {
+      width: 340px;
+      height: 100%;
+      background-color: var(--bg-sidebar);
+      border-left: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      z-index: 10;
+    }
+
     /* ── Video Player Container ── */
     .shaka-video-container {
       position: absolute;
       inset: 0;
       width: 100%;
       height: 100%;
-      background-color: #000;
     }
 
     video {
@@ -119,108 +146,53 @@
       text-shadow: 0 1px 5px #000;
     }
 
-    /* ── Floating Action Buttons ── */
-    .floating-controls {
+    /* ── Floating Join Button ── */
+    #join-btn {
       position: absolute;
       top: 15px;
-      right: 15px;
+      left: 15px;
       z-index: 100;
-      display: flex;
-      gap: 10px;
-      transition: opacity 0.4s ease;
+      display: block;
+      height: 34px;
+      width: 110px;
+      color: #ccc;
+      border: 2px solid #ccc;
+      padding: 1px 0;
+      border-radius: 4px;
+      text-align: center;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 13px;
+      line-height: 28px;
+      letter-spacing: 1px;
+      background: rgba(0, 0, 0, 0.35);
+      backdrop-filter: blur(8px);
+      transition: all 0.3s ease;
     }
-    .shaka-controls-hide .floating-controls {
+    #join-btn:hover {
+      color: #fff;
+      border-color: #fff;
+      background: rgba(0, 0, 0, 0.55);
+    }
+    .shaka-controls-hide #join-btn {
       opacity: 0;
       pointer-events: none;
     }
-    .btn-action {
-      background: var(--bg-card);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      color: #fff;
-      padding: 8px 16px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-family: 'Rajdhani', sans-serif;
-      font-weight: 700;
-      font-size: 14px;
-      letter-spacing: 1px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      backdrop-filter: blur(8px);
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-      transition: all 0.3s ease;
-    }
-    .btn-action:hover {
-      border-color: var(--primary);
-      box-shadow: 0 0 15px var(--primary-glow);
-      transform: translateY(-1px);
-    }
-    .btn-action svg {
-      width: 16px;
-      height: 16px;
-      fill: currentColor;
-    }
 
-    /* ── Server Selection Sidebar ── */
-    .sidebar-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.5);
-      z-index: 200;
-      opacity: 0;
-      visibility: hidden;
-      backdrop-filter: blur(4px);
-      transition: all 0.4s ease;
-    }
-    .sidebar-overlay.active {
-      opacity: 1;
-      visibility: visible;
-    }
-    .sidebar {
-      position: fixed;
-      top: 0;
-      right: -320px;
-      width: 320px;
-      height: 100%;
-      background: rgba(10, 15, 26, 0.85);
-      backdrop-filter: blur(20px);
-      border-left: 1px solid rgba(255, 255, 255, 0.08);
-      z-index: 201;
-      box-shadow: -10px 0 30px rgba(0,0,0,0.5);
-      display: flex;
-      flex-direction: column;
-      transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .sidebar.active {
-      right: 0;
-    }
+    /* ── Server Selection Sidebar UI ── */
     .sidebar-header {
-      padding: 24px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      padding: 20px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(0, 0, 0, 0.15);
     }
     .sidebar-title {
-      font-size: 20px;
+      font-size: 18px;
       font-weight: 800;
       letter-spacing: 2px;
       color: #fff;
     }
     .sidebar-title span {
       color: var(--primary);
-    }
-    .btn-close {
-      background: none;
-      border: none;
-      color: var(--text-muted);
-      cursor: pointer;
-      font-size: 24px;
-      transition: color 0.3s;
-    }
-    .btn-close:hover {
-      color: #fff;
     }
     .server-list {
       flex: 1;
@@ -231,10 +203,10 @@
       gap: 10px;
     }
     .server-item {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.05);
+      background: var(--bg-card);
+      border: 1px solid rgba(255, 255, 255, 0.04);
       border-radius: 8px;
-      padding: 14px 18px;
+      padding: 12px 16px;
       cursor: pointer;
       display: flex;
       justify-content: space-between;
@@ -242,14 +214,14 @@
       transition: all 0.25s ease;
     }
     .server-item:hover {
-      background: rgba(0, 230, 118, 0.06);
-      border-color: rgba(0, 230, 118, 0.3);
-      transform: translateX(-3px);
+      background: var(--bg-card-hover);
+      border-color: rgba(0, 230, 118, 0.25);
+      transform: translateX(-2px);
     }
     .server-item.active {
-      background: rgba(0, 230, 118, 0.12);
+      background: var(--bg-card-active);
       border-color: var(--primary);
-      box-shadow: 0 0 10px rgba(0, 230, 118, 0.15);
+      box-shadow: 0 0 10px rgba(0, 230, 118, 0.1);
     }
     .server-details {
       display: flex;
@@ -281,38 +253,6 @@
       text-transform: uppercase;
     }
 
-    /* ── Floating Join Button ── */
-    #join-btn {
-      position: absolute;
-      top: 15px;
-      left: 15px;
-      z-index: 100;
-      display: block;
-      height: 34px;
-      width: 110px;
-      color: #ccc;
-      border: 2px solid #ccc;
-      padding: 1px 0;
-      border-radius: 4px;
-      text-align: center;
-      text-decoration: none;
-      font-weight: 700;
-      font-size: 13px;
-      line-height: 28px;
-      letter-spacing: 1px;
-      background: rgba(0, 0, 0, 0.35);
-      transition: all 0.3s ease;
-    }
-    #join-btn:hover {
-      color: #fff;
-      border-color: #fff;
-      background: rgba(0, 0, 0, 0.55);
-    }
-    .shaka-controls-hide #join-btn {
-      opacity: 0;
-      pointer-events: none;
-    }
-
     /* Custom Scrollbar */
     .server-list::-webkit-scrollbar {
       width: 6px;
@@ -327,45 +267,64 @@
     .server-list::-webkit-scrollbar-thumb:hover {
       background: rgba(255, 255, 255, 0.25);
     }
+
+    /* ── Responsive Layout (Mobile/Tablet) ── */
+    @media (max-width: 768px) {
+      .app-layout {
+        flex-direction: column;
+      }
+      .player-section {
+        width: 100%;
+        aspect-ratio: 16/9;
+        flex: none;
+        height: auto;
+      }
+      .sidebar-section {
+        width: 100%;
+        flex: 1;
+        border-left: none;
+        border-top: 1px solid var(--border);
+      }
+      #wm {
+        bottom: 55px;
+      }
+      .shaka-controls-hide #wm {
+        bottom: 15px;
+      }
+    }
   </style>
 </head>
 <body>
 
-  <!-- Shaka Player Container -->
-  <div data-shaka-player-container class="shaka-video-container" id="player-container">
-    <video data-shaka-player id="video" autoplay playsinline></video>
-    
-    <!-- Floating ZETA SPORTS Watermark -->
-    <div id="wm">
-      <div class="wm-rule"></div>
-      <div class="wm-inner">
-        <div class="wm-name">ZETA<span>SPORTS</span></div>
-        <div class="wm-url">zetasports.online</div>
+  <div class="app-layout">
+    <!-- Left: Video Section -->
+    <div class="player-section">
+      <div data-shaka-player-container class="shaka-video-container" id="player-container">
+        <video data-shaka-player id="video" autoplay playsinline></video>
+        
+        <!-- Floating ZETA SPORTS Watermark -->
+        <div id="wm">
+          <div class="wm-rule"></div>
+          <div class="wm-inner">
+            <div class="wm-name">ZETA<span>SPORTS</span></div>
+            <div class="wm-url">zetasports.online</div>
+          </div>
+          <div class="wm-rule r"></div>
+        </div>
       </div>
-      <div class="wm-rule r"></div>
+
+      <!-- Floating Join Button inside Player -->
+      <a href="https://telegram.me/+L7agYSmJVRNkZDFl" target="_blank" id="join-btn">Join us</a>
     </div>
-  </div>
 
-  <!-- Left: Join Us Link -->
-  <a href="https://telegram.me/+L7agYSmJVRNkZDFl" target="_blank" id="join-btn">Join us</a>
-
-  <!-- Right: Floating Menu Button -->
-  <div class="floating-controls">
-    <button class="btn-action" onclick="toggleSidebar(true)">
-      <svg viewBox="0 0 24 24"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
-      Select Server
-    </button>
-  </div>
-
-  <!-- Sidebar Overlay & Sidebar -->
-  <div class="sidebar-overlay" id="overlay" onclick="toggleSidebar(false)"></div>
-  <div class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-      <div class="sidebar-title">CHANNELS <span>LIST</span></div>
-      <button class="btn-close" onclick="toggleSidebar(false)">&times;</button>
-    </div>
-    <div class="server-list" id="server-list">
-      <!-- Generated Dynamically -->
+    <!-- Right: Server Selection Panel (Always Visible) -->
+    <div class="sidebar-section">
+      <div class="sidebar-header">
+        <div class="sidebar-title">UEFA <span>SERVERS</span></div>
+      </div>
+      <div class="server-list" id="server-list">
+        <!-- Generated Dynamically -->
+      </div>
     </div>
   </div>
 
@@ -468,19 +427,6 @@
     let shakaPlayer = null;
     let videoElement = null;
 
-    // Toggle Selection Sidebar
-    function toggleSidebar(open) {
-      const sidebar = document.getElementById("sidebar");
-      const overlay = document.getElementById("overlay");
-      if (open) {
-        sidebar.classList.add("active");
-        overlay.classList.add("active");
-      } else {
-        sidebar.classList.remove("active");
-        overlay.classList.remove("active");
-      }
-    }
-
     // Build Server List UI
     function buildServerList() {
       const container = document.getElementById("server-list");
@@ -506,7 +452,6 @@
         
         item.onclick = () => {
           selectServer(id);
-          toggleSidebar(false);
         };
         
         container.appendChild(item);
