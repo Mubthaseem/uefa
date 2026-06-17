@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, viewport-fit=cover">
+  <title>ZETA SPORTS – Premium Live Player</title>
+  
+  <!-- Shaka Player UI & Controls -->
+  <script src="https://cdn.jsdelivr.net/npm/shaka-player@4.16.2/dist/shaka-player.ui.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/shaka-player@4.16.2/dist/controls.min.css">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@500;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --primary: #00e676;
+      --primary-glow: rgba(0, 230, 118, 0.4);
+      --bg-dark: #05070a;
+      --bg-card: rgba(15, 22, 36, 0.7);
+      --border-glow: rgba(0, 230, 118, 0.25);
+      --text: #e2e8f0;
+      --text-muted: #94a3b8;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      outline: none;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      background-color: var(--bg-dark);
+      color: var(--text);
+      font-family: 'Rajdhani', sans-serif;
+      overflow: hidden;
+    }
+
+    /* ── Video Player Container ── */
+    .shaka-video-container {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #000;
+    }
+
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    /* Override Shaka UI colors to match green theme */
+    .shaka-range-element {
+      color: var(--primary) !important;
+    }
+    .shaka-spinner-path {
+      stroke: var(--primary) !important;
+    }
+
+    /* ── Floating Watermark ── */
+    #wm {
+      position: absolute;
+      bottom: 75px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      pointer-events: none;
+      user-select: none;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      opacity: 0.6;
+      transition: opacity 0.4s ease, bottom 0.4s ease;
+    }
+    .shaka-controls-hide #wm {
+      opacity: 0.35;
+      bottom: 25px;
+    }
+    .wm-rule {
+      width: 20px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--primary));
+    }
+    .wm-rule.r {
+      background: linear-gradient(90deg, var(--primary), transparent);
+    }
+    .wm-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1px;
+    }
+    .wm-name {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 18px;
+      letter-spacing: 4px;
+      line-height: 1;
+      color: #fff;
+      white-space: nowrap;
+      text-shadow: 0 2px 10px #000, 0 0 20px rgba(0, 230, 118, 0.3);
+    }
+    .wm-name span {
+      color: var(--primary);
+    }
+    .wm-url {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      color: rgba(255, 255, 255, 0.7);
+      white-space: nowrap;
+      text-transform: uppercase;
+      text-shadow: 0 1px 5px #000;
+    }
+
+    /* ── Floating Action Buttons ── */
+    .floating-controls {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      z-index: 100;
+      display: flex;
+      gap: 10px;
+      transition: opacity 0.4s ease;
+    }
+    .shaka-controls-hide .floating-controls {
+      opacity: 0;
+      pointer-events: none;
+    }
+    .btn-action {
+      background: var(--bg-card);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      transition: all 0.3s ease;
+    }
+    .btn-action:hover {
+      border-color: var(--primary);
+      box-shadow: 0 0 15px var(--primary-glow);
+      transform: translateY(-1px);
+    }
+    .btn-action svg {
+      width: 16px;
+      height: 16px;
+      fill: currentColor;
+    }
+
+    /* ── Server Selection Sidebar ── */
+    .sidebar-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 200;
+      opacity: 0;
+      visibility: hidden;
+      backdrop-filter: blur(4px);
+      transition: all 0.4s ease;
+    }
+    .sidebar-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+    .sidebar {
+      position: fixed;
+      top: 0;
+      right: -320px;
+      width: 320px;
+      height: 100%;
+      background: rgba(10, 15, 26, 0.85);
+      backdrop-filter: blur(20px);
+      border-left: 1px solid rgba(255, 255, 255, 0.08);
+      z-index: 201;
+      box-shadow: -10px 0 30px rgba(0,0,0,0.5);
+      display: flex;
+      flex-direction: column;
+      transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .sidebar.active {
+      right: 0;
+    }
+    .sidebar-header {
+      padding: 24px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .sidebar-title {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      color: #fff;
+    }
+    .sidebar-title span {
+      color: var(--primary);
+    }
+    .btn-close {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 24px;
+      transition: color 0.3s;
+    }
+    .btn-close:hover {
+      color: #fff;
+    }
+    .server-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .server-item {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      padding: 14px 18px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.25s ease;
+    }
+    .server-item:hover {
+      background: rgba(0, 230, 118, 0.06);
+      border-color: rgba(0, 230, 118, 0.3);
+      transform: translateX(-3px);
+    }
+    .server-item.active {
+      background: rgba(0, 230, 118, 0.12);
+      border-color: var(--primary);
+      box-shadow: 0 0 10px rgba(0, 230, 118, 0.15);
+    }
+    .server-details {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .server-name {
+      font-weight: 700;
+      font-size: 15px;
+      color: #fff;
+    }
+    .server-item.active .server-name {
+      color: var(--primary);
+    }
+    .server-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+      letter-spacing: 1px;
+    }
+    .badge-vpn {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #f87171;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    /* ── Floating Join Button ── */
+    #join-btn {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      z-index: 100;
+      display: block;
+      height: 34px;
+      width: 110px;
+      color: #ccc;
+      border: 2px solid #ccc;
+      padding: 1px 0;
+      border-radius: 4px;
+      text-align: center;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 13px;
+      line-height: 28px;
+      letter-spacing: 1px;
+      background: rgba(0, 0, 0, 0.35);
+      transition: all 0.3s ease;
+    }
+    #join-btn:hover {
+      color: #fff;
+      border-color: #fff;
+      background: rgba(0, 0, 0, 0.55);
+    }
+    .shaka-controls-hide #join-btn {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* Custom Scrollbar */
+    .server-list::-webkit-scrollbar {
+      width: 6px;
+    }
+    .server-list::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .server-list::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+    }
+    .server-list::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Shaka Player Container -->
+  <div data-shaka-player-container class="shaka-video-container" id="player-container">
+    <video data-shaka-player id="video" autoplay playsinline></video>
+    
+    <!-- Floating ZETA SPORTS Watermark -->
+    <div id="wm">
+      <div class="wm-rule"></div>
+      <div class="wm-inner">
+        <div class="wm-name">ZETA<span>SPORTS</span></div>
+        <div class="wm-url">zetasports.online</div>
+      </div>
+      <div class="wm-rule r"></div>
+    </div>
+  </div>
+
+  <!-- Left: Join Us Link -->
+  <a href="https://telegram.me/+L7agYSmJVRNkZDFl" target="_blank" id="join-btn">Join us</a>
+
+  <!-- Right: Floating Menu Button -->
+  <div class="floating-controls">
+    <button class="btn-action" onclick="toggleSidebar(true)">
+      <svg viewBox="0 0 24 24"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
+      Select Server
+    </button>
+  </div>
+
+  <!-- Sidebar Overlay & Sidebar -->
+  <div class="sidebar-overlay" id="overlay" onclick="toggleSidebar(false)"></div>
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-title">CHANNELS <span>LIST</span></div>
+      <button class="btn-close" onclick="toggleSidebar(false)">&times;</button>
+    </div>
+    <div class="server-list" id="server-list">
+      <!-- Generated Dynamically -->
+    </div>
+  </div>
+
+  <script>
+    // Stream configuration dataset
+    const streams = {
+      NTV: {
+        name: "NTV English HD",
+        url: "https://qp-pldt-live-bpk-ucd-prod.akamaized.net/bpk-tv/ch299/default/index.mpd",
+        keys: { "549ab7cd35a64bb6bb479ecead04d69d": "829799ed534d11fcadeb4b192467e050" },
+        meta: "FHD · Multi-Audio",
+        vpn: false
+      },
+      TELE: {
+        name: "Telemundo HD",
+        url: "https://live-oneapp-prd-news.akamaized.net/Content/CMAF_OL2-CTR-4s-v2/Live/channel(kvea)/master.mpd",
+        keys: { "ce7ab3022e753307997f58afe001bac4": "72d631a66e635c60829a0fe7705516c1" },
+        meta: "HD · Spanish Commentary",
+        vpn: false
+      },
+      M6: {
+        name: "M6 France HD [50FPS]",
+        url: "https://origin-m6web.live.6cloud.fr/out/v1/6play/6play-m6/cmaf_cenc00/dash-short-hd.mpd",
+        keys: { "433ffba670963e70857859a9dff4be04": "51ede3a821229fe81e71282c8eff80e3" },
+        meta: "HD · French Commentary",
+        vpn: false
+      },
+      TIPIK: {
+        name: "Tipik France HD",
+        url: "https://c9851ec-rbm-hilv-fsly.cdn.redbee.live/L26/6b640fa2/a765d074.isml/dash/.mpd",
+        keys: { "adca25b8779e4168a0cd710f59f61ccf": "be5383ed3cd8079f4ffe78ad067f476a" },
+        meta: "HD · French Commentary",
+        vpn: false
+      },
+      DS: {
+        name: "DSports Argentina HD",
+        url: "https://otte.live.fly.ww.aiv-cdn.net/gru-nitro/live/clients/dash/enc/ubehitlwzo/out/v1/8e09c381a51f4366a19e979418112e8f/cenc.mpd",
+        keys: { "a7d11d37a1f7611ee88d4db880171f32": "68f96d618b0b956b008c445896a25a79" },
+        meta: "HD · Spanish Commentary",
+        vpn: false
+      },
+      VIX: {
+        name: "Vix Spanish HD",
+        url: "https://otte.live.fly.ww.aiv-cdn.net/gru-nitro/live/clients/dash/enc/8u9cregwlt/out/v1/687f6b2a559943549be271504a948ffd/cenc.mpd",
+        keys: { "1710ac2bbfcd3032d0f6533850968f47": "d2548dacc8efcd1cd0af0373060c82dc" },
+        meta: "HD · Spanish Commentary",
+        vpn: false
+      },
+      SPZA: {
+        name: "VRT Dutch HD [50FPS]",
+        url: "https://live.vrtcdn.be/groupd/live/0761024f-37fe-4254-bc37-e95d7c62b2d1/live.isml/.mpd",
+        keys: { "893bc63340876605f52886a42e0ccce5": "d6c46d2d691056fbd091bf1f01b21a91" },
+        meta: "HD · Dutch Commentary",
+        vpn: false
+      },
+      CAZE1: {
+        name: "CazeTV Brasil HD",
+        url: "https://a121aivottepl-a.akamaihd.net/gru-nitro/live/clients/dash/enc/jo3rmhhp2r/out/v1/50656942ce4e40a1be824c9d83578fe9/cenc.mpd",
+        keys: { "34475edab991ad5e92548aebd710410a": "501b209cccd323ac00bf5ac15b406cb4" },
+        meta: "HD · Portuguese Commentary",
+        vpn: false
+      },
+      FOX: {
+        name: "Fox 60FPS [USA]",
+        url: "https://a26live-pv-ta-amazon.akamaized.net/iad-nitro/live/clients/dash/enc/ajfoeddkbz/out/v1/b78800b9b2304879b15843f455836829/cenc.mpd",
+        keys: { "f6564ec2aee819046328a0e153be574d": "ff46a8a1031eb27ef22576a077c98ab7" },
+        meta: "60 FPS · English Commentary",
+        vpn: "USA"
+      },
+      FOX4K: {
+        name: "Fox 4K UHD [USA]",
+        url: "https://live-pv-ta.amazon.fastly-edge.com/pdx-nitro/live/clients/dash/enc/stxrbahabo/out/v1/fc40f22f10374517a2784e1d97cb23f4/cenc.mpd",
+        keys: { "1f68713028d439ec03be07f56c1d6213": "20093db6455160fffed4c394def3193d" },
+        meta: "4K UHD · English Commentary",
+        vpn: "USA"
+      },
+      FB4K: {
+        name: "Fussball 4K UHD [GER]",
+        url: "https://svc45.main.sl.t-online.de/bpk-tv/KID01037_FUSSBALLTV1_uhd/DASH/index.mpd",
+        keys: { "1f09d5788fbbb03a053d03cc731f31a9": "d493d5a70c793362324638f61d1726ac" },
+        meta: "4K UHD · German Commentary",
+        vpn: "Germany"
+      },
+      U1: {
+        name: "iOS Link 1 - HLS",
+        url: "https://live05.msdht.app/live/24561735.m3u8",
+        keys: { "493eab903cf5a797e731d6e5c8d30c98": "353930004d8da5907ccf70a5ff776f45" },
+        meta: "iOS/Safari Friendly · Worldwide",
+        vpn: false
+      },
+      U2: {
+        name: "TRT 2K FHD / iOS Link 2",
+        url: "https://tv-trt1-esdai.medya.trt.com.tr/master.m3u8",
+        keys: { "43513b13f4b542e39c9265921dfc1726": "b0b2678bcd274c37b888a6c987d502ed" },
+        meta: "2K FHD · Turkish Commentary",
+        vpn: false
+      }
+    };
+
+    let shakaPlayer = null;
+    let videoElement = null;
+
+    // Toggle Selection Sidebar
+    function toggleSidebar(open) {
+      const sidebar = document.getElementById("sidebar");
+      const overlay = document.getElementById("overlay");
+      if (open) {
+        sidebar.classList.add("active");
+        overlay.classList.add("active");
+      } else {
+        sidebar.classList.remove("active");
+        overlay.classList.remove("active");
+      }
+    }
+
+    // Build Server List UI
+    function buildServerList() {
+      const container = document.getElementById("server-list");
+      container.innerHTML = "";
+      
+      Object.entries(streams).forEach(([id, stream]) => {
+        const item = document.createElement("div");
+        item.className = "server-item";
+        item.id = `server-${id}`;
+        
+        let vpnBadge = "";
+        if (stream.vpn) {
+          vpnBadge = `<span class="badge-vpn">${stream.vpn} VPN</span>`;
+        }
+
+        item.innerHTML = `
+          <div class="server-details">
+            <span class="server-name">${stream.name}</span>
+            <span class="server-meta">${stream.meta}</span>
+          </div>
+          ${vpnBadge}
+        `;
+        
+        item.onclick = () => {
+          selectServer(id);
+          toggleSidebar(false);
+        };
+        
+        container.appendChild(item);
+      });
+    }
+
+    // Load selected stream
+    async function selectServer(id) {
+      const stream = streams[id];
+      if (!stream) return;
+
+      // Update active styling
+      document.querySelectorAll(".server-item").forEach(item => item.classList.remove("active"));
+      const activeItem = document.getElementById(`server-${id}`);
+      if (activeItem) activeItem.classList.add("active");
+
+      // Load into player
+      try {
+        shakaPlayer.configure({
+          drm: {
+            clearKeys: stream.keys
+          }
+        });
+        await shakaPlayer.load(stream.url);
+        console.log(`Stream ${id} loaded successfully.`);
+      } catch (error) {
+        console.error(`Error loading stream ${id}:`, error);
+      }
+    }
+
+    // Initialize Shaka Player
+    async function initApp() {
+      // Install polyfills
+      shaka.polyfill.installAll();
+
+      if (!shaka.Player.isBrowserSupported()) {
+        alert("Browser not supported by Shaka Player!");
+        return;
+      }
+
+      videoElement = document.getElementById("video");
+      const playerContainer = document.getElementById("player-container");
+      
+      // Initialize Shaka UI
+      const ui = new shaka.ui.Overlay(new shaka.Player(videoElement), playerContainer, videoElement);
+      shakaPlayer = ui.getPlayer();
+
+      // Configure UI
+      ui.configure({
+        controlPanelElements: [
+          "play_pause",
+          "mute",
+          "volume",
+          "time_and_duration",
+          "spacer",
+          "quality",
+          "fullscreen",
+          "overflow_menu"
+        ]
+      });
+
+      // Handle player errors
+      shakaPlayer.addEventListener("error", (event) => {
+        console.error("Shaka error event:", event.detail);
+      });
+
+      // Build List & Load Default Stream
+      buildServerList();
+      selectServer("NTV");
+    }
+
+    document.addEventListener("shaka-ui-loaded", initApp);
+  </script>
+</body>
+</html>
