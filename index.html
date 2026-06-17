@@ -329,110 +329,152 @@
   </div>
 
   <script>
-    // Stream configuration dataset
+    // === STREAM_DATA_START ===
     const streams = {
-      NTV: {
-        name: "NTV English HD",
-        url: "https://qp-pldt-live-bpk-ucd-prod.akamaized.net/bpk-tv/ch299/default/index.mpd",
-        keys: { "549ab7cd35a64bb6bb479ecead04d69d": "829799ed534d11fcadeb4b192467e050" },
-        meta: "FHD · Multi-Audio",
-        vpn: false
-      },
-      TELE: {
-        name: "Telemundo HD",
-        url: "https://live-oneapp-prd-news.akamaized.net/Content/CMAF_OL2-CTR-4s-v2/Live/channel(kvea)/master.mpd",
-        keys: { "ce7ab3022e753307997f58afe001bac4": "72d631a66e635c60829a0fe7705516c1" },
-        meta: "HD · Spanish Commentary",
-        vpn: false
-      },
-      M6: {
-        name: "M6 France HD [50FPS]",
-        url: "https://origin-m6web.live.6cloud.fr/out/v1/6play/6play-m6/cmaf_cenc00/dash-short-hd.mpd",
-        keys: { "433ffba670963e70857859a9dff4be04": "51ede3a821229fe81e71282c8eff80e3" },
-        meta: "HD · French Commentary",
-        vpn: false
-      },
-      TIPIK: {
-        name: "Tipik France HD",
-        url: "https://c9851ec-rbm-hilv-fsly.cdn.redbee.live/L26/6b640fa2/a765d074.isml/dash/.mpd",
-        keys: { "adca25b8779e4168a0cd710f59f61ccf": "be5383ed3cd8079f4ffe78ad067f476a" },
-        meta: "HD · French Commentary",
-        vpn: false
-      },
-      DS: {
-        name: "DSports Argentina HD",
-        url: "https://otte.live.fly.ww.aiv-cdn.net/gru-nitro/live/clients/dash/enc/ubehitlwzo/out/v1/8e09c381a51f4366a19e979418112e8f/cenc.mpd",
-        keys: { "a7d11d37a1f7611ee88d4db880171f32": "68f96d618b0b956b008c445896a25a79" },
-        meta: "HD · Spanish Commentary",
-        vpn: false
-      },
-      VIX: {
-        name: "Vix Spanish HD",
-        url: "https://otte.live.fly.ww.aiv-cdn.net/gru-nitro/live/clients/dash/enc/8u9cregwlt/out/v1/687f6b2a559943549be271504a948ffd/cenc.mpd",
-        keys: { "1710ac2bbfcd3032d0f6533850968f47": "d2548dacc8efcd1cd0af0373060c82dc" },
-        meta: "HD · Spanish Commentary",
-        vpn: false
-      },
-      SPZA: {
-        name: "VRT Dutch HD [50FPS]",
-        url: "https://live.vrtcdn.be/groupd/live/0761024f-37fe-4254-bc37-e95d7c62b2d1/live.isml/.mpd",
-        keys: { "893bc63340876605f52886a42e0ccce5": "d6c46d2d691056fbd091bf1f01b21a91" },
-        meta: "HD · Dutch Commentary",
-        vpn: false
-      },
-      CAZE1: {
-        name: "CazeTV Brasil HD",
-        url: "https://a121aivottepl-a.akamaihd.net/gru-nitro/live/clients/dash/enc/jo3rmhhp2r/out/v1/50656942ce4e40a1be824c9d83578fe9/cenc.mpd",
-        keys: { "34475edab991ad5e92548aebd710410a": "501b209cccd323ac00bf5ac15b406cb4" },
-        meta: "HD · Portuguese Commentary",
-        vpn: false
-      },
-      FOX: {
-        name: "Fox 60FPS [USA]",
-        url: "https://a26live-pv-ta-amazon.akamaized.net/iad-nitro/live/clients/dash/enc/ajfoeddkbz/out/v1/b78800b9b2304879b15843f455836829/cenc.mpd",
-        keys: { "f6564ec2aee819046328a0e153be574d": "ff46a8a1031eb27ef22576a077c98ab7" },
-        meta: "60 FPS · English Commentary",
-        vpn: "USA"
-      },
-      FOX4K: {
-        name: "Fox 4K UHD [USA]",
-        url: "https://live-pv-ta.amazon.fastly-edge.com/pdx-nitro/live/clients/dash/enc/stxrbahabo/out/v1/fc40f22f10374517a2784e1d97cb23f4/cenc.mpd",
-        keys: { "1f68713028d439ec03be07f56c1d6213": "20093db6455160fffed4c394def3193d" },
-        meta: "4K UHD · English Commentary",
-        vpn: "USA"
-      },
-      FB4K: {
-        name: "Fussball 4K UHD [GER]",
-        url: "https://svc45.main.sl.t-online.de/bpk-tv/KID01037_FUSSBALLTV1_uhd/DASH/index.mpd",
-        keys: { "1f09d5788fbbb03a053d03cc731f31a9": "d493d5a70c793362324638f61d1726ac" },
-        meta: "4K UHD · German Commentary",
-        vpn: "Germany"
-      },
-      U1: {
-        name: "iOS Link 1 - HLS",
-        url: "https://live05.msdht.app/live/24561735.m3u8",
-        keys: { "493eab903cf5a797e731d6e5c8d30c98": "353930004d8da5907ccf70a5ff776f45" },
-        meta: "iOS/Safari Friendly · Worldwide",
-        vpn: false
-      },
-      U2: {
-        name: "TRT 2K FHD / iOS Link 2",
-        url: "https://tv-trt1-esdai.medya.trt.com.tr/master.m3u8",
-        keys: { "43513b13f4b542e39c9265921dfc1726": "b0b2678bcd274c37b888a6c987d502ed" },
-        meta: "2K FHD · Turkish Commentary",
-        vpn: false
-      }
-    };
+  "NTV": {
+    "name": "NTV English HD",
+    "url": "https://qp-pldt-live-bpk-ucd-prod.akamaized.net/bpk-tv/ch299/default/index.mpd",
+    "keys": {
+      "549ab7cd35a64bb6bb479ecead04d69d": "829799ed534d11fcadeb4b192467e050"
+    },
+    "meta": "FHD · Multi-Audio",
+    "vpn": "",
+    "enabled": false
+  },
+  "TELE": {
+    "name": "Telemundo HD",
+    "url": "https://live-oneapp-prd-news.akamaized.net/Content/CMAF_OL2-CTR-4s-v2/Live/channel(kvea)/master.mpd",
+    "keys": {
+      "ce7ab3022e753307997f58afe001bac4": "72d631a66e635c60829a0fe7705516c1"
+    },
+    "meta": "HD · Spanish Commentary",
+    "vpn": "",
+    "enabled": false
+  },
+  "M6": {
+    "name": "M6 France HD [50FPS]",
+    "url": "https://origin-m6web.live.6cloud.fr/out/v1/6play/6play-m6/cmaf_cenc00/dash-short-hd.mpd",
+    "keys": {
+      "433ffba670963e70857859a9dff4be04": "51ede3a821229fe81e71282c8eff80e3"
+    },
+    "meta": "HD · French Commentary",
+    "vpn": "",
+    "enabled": true
+  },
+  "TIPIK": {
+    "name": "Tipik France HD",
+    "url": "https://c9851ec-rbm-hilv-fsly.cdn.redbee.live/L26/6b640fa2/a765d074.isml/dash/.mpd",
+    "keys": {
+      "adca25b8779e4168a0cd710f59f61ccf": "be5383ed3cd8079f4ffe78ad067f476a"
+    },
+    "meta": "HD · French Commentary",
+    "vpn": "",
+    "enabled": true
+  },
+  "DS": {
+    "name": "DSports Argentina HD",
+    "url": "https://otte.live.fly.ww.aiv-cdn.net/gru-nitro/live/clients/dash/enc/ubehitlwzo/out/v1/8e09c381a51f4366a19e979418112e8f/cenc.mpd",
+    "keys": {
+      "a7d11d37a1f7611ee88d4db880171f32": "68f96d618b0b956b008c445896a25a79"
+    },
+    "meta": "HD · Spanish Commentary",
+    "vpn": "",
+    "enabled": false
+  },
+  "VIX": {
+    "name": "Vix Spanish HD",
+    "url": "https://otte.live.fly.ww.aiv-cdn.net/gru-nitro/live/clients/dash/enc/8u9cregwlt/out/v1/687f6b2a559943549be271504a948ffd/cenc.mpd",
+    "keys": {
+      "1710ac2bbfcd3032d0f6533850968f47": "d2548dacc8efcd1cd0af0373060c82dc"
+    },
+    "meta": "HD · Spanish Commentary",
+    "vpn": "",
+    "enabled": true
+  },
+  "SPZA": {
+    "name": "VRT Dutch HD [50FPS]",
+    "url": "https://live.vrtcdn.be/groupd/live/0761024f-37fe-4254-bc37-e95d7c62b2d1/live.isml/.mpd",
+    "keys": {
+      "893bc63340876605f52886a42e0ccce5": "d6c46d2d691056fbd091bf1f01b21a91"
+    },
+    "meta": "HD · Dutch Commentary",
+    "vpn": "",
+    "enabled": true
+  },
+  "CAZE1": {
+    "name": "CazeTV Brasil HD",
+    "url": "https://a121aivottepl-a.akamaihd.net/gru-nitro/live/clients/dash/enc/jo3rmhhp2r/out/v1/50656942ce4e40a1be824c9d83578fe9/cenc.mpd",
+    "keys": {
+      "34475edab991ad5e92548aebd710410a": "501b209cccd323ac00bf5ac15b406cb4"
+    },
+    "meta": "HD · Portuguese Commentary",
+    "vpn": "",
+    "enabled": true
+  },
+  "FOX": {
+    "name": "Fox 60FPS [USA]",
+    "url": "https://a26live-pv-ta-amazon.akamaized.net/iad-nitro/live/clients/dash/enc/ajfoeddkbz/out/v1/b78800b9b2304879b15843f455836829/cenc.mpd",
+    "keys": {
+      "f6564ec2aee819046328a0e153be574d": "ff46a8a1031eb27ef22576a077c98ab7"
+    },
+    "meta": "60 FPS · English Commentary",
+    "vpn": "USA",
+    "enabled": true
+  },
+  "FOX4K": {
+    "name": "Fox 4K UHD [USA]",
+    "url": "https://live-pv-ta.amazon.fastly-edge.com/pdx-nitro/live/clients/dash/enc/stxrbahabo/out/v1/fc40f22f10374517a2784e1d97cb23f4/cenc.mpd",
+    "keys": {
+      "1f68713028d439ec03be07f56c1d6213": "20093db6455160fffed4c394def3193d"
+    },
+    "meta": "4K UHD · English Commentary",
+    "vpn": "USA",
+    "enabled": false
+  },
+  "FB4K": {
+    "name": "Fussball 4K UHD [GER]",
+    "url": "https://svc45.main.sl.t-online.de/bpk-tv/KID01037_FUSSBALLTV1_uhd/DASH/index.mpd",
+    "keys": {
+      "1f09d5788fbbb03a053d03cc731f31a9": "d493d5a70c793362324638f61d1726ac"
+    },
+    "meta": "4K UHD · German Commentary",
+    "vpn": "Germany",
+    "enabled": false
+  },
+  "U1": {
+    "name": "iOS Link 1 - HLS",
+    "url": "https://live05.msdht.app/live/24561735.m3u8",
+    "keys": {
+      "493eab903cf5a797e731d6e5c8d30c98": "353930004d8da5907ccf70a5ff776f45"
+    },
+    "meta": "iOS/Safari Friendly · Worldwide",
+    "vpn": "",
+    "enabled": true
+  },
+  "U2": {
+    "name": "TRT 2K FHD / iOS Link 2",
+    "url": "https://tv-trt1-esdai.medya.trt.com.tr/master.m3u8",
+    "keys": {
+      "43513b13f4b542e39c9265921dfc1726": "b0b2678bcd274c37b888a6c987d502ed"
+    },
+    "meta": "2K FHD · Turkish Commentary",
+    "vpn": "",
+    "enabled": false
+  }
+};
+    // === STREAM_DATA_END ===
 
     let shakaPlayer = null;
     let videoElement = null;
 
-    // Build Server List UI
+    // Build Server List UI (only rendering active/enabled streams)
     function buildServerList() {
       const container = document.getElementById("server-list");
       container.innerHTML = "";
       
       Object.entries(streams).forEach(([id, stream]) => {
+        if (stream.enabled === false) return; // Skip offline streams
+
         const item = document.createElement("div");
         item.className = "server-item";
         item.id = `server-${id}`;
@@ -521,9 +563,12 @@
         console.error("Shaka error event:", event.detail);
       });
 
-      // Build List & Load Default Stream
+      // Build List & Load First Active Stream
       buildServerList();
-      selectServer("NTV");
+      const firstEnabled = Object.keys(streams).find(id => streams[id].enabled !== false);
+      if (firstEnabled) {
+        selectServer(firstEnabled);
+      }
     }
 
     // Run initialization as soon as page resources are ready
