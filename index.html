@@ -484,10 +484,12 @@
 
     // Initialize Shaka Player
     async function initApp() {
+      console.log("initApp triggered.");
       // Install polyfills
       shaka.polyfill.installAll();
 
       if (!shaka.Player.isBrowserSupported()) {
+        console.error("Browser not supported by Shaka Player!");
         alert("Browser not supported by Shaka Player!");
         return;
       }
@@ -495,11 +497,15 @@
       videoElement = document.getElementById("video");
       const playerContainer = document.getElementById("player-container");
       
+      console.log("Searching for auto-initialized UI on video element...");
       // Retrieve auto-initialized UI
       let ui = videoElement.ui;
       if (!ui) {
+        console.log("No auto-initialized UI found. Creating manual Overlay...");
         // Fallback to manual initialization if auto-init hasn't fired yet
         ui = new shaka.ui.Overlay(new shaka.Player(videoElement), playerContainer, videoElement);
+      } else {
+        console.log("Found auto-initialized UI.");
       }
       
       shakaPlayer = ui.getPlayer();
@@ -528,7 +534,18 @@
       selectServer("NTV");
     }
 
-    document.addEventListener("shaka-ui-loaded", initApp);
+    console.log("App script loaded. Checking Shaka Player UI status...");
+    if (window.shaka && shaka.ui && shaka.ui.Overlay) {
+      console.log("Shaka UI already loaded. Initializing player immediately...");
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initApp);
+      } else {
+        initApp();
+      }
+    } else {
+      console.log("Waiting for shaka-ui-loaded event...");
+      document.addEventListener("shaka-ui-loaded", initApp);
+    }
   </script>
 </body>
 </html>
