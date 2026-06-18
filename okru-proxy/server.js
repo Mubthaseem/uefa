@@ -106,9 +106,12 @@ const server = http.createServer((req, res) => {
               
               const absoluteUrl = new URL(trimmed, masterPlaylistUrl).href;
               const parsed = url.parse(absoluteUrl);
-              const cleanProto = parsed.protocol.replace(':', '');
-              const rest = absoluteUrl.substring(parsed.protocol.length + 2);
-              return `${baseUrl}/${cleanProto}/${rest}`;
+              if (parsed.pathname && parsed.pathname.endsWith('.m3u8')) {
+                const cleanProto = parsed.protocol.replace(':', '');
+                const rest = absoluteUrl.substring(parsed.protocol.length + 2);
+                return `${baseUrl}/${cleanProto}/${rest}`;
+              }
+              return absoluteUrl;
             });
 
             const rewritten = rewrittenLines.join('\n');
@@ -203,7 +206,7 @@ const server = http.createServer((req, res) => {
       res.writeHead(proxyRes.statusCode, responseHeaders);
 
       if (isPlaylist) {
-        // Rewrite sub-playlist absolute URLs
+        // Rewrite sub-playlist URLs
         let playlistBody = '';
         proxyRes.on('data', chunk => playlistBody += chunk);
         proxyRes.on('end', () => {
@@ -211,11 +214,27 @@ const server = http.createServer((req, res) => {
           const protocolHeader = req.headers['x-forwarded-proto'] || 'http';
           const baseUrl = `${protocolHeader}://${host}/proxy`;
 
-          const rewritten = playlistBody.replace(/(https?:\/\/)([^\s]+)/g, (m, proto, rest) => {
-            const cleanProto = proto.replace('://', '');
-            return `${baseUrl}/${cleanProto}/${rest}`;
+          const lines = playlistBody.split(/\r?\n/);
+          const rewrittenLines = lines.map(line => {
+            const trimmed = line.trim();
+            if (trimmed === '' || trimmed.startsWith('#')) {
+              return line;
+            }
+
+            // Resolve to absolute URL relative to targetUrl
+            const absoluteUrl = new URL(trimmed, targetUrl).href;
+            const parsed = url.parse(absoluteUrl);
+
+            if (parsed.pathname && parsed.pathname.endsWith('.m3u8')) {
+              const cleanProto = parsed.protocol.replace(':', '');
+              const rest = absoluteUrl.substring(parsed.protocol.length + 2);
+              return `${baseUrl}/${cleanProto}/${rest}`;
+            }
+            // Return original absolute URL directly to bypass Vercel proxy for chunks
+            return absoluteUrl;
           });
 
+          const rewritten = rewrittenLines.join('\n');
           res.end(rewritten);
         });
       } else {
