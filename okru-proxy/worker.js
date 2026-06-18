@@ -81,6 +81,32 @@ async function handleRequest(request) {
     }
   }
 
+  // 5. Route: /play-stream
+  if (pathname === '/play-stream') {
+    const key = url.searchParams.get('key') || 'itshelosportsniga';
+    const tokenUrl = `https://admin.hellospz.cfd/api/token/${key}`;
+    try {
+      const response = await fetch(tokenUrl, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'Referer': 'https://admin.hellospz.cfd/'
+        }
+      });
+      if (!response.ok) {
+        return new Response('Error fetching token: HTTP ' + response.status, { status: 500, headers: corsHeaders });
+      }
+      const data = await response.json();
+      if (data && data.m3u8) {
+        const absoluteM3u8 = `https://admin.hellospz.cfd${data.m3u8}`;
+        return Response.redirect(absoluteM3u8, 302);
+      } else {
+        return new Response('No m3u8 URL found in token response', { status: 404, headers: corsHeaders });
+      }
+    } catch (e) {
+      return new Response('Error: ' + e.message, { status: 500, headers: corsHeaders });
+    }
+  }
+
   // 1. Route: /stream/:id
   const streamMatch = pathname.match(/^\/stream\/(\d+)(?:\/index\.m3u8)?$/);
   if (streamMatch) {
