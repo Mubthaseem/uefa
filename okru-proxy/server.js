@@ -206,7 +206,7 @@ const server = http.createServer((req, res) => {
       res.writeHead(proxyRes.statusCode, responseHeaders);
 
       if (isPlaylist) {
-        // Rewrite sub-playlist URLs
+        // Rewrite sub-playlist absolute URLs
         let playlistBody = '';
         proxyRes.on('data', chunk => playlistBody += chunk);
         proxyRes.on('end', () => {
@@ -214,27 +214,11 @@ const server = http.createServer((req, res) => {
           const protocolHeader = req.headers['x-forwarded-proto'] || 'http';
           const baseUrl = `${protocolHeader}://${host}/proxy`;
 
-          const lines = playlistBody.split(/\r?\n/);
-          const rewrittenLines = lines.map(line => {
-            const trimmed = line.trim();
-            if (trimmed === '' || trimmed.startsWith('#')) {
-              return line;
-            }
-
-            // Resolve to absolute URL relative to targetUrl
-            const absoluteUrl = new URL(trimmed, targetUrl).href;
-            const parsed = url.parse(absoluteUrl);
-
-            if (parsed.pathname && parsed.pathname.endsWith('.m3u8')) {
-              const cleanProto = parsed.protocol.replace(':', '');
-              const rest = absoluteUrl.substring(parsed.protocol.length + 2);
-              return `${baseUrl}/${cleanProto}/${rest}`;
-            }
-            // Return original absolute URL directly to bypass Vercel proxy for chunks
-            return absoluteUrl;
+          const rewritten = playlistBody.replace(/(https?:\/\/)([^\s\r\n]+)/g, (m, proto, rest) => {
+            const cleanProto = proto.replace('://', '');
+            return `${baseUrl}/${cleanProto}/${rest}`;
           });
 
-          const rewritten = rewrittenLines.join('\n');
           res.end(rewritten);
         });
       } else {
