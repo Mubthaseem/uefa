@@ -1,0 +1,184 @@
+addEventListener('fetch', event => {
+  event.respondWith(handleRequest(event.request));
+});
+
+async function handleRequest(request) {
+  const url = new URL(request.url);
+  const pathname = url.pathname;
+
+  // CORS headers
+  const corsHeaders = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Range',
+    'Access-Control-Expose-Headers': 'Content-Length, Content-Range',
+    'Access-Control-Allow-Credentials': 'true'
+  };
+
+  if (request.method === 'OPTIONS') {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  // 1. Route: /stream/:id
+  const streamMatch = pathname.match(/^\/stream\/(\d+)(?:\/index\.m3u8)?$/);
+  if (streamMatch) {
+    const videoId = streamMatch[1];
+    const okEmbedUrl = `https://ok.ru/videoembed/${videoId}`;
+
+    try {
+      const okRes = await fetch(okEmbedUrl, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'Referer': 'https://hellosports.live/'
+        }
+      });
+
+      const body = await okRes.text();
+      const targetMarker = 'hlsMasterPlaylistUrl';
+      if (!body.includes(targetMarker)) {
+        return new Response(JSON.stringify({ error: "Could not find hlsMasterPlaylistUrl in page. Embed might be restricted or deleted." }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+
+      const dataOptionsRegex = /data-options="([^"]+)"/;
+      const match = body.match(dataOptionsRegex);
+      if (!match) {
+        return new Response(JSON.stringify({ error: "Could not extract data-options" }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+
+      // Unescape HTML entities
+      const unescaped = match[1]
+        .replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"')
+        .replace(/&#039;/g, "'");
+
+      const options = JSON.parse(unescaped);
+      const metadata = JSON.parse(options.flashvars.metadata);
+      const masterPlaylistUrl = metadata.hlsMasterPlaylistUrl;
+
+      if (!masterPlaylistUrl) {
+        return new Response(JSON.stringify({ error: "Master playlist URL not found in metadata" }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+
+      // Fetch the master playlist
+      const playlistRes = await fetch(masterPlaylistUrl, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0'
+        }
+      });
+      const playlistBody = await playlistRes.text();
+
+      const baseUrl = `${url.protocol}//${url.host}/proxy`;
+      const lines = playlistBody.split(/\r?\n/);
+      const rewrittenLines = lines.map(line => {
+        const trimmed = line.trim();
+        if (trimmed === '' || trimmed.startsWith('#')) {
+          return line;
+        }
+
+        // Construct absolute URL
+        const absoluteUrl = new URL(trimmed, masterPlaylistUrl).href;
+        const parsed = new URL(absoluteUrl);
+        const cleanProto = parsed.protocol.replace(':', '');
+        const rest = absoluteUrl.substring(parsed.protocol.length + 2);
+        return `${baseUrl}/${cleanProto}/${rest}`;
+      });
+
+      const rewritten = rewrittenLines.join('\n');
+      return new Response(rewritten, {
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/vnd.apple.mpegurl'
+        }
+      });
+
+    } catch (e) {
+      return new Response(JSON.stringify({ error: e.message }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+  }
+
+  // 2. Route: /proxy/:protocol/:domain/:path...
+  const proxyMatch = pathname.match(/^\/proxy\/(https?)\/([^\/]+)\/(.+)$/);
+  if (proxyMatch) {
+    const protocol = proxyMatch[1];
+    const domain = proxyMatch[2];
+    const pathAndQuery = proxyMatch[3] + url.search;
+    const targetUrl = `${protocol}://${domain}/${pathAndQuery}`;
+
+    const requestHeaders = new Headers();
+    if (request.headers.get('Range')) {
+      requestHeaders.set('Range', request.headers.get('Range'));
+    }
+    requestHeaders.set('User-Agent', 'Mozilla/5.0');
+
+    try {
+      const proxyRes = await fetch(targetUrl, {
+        headers: requestHeaders
+      });
+
+      const contentType = proxyRes.headers.get('content-type') || '';
+      const isPlaylist = targetUrl.split('?')[0].endsWith('.m3u8') || contentType.includes('mpegurl');
+
+      const responseHeaders = new Headers(corsHeaders);
+      responseHeaders.set('Content-Type', contentType || (isPlaylist ? 'application/vnd.apple.mpegurl' : 'application/octet-stream'));
+
+      if (proxyRes.headers.get('content-range')) {
+        responseHeaders.set('Content-Range', proxyRes.headers.get('content-range'));
+      }
+      if (proxyRes.headers.get('content-length')) {
+        responseHeaders.set('Content-Length', proxyRes.headers.get('content-length'));
+      }
+      if (proxyRes.headers.get('accept-ranges')) {
+        responseHeaders.set('Accept-Ranges', proxyRes.headers.get('accept-ranges'));
+      }
+
+      if (isPlaylist) {
+        const playlistBody = await proxyRes.text();
+        const baseUrl = `${url.protocol}//${url.host}/proxy`;
+
+        const rewritten = playlistBody.replace(/(https?:\/\/)([^\s\r\n]+)/g, (m, proto, rest) => {
+          const cleanProto = proto.replace('://', '');
+          return `${baseUrl}/${cleanProto}/${rest}`;
+        });
+
+        return new Response(rewritten, {
+          status: proxyRes.status,
+          headers: responseHeaders
+        });
+      } else {
+        // Stream binary content directly
+        return new Response(proxyRes.body, {
+          status: proxyRes.status,
+          headers: responseHeaders
+        });
+      }
+
+    } catch (e) {
+      return new Response('Proxy Error: ' + e.message, {
+        status: 500,
+        headers: corsHeaders
+      });
+    }
+  }
+
+  // Homepage fallback
+  return new Response(`
+    <h1>OK.ru Cloudflare Stream Proxy</h1>
+    <p>Usage: <code>/stream/[videoId]</code></p>
+  `, {
+    headers: { 'Content-Type': 'text/html' }
+  });
+}
