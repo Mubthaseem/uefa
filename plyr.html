@@ -82,7 +82,7 @@
   <div class="player-wrap">
     <video id="player" controls playsinline webkit-playsinline preload="metadata"></video>
   </div>
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/cdnbye@latest/dist/hls.min.js"></script>
   <script src="https://cdn.plyr.io/3.6.2/plyr.polyfilled.js"></script>
   <script>
     (function () {
@@ -97,8 +97,8 @@
         wm.innerHTML =
           '<span class="wm-rule"></span>' +
           '<span class="wm-text">' +
-            '<span class="wm-name">ZETA<span class="r">SPORTS</span></span>' +
-            '<span class="wm-url">zetasports.onlinr</span>' +
+          '<span class="wm-name">ZETA<span class="r">SPORTS</span></span>' +
+          '<span class="wm-url">zetasports.onlinr</span>' +
           '</span>' +
           '<span class="wm-rule right"></span>';
         player.elements.container.appendChild(wm);
@@ -114,7 +114,11 @@
         return;
       }
       if (!Hls.isSupported()) return;
-      const hls = new Hls();
+      const hls = new Hls({
+        p2pConfig: {
+          logLevel: 'none',
+        }
+      });
       hls.loadSource(videoURL);
       hls.attachMedia(video);
       hls.on(Hls.Events.MANIFEST_PARSED, function () {
