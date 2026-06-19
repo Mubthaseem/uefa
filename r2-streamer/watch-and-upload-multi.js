@@ -27,7 +27,7 @@ for (const folder of folders) {
 }
 
 console.log(`===================================================`);
-console.log(` HUGGING FACE / CLOUDFLARE MULTI-QUALITY WATCHER`);
+console.log(` HUGGING FACE MULTI-QUALITY WATCHER (DIRECT MODE)`);
 console.log(` Watching folder: ${WATCH_DIR}`);
 console.log(` Upload URL: ${UPLOAD_URL}`);
 console.log(`===================================================`);
@@ -46,7 +46,16 @@ async function uploadFile(relativePath) {
   uploadQueue.add(targetPath);
 
   try {
-    const fileBuffer = fs.readFileSync(filePath);
+    let fileBuffer;
+
+    // If it's the master playlist, fix the Windows backslash issue locally before uploading
+    if (relativePath === 'live.m3u8') {
+      let content = fs.readFileSync(filePath, 'utf8');
+      content = content.replace(/\\/g, '/'); // Convert \ to /
+      fileBuffer = Buffer.from(content, 'utf8');
+    } else {
+      fileBuffer = fs.readFileSync(filePath);
+    }
 
     const response = await fetch(UPLOAD_URL, {
       method: 'POST',
@@ -75,7 +84,7 @@ async function uploadFile(relativePath) {
   }
 }
 
-// Watch directory recursively for file changes (supported natively on Windows)
+// Watch directory recursively for file changes
 fs.watch(WATCH_DIR, { recursive: true }, (eventType, filename) => {
   if (!filename) return;
   
