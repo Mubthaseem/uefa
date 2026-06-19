@@ -31,10 +31,23 @@ nms.run();
 
 let ffmpegProcess = null;
 
-// Listen to stream publish event
-nms.on('postPublish', (id, streamPath, args) => {
-  if (streamPath !== '/live/mystream') return;
-  console.log(`Stream published! Starting multi-quality transcoder for ${streamPath}...`);
+// Listen to all stream publish events (Notice the capital "StreamPath")
+nms.on('postPublish', (id, StreamPath, args) => {
+  console.log(`[DEBUG] postPublish event triggered. StreamPath: "${StreamPath}"`);
+  
+  if (!StreamPath) {
+    console.error(`[ERROR] StreamPath is undefined!`);
+    return;
+  }
+
+  // Normalize StreamPath (match both '/live/mystream' and 'live/mystream')
+  const cleanPath = StreamPath.replace(/^\//, ''); // Remove leading slash if present
+  if (cleanPath !== 'live/mystream') {
+    console.log(`[DEBUG] Path "${cleanPath}" did not match "live/mystream". Ignoring.`);
+    return;
+  }
+
+  console.log(`Stream published! Starting multi-quality transcoder for ${StreamPath}...`);
 
   // Clean old files on start
   cleanHlsFolder();
@@ -72,10 +85,11 @@ nms.on('postPublish', (id, streamPath, args) => {
 
   ffmpegProcess.stdout.on('data', (data) => console.log(`[FFmpeg] ${data}`));
   ffmpegProcess.stderr.on('data', (data) => {
-    // FFmpeg logs to stderr by default
     const msg = data.toString();
     if (msg.includes('frame=') || msg.includes('speed=')) {
       process.stdout.write(`\r[Transcoding] ${msg.trim().substring(0, 80)}`);
+    } else {
+      console.log(`[FFmpeg Log] ${msg.trim()}`);
     }
   });
 
@@ -86,8 +100,10 @@ nms.on('postPublish', (id, streamPath, args) => {
 });
 
 // Listen to stream disconnect
-nms.on('donePublish', (id, streamPath, args) => {
-  if (streamPath !== '/live/mystream') return;
+nms.on('donePublish', (id, StreamPath, args) => {
+  if (!StreamPath) return;
+  const cleanPath = StreamPath.replace(/^\//, '');
+  if (cleanPath !== 'live/mystream') return;
   console.log(`Stream disconnected. Stopping transcoder...`);
   if (ffmpegProcess) {
     ffmpegProcess.kill('SIGINT');
