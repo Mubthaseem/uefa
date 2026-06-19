@@ -9,6 +9,19 @@ if (!fs.existsSync(WATCH_DIR)) {
   fs.mkdirSync(WATCH_DIR);
 }
 
+// Clean old files from the directory on startup
+console.log("Cleaning old temporary files from watch folder...");
+const files = fs.readdirSync(WATCH_DIR);
+for (const file of files) {
+  if (file.endsWith('.ts') || file.endsWith('.m3u8')) {
+    try {
+      fs.unlinkSync(path.join(WATCH_DIR, file));
+    } catch (e) {
+      console.error(`Could not delete old file ${file}:`, e.message);
+    }
+  }
+}
+
 console.log(`===================================================`);
 console.log(` HUGGING FACE / CLOUDFLARE LIVE WATCHER RUNNING`);
 console.log(` Watching folder: ${WATCH_DIR}`);
