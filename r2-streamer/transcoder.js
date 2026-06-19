@@ -32,16 +32,10 @@ nms.run();
 let ffmpegProcess = null;
 
 function handlePublish(id, streamPath) {
-  if (!streamPath) {
-    console.log(`[Transcoder] Ignoring publish with empty streamPath`);
-    return;
-  }
+  if (!streamPath) return;
 
   const cleanPath = streamPath.replace(/^\//, ''); // Remove leading slash
-  console.log(`[Transcoder] Checking stream path: "${cleanPath}"`);
-  
   if (cleanPath !== 'live/mystream') {
-    console.log(`[Transcoder] Path "${cleanPath}" does not match "live/mystream". Ignoring.`);
     return;
   }
 
@@ -103,38 +97,56 @@ function handlePublish(id, streamPath) {
   });
 }
 
-// Hook into prePublish and postPublish using session parameters
-nms.on('prePublish', (id, StreamPath, args) => {
-  const session = StreamPath;
-  console.log(`[Event Log] prePublish triggered for ID: ${id}`);
-  if (session && session.streamApp && session.streamName) {
-    const constructedPath = `/${session.streamApp}/${session.streamName}`;
-    console.log(`[Event Log] Detected streamPath: "${constructedPath}"`);
-    handlePublish(id, constructedPath);
+// Helper to scan all arguments and find the session object
+function getStreamPathFromArgs(args) {
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
+    if (arg && typeof arg === 'object') {
+      // Check if it's the session object
+      if (arg.streamApp && arg.streamName) {
+        return `/${arg.streamApp}/${arg.streamName}`;
+      }
+      // Check if it contains the streamPath directly
+      if (arg.streamPath) {
+        return arg.streamPath;
+      }
+    } else if (typeof arg === 'string' && arg.includes('/')) {
+      return arg;
+    }
+  }
+  return null;
+}
+
+nms.on('prePublish', function () {
+  console.log(`[Event Log] prePublish triggered`);
+  const streamPath = getStreamPathFromArgs(arguments);
+  const id = typeof arguments[0] === 'string' ? arguments[0] : 'publisher';
+  if (streamPath) {
+    console.log(`[Event Log] Detected streamPath: "${streamPath}"`);
+    handlePublish(id, streamPath);
   } else {
-    console.log(`[Event Log] session parameters missing or undefined`);
+    console.log(`[Event Log] Failed to detect streamPath in arguments`);
   }
 });
 
-nms.on('postPublish', (id, StreamPath, args) => {
-  const session = StreamPath;
-  console.log(`[Event Log] postPublish triggered for ID: ${id}`);
-  if (session && session.streamApp && session.streamName) {
-    const constructedPath = `/${session.streamApp}/${session.streamName}`;
-    console.log(`[Event Log] Detected streamPath: "${constructedPath}"`);
-    handlePublish(id, constructedPath);
+nms.on('postPublish', function () {
+  console.log(`[Event Log] postPublish triggered`);
+  const streamPath = getStreamPathFromArgs(arguments);
+  const id = typeof arguments[0] === 'string' ? arguments[0] : 'publisher';
+  if (streamPath) {
+    console.log(`[Event Log] Detected streamPath: "${streamPath}"`);
+    handlePublish(id, streamPath);
   } else {
-    console.log(`[Event Log] session parameters missing or undefined`);
+    console.log(`[Event Log] Failed to detect streamPath in arguments`);
   }
 });
 
 // Listen to stream disconnect
-nms.on('donePublish', (id, StreamPath, args) => {
-  const session = StreamPath;
-  if (!session || !session.streamApp || !session.streamName) return;
+nms.on('donePublish', function () {
+  const streamPath = getStreamPathFromArgs(arguments);
+  if (!streamPath) return;
   
-  const constructedPath = `/${session.streamApp}/${session.streamName}`;
-  const cleanPath = constructedPath.replace(/^\//, '');
+  const cleanPath = streamPath.replace(/^\//, '');
   if (cleanPath !== 'live/mystream') return;
   
   console.log(`Stream disconnected. Stopping transcoder...`);
