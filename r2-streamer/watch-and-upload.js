@@ -78,7 +78,7 @@ fs.watch(WATCH_DIR, (eventType, filename) => {
   
   // Only upload stream playlist and video segments
   if (filename.endsWith('.m3u8') || filename.endsWith('.ts')) {
-    // Small delay to ensure file write is finished
-    setTimeout(() => uploadFile(filename), 150);
+    // 50ms trigger for ultra-low latency uploads
+    setTimeout(() => uploadFile(filename), 50);
   }
 });
