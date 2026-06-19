@@ -97,34 +97,33 @@ function handlePublish(id, streamPath) {
   });
 }
 
-// Universal event inspection using JavaScript's native 'arguments' object
-nms.on('prePublish', function () {
-  console.log(`[Event] prePublish triggered. Arguments:`);
-  for (let i = 0; i < arguments.length; i++) {
-    console.log(`  arg[${i}]:`, typeof arguments[i], arguments[i]);
+// Hook into prePublish and postPublish using session parameters
+nms.on('prePublish', (id, StreamPath, args) => {
+  // If the second argument is a Session object, extract stream properties
+  const session = StreamPath;
+  if (session && session.streamApp && session.streamName) {
+    const constructedPath = `/${session.streamApp}/${session.streamName}`;
+    handlePublish(id, constructedPath);
   }
-  // Try passing the first string found as streamPath
-  const id = arguments[0];
-  const streamPath = typeof arguments[1] === 'string' ? arguments[1] : (typeof arguments[2] === 'string' ? arguments[2] : null);
-  handlePublish(id, streamPath);
 });
 
-nms.on('postPublish', function () {
-  console.log(`[Event] postPublish triggered. Arguments:`);
-  for (let i = 0; i < arguments.length; i++) {
-    console.log(`  arg[${i}]:`, typeof arguments[i], arguments[i]);
+nms.on('postPublish', (id, StreamPath, args) => {
+  const session = StreamPath;
+  if (session && session.streamApp && session.streamName) {
+    const constructedPath = `/${session.streamApp}/${session.streamName}`;
+    handlePublish(id, constructedPath);
   }
-  const id = arguments[0];
-  const streamPath = typeof arguments[1] === 'string' ? arguments[1] : (typeof arguments[2] === 'string' ? arguments[2] : null);
-  handlePublish(id, streamPath);
 });
 
-nms.on('donePublish', function () {
-  console.log(`[Event] donePublish triggered. Arguments:`);
-  const streamPath = typeof arguments[1] === 'string' ? arguments[1] : (typeof arguments[2] === 'string' ? arguments[2] : null);
-  if (!streamPath) return;
-  const cleanPath = streamPath.replace(/^\//, '');
+// Listen to stream disconnect
+nms.on('donePublish', (id, StreamPath, args) => {
+  const session = StreamPath;
+  if (!session || !session.streamApp || !session.streamName) return;
+  
+  const constructedPath = `/${session.streamApp}/${session.streamName}`;
+  const cleanPath = constructedPath.replace(/^\//, '');
   if (cleanPath !== 'live/mystream') return;
+  
   console.log(`Stream disconnected. Stopping transcoder...`);
   if (ffmpegProcess) {
     ffmpegProcess.kill('SIGINT');
