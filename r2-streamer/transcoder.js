@@ -39,7 +39,6 @@ function handlePublish(id, streamPath) {
     return;
   }
 
-  // Prevent starting multiple FFmpeg processes if already running
   if (ffmpegProcess) {
     console.log(`[Transcoder] Stream updated, but FFmpeg is already transcoding.`);
     return;
@@ -98,21 +97,33 @@ function handlePublish(id, streamPath) {
   });
 }
 
-// Hook into both prePublish and postPublish to ensure we catch the stream connection
-nms.on('prePublish', (id, StreamPath, args) => {
-  console.log(`[Event] prePublish | StreamPath: ${StreamPath}`);
-  handlePublish(id, StreamPath);
+// Universal event inspection using JavaScript's native 'arguments' object
+nms.on('prePublish', function () {
+  console.log(`[Event] prePublish triggered. Arguments:`);
+  for (let i = 0; i < arguments.length; i++) {
+    console.log(`  arg[${i}]:`, typeof arguments[i], arguments[i]);
+  }
+  // Try passing the first string found as streamPath
+  const id = arguments[0];
+  const streamPath = typeof arguments[1] === 'string' ? arguments[1] : (typeof arguments[2] === 'string' ? arguments[2] : null);
+  handlePublish(id, streamPath);
 });
 
-nms.on('postPublish', (id, StreamPath, args) => {
-  console.log(`[Event] postPublish | StreamPath: ${StreamPath}`);
-  handlePublish(id, StreamPath);
+nms.on('postPublish', function () {
+  console.log(`[Event] postPublish triggered. Arguments:`);
+  for (let i = 0; i < arguments.length; i++) {
+    console.log(`  arg[${i}]:`, typeof arguments[i], arguments[i]);
+  }
+  const id = arguments[0];
+  const streamPath = typeof arguments[1] === 'string' ? arguments[1] : (typeof arguments[2] === 'string' ? arguments[2] : null);
+  handlePublish(id, streamPath);
 });
 
-// Listen to stream disconnect
-nms.on('donePublish', (id, StreamPath, args) => {
-  if (!StreamPath) return;
-  const cleanPath = StreamPath.replace(/^\//, '');
+nms.on('donePublish', function () {
+  console.log(`[Event] donePublish triggered. Arguments:`);
+  const streamPath = typeof arguments[1] === 'string' ? arguments[1] : (typeof arguments[2] === 'string' ? arguments[2] : null);
+  if (!streamPath) return;
+  const cleanPath = streamPath.replace(/^\//, '');
   if (cleanPath !== 'live/mystream') return;
   console.log(`Stream disconnected. Stopping transcoder...`);
   if (ffmpegProcess) {
