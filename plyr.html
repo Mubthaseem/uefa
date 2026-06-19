@@ -124,20 +124,37 @@
       hls.on(Hls.Events.MANIFEST_PARSED, function () {
         const qualities = [];
         hls.levels.forEach(function (level) {
-          if (!qualities.includes(level.height)) qualities.push(level.height);
+          if (level.height && !qualities.includes(level.height)) {
+            qualities.push(level.height);
+          }
         });
         qualities.sort(function (a, b) { return b - a; });
+        
+        // Add 0 to represent "Auto" adaptive quality
+        const qualityOptions = [0, ...qualities];
+
         const player = new Plyr(video, {
           settings: ['quality', 'speed', 'fullscreen'],
           fullscreen: { enabled: true, fallback: true, iosNative: true },
+          i18n: {
+            qualityLabel: {
+              0: 'Auto'
+            }
+          },
           quality: {
-            default: qualities[0] || 720,
-            options: qualities,
+            default: 0, // Default to Auto
+            options: qualityOptions,
             forced: true,
             onChange: function (q) {
-              hls.levels.forEach(function (level, index) {
-                if (level.height === q) hls.currentLevel = index;
-              });
+              if (q === 0) {
+                hls.currentLevel = -1; // -1 enables Hls.js Auto/Adaptive level switching
+              } else {
+                hls.levels.forEach(function (level, index) {
+                  if (level.height === q) {
+                    hls.currentLevel = index;
+                  }
+                });
+              }
             }
           }
         });
