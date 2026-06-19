@@ -93,6 +93,26 @@
 
   <script>
     (function () {
+      // Domain Lock Whitelist
+      const allowedDomains = [
+        'mubthaseem.github.io',
+        'zeta-stream.blogspot.com',
+        'zetasports.blog',
+        'localhost',
+        'b4.taazaboom.com',
+        'ehdbsduvsddhbhbsd.blogspot.com'
+      ];
+      
+      const currentHost = window.location.hostname.toLowerCase();
+      const isAuthorized = allowedDomains.some(domain => 
+        currentHost === domain || currentHost.endsWith('.' + domain)
+      );
+
+      if (!isAuthorized) {
+        document.body.innerHTML = '<div style="color:#ff3333; text-align:center; margin-top:20%; font-family:sans-serif;"><h2>Access Denied</h2><p>This player cannot be embedded on this domain.</p></div>';
+        return;
+      }
+
       const params = new URLSearchParams(location.search);
       const videoURL = params.get('x') || 'https://mubthaseem-zeta-stream.hf.space/live/live.m3u8';
       
