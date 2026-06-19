@@ -38,8 +38,12 @@
       --jw-color-inactive: #94a3b8 !important;
       --jw-controlbar-icons-active: #00e676 !important;
     }
-    .jw-logo, .jw-watermark {
+    /* Hide JW Player logo and watermarks */
+    .jw-logo, .jw-logo-container, .jw-logo-button, .jw-watermark {
       display: none !important;
+      opacity: 0 !important;
+      visibility: hidden !important;
+      pointer-events: none !important;
     }
 
     /* ── Floating Watermark ── */
@@ -97,6 +101,9 @@
           file: videoURL,
           type: 'hls'
         }],
+        logo: {
+          file: ''
+        },
         width: '100%',
         height: '100%',
         autostart: true,
