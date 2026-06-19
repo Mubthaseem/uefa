@@ -98,33 +98,30 @@ function handlePublish(id, streamPath) {
 }
 
 // Hook into prePublish and postPublish using session parameters
-nms.on('prePublish', (id, StreamPath, args) => {
-  const session = StreamPath;
-  console.log(`[Event Log] prePublish triggered for ID: ${id}`);
+nms.on('prePublish', (session) => {
+  console.log(`[Event Log] prePublish triggered`);
   if (session && session.streamApp && session.streamName) {
     const constructedPath = `/${session.streamApp}/${session.streamName}`;
     console.log(`[Event Log] Detected streamPath: "${constructedPath}"`);
-    handlePublish(id, constructedPath);
+    handlePublish(session.id || 'publisher', constructedPath);
   } else {
     console.log(`[Event Log] session parameters missing or undefined`);
   }
 });
 
-nms.on('postPublish', (id, StreamPath, args) => {
-  const session = StreamPath;
-  console.log(`[Event Log] postPublish triggered for ID: ${id}`);
+nms.on('postPublish', (session) => {
+  console.log(`[Event Log] postPublish triggered`);
   if (session && session.streamApp && session.streamName) {
     const constructedPath = `/${session.streamApp}/${session.streamName}`;
     console.log(`[Event Log] Detected streamPath: "${constructedPath}"`);
-    handlePublish(id, constructedPath);
+    handlePublish(session.id || 'publisher', constructedPath);
   } else {
     console.log(`[Event Log] session parameters missing or undefined`);
   }
 });
 
 // Listen to stream disconnect
-nms.on('donePublish', (id, StreamPath, args) => {
-  const session = StreamPath;
+nms.on('donePublish', (session) => {
   if (!session || !session.streamApp || !session.streamName) return;
   
   const constructedPath = `/${session.streamApp}/${session.streamName}`;
