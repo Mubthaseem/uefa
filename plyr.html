@@ -4,9 +4,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="referrer" content="no-referrer">
-  <title>Zeta Sports Player</title>
-  <link rel="stylesheet" href="https://cdn.plyr.io/3.6.2/plyr.css"/>
+  <title>Zeta Sports Player (JW)</title>
+  
+  <!-- JW Player & P2P Wrapper -->
+  <script src="https://ssl.p.jwpcdn.com/player/v/8.21.2/jwplayer.js"></script>
+  <script>jwplayer.key="64HPbvSQorQcd52B8XFuhMtEoitbvY/EXJmMBfKcXZQU2Rnn";</script>
+  <script src="https://cdn.jsdelivr.net/npm/cdnbye@latest/dist/jwplayer-p2p-wrapper.min.js"></script>
+
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+  
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body {
@@ -18,26 +24,29 @@
     .player-wrap {
       width: 100%;
       height: 100%;
-      background: #000;
       position: relative;
-    }
-    .player-wrap video {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
       background: #000;
     }
-    .plyr--video .plyr__control--overlaid {
-      left: 50% !important;
-      top: 50% !important;
-      transform: translate(-50%, -50%) !important;
+    #player {
+      width: 100% !important;
+      height: 100% !important;
+    }
+    
+    /* Green active styling for JW Player */
+    .jwplayer {
+      --jw-color-active: #00e676 !important;
+      --jw-color-inactive: #94a3b8 !important;
+      --jw-controlbar-icons-active: #00e676 !important;
+    }
+    .jw-logo, .jw-watermark {
+      display: none !important;
     }
 
-    /* ── HELLOSPORTS watermark ── */
+    /* ── Floating Watermark ── */
     #hx-watermark {
       position: absolute;
       left: 50%;
-      bottom: 62px;
+      bottom: 65px;
       transform: translateX(-50%);
       z-index: 5;
       display: flex;
@@ -71,105 +80,68 @@
       color: #c8d0da;
       margin-top: 2px;
     }
-    .plyr:fullscreen #hx-watermark,
-    .plyr:-webkit-full-screen #hx-watermark {
-      bottom: 70px;
-      opacity: 0.5;
-    }
   </style>
 </head>
 <body>
   <div class="player-wrap">
-    <video id="player" controls playsinline webkit-playsinline preload="metadata"></video>
+    <div id="player"></div>
   </div>
-  <script src="https://cdn.jsdelivr.net/npm/cdnbye@latest/dist/hls.min.js"></script>
-  <script src="https://cdn.plyr.io/3.6.2/plyr.polyfilled.js"></script>
+
   <script>
     (function () {
-      const video = document.getElementById('player');
       const params = new URLSearchParams(location.search);
       const videoURL = params.get('x') || 'https://mubthaseem-zeta-stream.hf.space/live/live.m3u8';
-      if (!videoURL) return;
+      
+      const jwInstance = jwplayer('player').setup({
+        playlist: [{
+          file: videoURL,
+          type: 'hls'
+        }],
+        width: '100%',
+        height: '100%',
+        autostart: true,
+        mute: false,
+        advertising: {
+          client: 'vast',
+          skipoffset: 5,
+          schedule: [{
+            offset: 'pre',
+            tag: 'https://ronracepub.com/e/base36/2plie0buxhrpu07q7zuklsfnh4ghsad8cl74b71h0oba9m5amqnquzpg8574c7beggyzvg05lm8p2m3c612u86ckl2'
+          }]
+        }
+      });
 
-      function addWatermark(player) {
+      // Initialize P2P configuration on the JW Player instance
+      if (typeof JWPlayerP2PWraper !== 'undefined') {
+        JWPlayerP2PWraper.init(jwInstance, {
+          p2pConfig: {
+            logLevel: 'none'
+          }
+        });
+      }
+
+      // Add watermark to player container
+      jwInstance.on('ready', () => {
+        const jwContainer = document.querySelector('.jwplayer');
+        
         const wm = document.createElement('div');
         wm.id = 'hx-watermark';
         wm.innerHTML =
           '<span class="wm-rule"></span>' +
           '<span class="wm-text">' +
-          '<span class="wm-name">ZETA<span class="r">SPORTS</span></span>' +
-          '<span class="wm-url">zetasports.onlinr</span>' +
+            '<span class="wm-name">ZETA<span class="r">SPORTS</span></span>' +
+            '<span class="wm-url">zetasports.onlinr</span>' +
           '</span>' +
           '<span class="wm-rule right"></span>';
-        player.elements.container.appendChild(wm);
-      }
-
-      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-      if (isIOS) {
-        video.src = videoURL;
-        const player = new Plyr(video, {
-          fullscreen: { enabled: true, fallback: true, iosNative: true }
-        });
-        addWatermark(player);
-        return;
-      }
-      if (!Hls.isSupported()) return;
-      const hls = new Hls({
-        p2pConfig: {
-          logLevel: 'none',
+        
+        if (jwContainer) {
+          jwContainer.appendChild(wm);
         }
       });
-      hls.loadSource(videoURL);
-      hls.attachMedia(video);
-      hls.on(Hls.Events.MANIFEST_PARSED, function () {
-        const qualities = [];
-        hls.levels.forEach(function (level) {
-          if (level.height && !qualities.includes(level.height)) {
-            qualities.push(level.height);
-          }
-        });
-        qualities.sort(function (a, b) { return b - a; });
-        
-        // Add 0 to represent "Auto" adaptive quality
-        const qualityOptions = [0, ...qualities];
 
-        const player = new Plyr(video, {
-          settings: ['quality', 'speed', 'fullscreen'],
-          fullscreen: { enabled: true, fallback: true, iosNative: true },
-          i18n: {
-            qualityLabel: {
-              0: 'Auto'
-            }
-          },
-          quality: {
-            default: 0, // Default to Auto
-            options: qualityOptions,
-            forced: true,
-            onChange: function (q) {
-              if (q === 0) {
-                hls.currentLevel = -1; // -1 enables Hls.js Auto/Adaptive level switching
-              } else {
-                hls.levels.forEach(function (level, index) {
-                  if (level.height === q) {
-                    hls.currentLevel = index;
-                  }
-                });
-              }
-            }
-          }
-        });
-        addWatermark(player);
-        document.addEventListener('fullscreenchange', () => {
-          if (document.fullscreenElement && screen.orientation?.lock) {
-            screen.orientation.lock('landscape').catch(() => {});
-          } else if (screen.orientation?.unlock) {
-            screen.orientation.unlock();
-          }
-        });
-        video.addEventListener('click', function () {
-          if (player.playing) player.pause();
-          else player.play();
-        });
+      // Autoplay play error catcher
+      jwInstance.on('playAttemptFailed', () => {
+        console.log("Autoplay failed, user interaction required.");
       });
     })();
   </script>
