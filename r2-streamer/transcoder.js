@@ -32,10 +32,16 @@ nms.run();
 let ffmpegProcess = null;
 
 function handlePublish(id, streamPath) {
-  if (!streamPath) return;
+  if (!streamPath) {
+    console.log(`[Transcoder] Ignoring publish with empty streamPath`);
+    return;
+  }
 
   const cleanPath = streamPath.replace(/^\//, ''); // Remove leading slash
+  console.log(`[Transcoder] Checking stream path: "${cleanPath}"`);
+  
   if (cleanPath !== 'live/mystream') {
+    console.log(`[Transcoder] Path "${cleanPath}" does not match "live/mystream". Ignoring.`);
     return;
   }
 
@@ -99,19 +105,26 @@ function handlePublish(id, streamPath) {
 
 // Hook into prePublish and postPublish using session parameters
 nms.on('prePublish', (id, StreamPath, args) => {
-  // If the second argument is a Session object, extract stream properties
   const session = StreamPath;
+  console.log(`[Event Log] prePublish triggered for ID: ${id}`);
   if (session && session.streamApp && session.streamName) {
     const constructedPath = `/${session.streamApp}/${session.streamName}`;
+    console.log(`[Event Log] Detected streamPath: "${constructedPath}"`);
     handlePublish(id, constructedPath);
+  } else {
+    console.log(`[Event Log] session parameters missing or undefined`);
   }
 });
 
 nms.on('postPublish', (id, StreamPath, args) => {
   const session = StreamPath;
+  console.log(`[Event Log] postPublish triggered for ID: ${id}`);
   if (session && session.streamApp && session.streamName) {
     const constructedPath = `/${session.streamApp}/${session.streamName}`;
+    console.log(`[Event Log] Detected streamPath: "${constructedPath}"`);
     handlePublish(id, constructedPath);
+  } else {
+    console.log(`[Event Log] session parameters missing or undefined`);
   }
 });
 
