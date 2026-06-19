@@ -31,42 +31,41 @@ nms.run();
 
 let ffmpegProcess = null;
 
-// Listen to all stream publish events (Notice the capital "StreamPath")
-nms.on('postPublish', (id, StreamPath, args) => {
-  console.log(`[DEBUG] postPublish event triggered. StreamPath: "${StreamPath}"`);
-  
-  if (!StreamPath) {
-    console.error(`[ERROR] StreamPath is undefined!`);
-    return;
-  }
+function handlePublish(id, streamPath) {
+  if (!streamPath) return;
 
-  // Normalize StreamPath (match both '/live/mystream' and 'live/mystream')
-  const cleanPath = StreamPath.replace(/^\//, ''); // Remove leading slash if present
+  const cleanPath = streamPath.replace(/^\//, ''); // Remove leading slash
   if (cleanPath !== 'live/mystream') {
-    console.log(`[DEBUG] Path "${cleanPath}" did not match "live/mystream". Ignoring.`);
     return;
   }
 
-  console.log(`Stream published! Starting multi-quality transcoder for ${StreamPath}...`);
+  // Prevent starting multiple FFmpeg processes if already running
+  if (ffmpegProcess) {
+    console.log(`[Transcoder] Stream updated, but FFmpeg is already transcoding.`);
+    return;
+  }
 
-  // Clean old files on start
+  console.log(`===================================================`);
+  console.log(` SUCCESS: RTMP Stream Detected!`);
+  console.log(` Starting NVENC Transcoder for: ${streamPath}`);
+  console.log(`===================================================`);
+
   cleanHlsFolder();
 
-  // FFmpeg command to transcode to 1080p, 720p, 360p using NVIDIA NVENC
   const ffmpegArgs = [
     '-y',
     '-i', 'rtmp://127.0.0.1/live/mystream',
     '-filter_complex', '[0:v]split=3[v1][v2][v3]; [v1]scale=1920:1080[v1out]; [v2]scale=1280:720[v2out]; [v3]scale=640:360[v3out]',
     
-    // 1080p stream (v:0, a:0)
+    // 1080p stream
     '-map', '[v1out]', '-c:v:0', 'h264_nvenc', '-b:v:0', '3500k', '-preset', 'p1', '-tune', 'ull', '-g', '150', '-keyint_min', '150', '-sc_threshold', '0',
     '-map', '0:a', '-c:a:0', 'aac', '-b:a:0', '128k',
     
-    // 720p stream (v:1, a:1)
+    // 720p stream
     '-map', '[v2out]', '-c:v:1', 'h264_nvenc', '-b:v:1', '1800k', '-preset', 'p1', '-tune', 'ull', '-g', '150', '-keyint_min', '150', '-sc_threshold', '0',
     '-map', '0:a', '-c:a:1', 'aac', '-b:a:1', '128k',
     
-    // 360p stream (v:2, a:2)
+    // 360p stream
     '-map', '[v3out]', '-c:v:2', 'h264_nvenc', '-b:v:2', '800k', '-preset', 'p1', '-tune', 'ull', '-g', '150', '-keyint_min', '150', '-sc_threshold', '0',
     '-map', '0:a', '-c:a:2', 'aac', '-b:a:2', '128k',
     
@@ -97,6 +96,17 @@ nms.on('postPublish', (id, StreamPath, args) => {
     console.log(`\nFFmpeg process exited with code ${code}`);
     ffmpegProcess = null;
   });
+}
+
+// Hook into both prePublish and postPublish to ensure we catch the stream connection
+nms.on('prePublish', (id, StreamPath, args) => {
+  console.log(`[Event] prePublish | StreamPath: ${StreamPath}`);
+  handlePublish(id, StreamPath);
+});
+
+nms.on('postPublish', (id, StreamPath, args) => {
+  console.log(`[Event] postPublish | StreamPath: ${StreamPath}`);
+  handlePublish(id, StreamPath);
 });
 
 // Listen to stream disconnect
