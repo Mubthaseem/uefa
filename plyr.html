@@ -110,17 +110,11 @@
         return;
       }
 
-      const replicas = [
-        'stream.zetasports.blog',
-        'stream3.zetasports.blog'
-      ];
-      const randomReplica = replicas[Math.floor(Math.random() * replicas.length)];
-      
       const params = new URLSearchParams(location.search);
-      let videoURL = params.get('x') || `https://${randomReplica}/live/live.m3u8`;
+      let videoURL = params.get('x') || 'https://stream.zetasports.blog/live/live.m3u8';
       
-      if (videoURL.includes('mubthaseem-zeta-stream.hf.space') || videoURL.includes('stream.zetasports.blog')) {
-        videoURL = `https://${randomReplica}/live/live.m3u8`;
+      if (videoURL.includes('mubthaseem-zeta-stream.hf.space') || videoURL.includes('stream.zetasports.blog') || videoURL.includes('stream3.zetasports.blog')) {
+        videoURL = 'https://stream.zetasports.blog/live/live.m3u8';
       }
 
       const jwInstance = jwplayer('player').setup({
