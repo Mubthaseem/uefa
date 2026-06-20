@@ -306,36 +306,70 @@
     if (p && !p.contains(wm)) { p.style.position = 'relative'; p.appendChild(wm); }
   }
 
+  let consecutiveRetries = 0;
+
   function showPlayer(){
     clearBootTimeout();
     clearInterval(msgTimer);
     loader.classList.add('off');
     errBox.classList.remove('on');
     mountWm();
+    consecutiveRetries = 0;
   }
 
   function showError(msg){
-    if (video.src !== 'https://stream.zetasports.blog/offline.mp4') {
-      console.log("Switching to fallback offline video...");
-      clearInterval(msgTimer);
-      loader.classList.add('off');
-      errBox.classList.remove('on');
-      
-      if (hls) {
-        try { hls.destroy(); } catch(_){}
-        hls = null;
+    const streamUrl = DIRECT_SRC;
+    consecutiveRetries++;
+
+    if (consecutiveRetries > 3) {
+      console.log("Too many consecutive stream errors. Switching to fallback.");
+      switchToOffline();
+      return;
+    }
+
+    console.log(`Verifying stream health (attempt ${consecutiveRetries})...`);
+    fetch(streamUrl, { method: 'HEAD' })
+      .then(res => {
+        if (res.status === 404 || res.status === 403) {
+          console.log("Stream file returned 404/403. Switching to fallback.");
+          switchToOffline();
+        } else {
+          console.log("Stream is still online. Rebuilding player in 3s...");
+          setTimeout(() => {
+            if (video.src !== 'https://stream.zetasports.blog/offline.mp4') {
+              rebuildPlayer('Reconnecting to stream…');
+            }
+          }, 3000);
+        }
+      })
+      .catch(() => {
+        console.log("Stream file fetch failed. Switching to fallback.");
+        switchToOffline();
+      });
+
+    function switchToOffline() {
+      if (video.src !== 'https://stream.zetasports.blog/offline.mp4') {
+        console.log("Switching to fallback offline video...");
+        clearInterval(msgTimer);
+        loader.classList.add('off');
+        errBox.classList.remove('on');
+        
+        if (hls) {
+          try { hls.destroy(); } catch(_){}
+          hls = null;
+        }
+        
+        video.src = 'https://stream.zetasports.blog/offline.mp4';
+        video.loop = true;
+        video.controls = true;
+        video.play().catch(() => {});
+        mountWm();
+      } else {
+        if (msg) errMsg.textContent = msg;
+        clearInterval(msgTimer);
+        loader.classList.add('off');
+        errBox.classList.add('on');
       }
-      
-      video.src = 'https://stream.zetasports.blog/offline.mp4';
-      video.loop = true;
-      video.controls = true;
-      video.play().catch(() => {});
-      mountWm();
-    } else {
-      if (msg) errMsg.textContent = msg;
-      clearInterval(msgTimer);
-      loader.classList.add('off');
-      errBox.classList.add('on');
     }
   }
 

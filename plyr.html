@@ -136,34 +136,52 @@
         }
       });
 
+      let consecutiveRetries = 0;
+
+      jwInstance.on('playing', () => {
+        consecutiveRetries = 0;
+      });
+
       jwInstance.on('error', (event) => {
         console.warn("JW Player stream error:", event.message, event.code);
         const item = jwInstance.getPlaylistItem();
         const currentFile = item ? item.file : '';
         if (currentFile !== 'https://stream.zetasports.blog/offline.mp4') {
-          console.log("Switching to fallback offline video...");
-          jwInstance.load([{
-            file: 'https://stream.zetasports.blog/offline.mp4',
-            type: 'mp4'
-          }]);
-          jwInstance.setConfig({ repeat: true });
-          jwInstance.play();
+          consecutiveRetries++;
+          if (consecutiveRetries > 3) {
+            console.log("Too many consecutive stream errors. Switching to fallback.");
+            loadFallbackVideo();
+            return;
+          }
+
+          console.log(`Verifying stream health (attempt ${consecutiveRetries})...`);
+          fetch(currentFile, { method: 'HEAD' })
+            .then(res => {
+              if (res.status === 404 || res.status === 403) {
+                console.log("Stream file returned 404/403. Switching to fallback.");
+                loadFallbackVideo();
+              } else {
+                console.log("Stream file is still present. Retrying playback in 3s...");
+                setTimeout(() => {
+                  const checkItem = jwInstance.getPlaylistItem();
+                  const checkFile = checkItem ? checkItem.file : '';
+                  if (checkFile !== 'https://stream.zetasports.blog/offline.mp4') {
+                    jwInstance.load([{ file: currentFile, type: 'hls' }]);
+                    jwInstance.play();
+                  }
+                }, 3000);
+              }
+            })
+            .catch(() => {
+              console.log("Stream file fetch failed. Switching to fallback.");
+              loadFallbackVideo();
+            });
         }
       });
 
       jwInstance.on('setupError', (event) => {
         console.error("JW Player setup error:", event.message);
-        jwplayer('player').setup({
-          playlist: [{
-            file: 'https://stream.zetasports.blog/offline.mp4',
-            type: 'mp4'
-          }],
-          width: '100%',
-          height: '100%',
-          autostart: true,
-          mute: false,
-          repeat: true
-        });
+        loadFallbackVideo();
       });
 
       jwInstance.on('complete', () => {
@@ -173,6 +191,15 @@
           jwInstance.play();
         }
       });
+
+      function loadFallbackVideo() {
+        jwInstance.load([{
+          file: 'https://stream.zetasports.blog/offline.mp4',
+          type: 'mp4'
+        }]);
+        jwInstance.setConfig({ repeat: true });
+        jwInstance.play();
+      }
 
       // Add watermark to player container
       jwInstance.on('ready', () => {
