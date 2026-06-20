@@ -762,14 +762,8 @@
       if (stream.url && stream.url.includes('mubthaseem-zeta-stream.hf.space')) {
         const replicas = [
           'mubthaseem-zeta-stream.hf.space',
-          'mubthaseem-zeta-stream-3.hf.space',
-          'mubthaseem-zeta-stream-4.hf.space',
-          'mubthaseem-zeta-stream-5.hf.space',
-          'mubthaseem-zeta-stream-6.hf.space'
+          'mubthaseem-zeta-stream-3.hf.space'
         ];
-        for (let i = 7; i <= 9; i++) {
-          replicas.push(`mubthaseem-zeta-stream-${i}.hf.space`);
-        }
         const randomReplica = replicas[Math.floor(Math.random() * replicas.length)];
         stream = {
           ...stream,
