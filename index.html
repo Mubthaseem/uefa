@@ -10,8 +10,6 @@
   <script src="https://cdn.jsdelivr.net/npm/shaka-player@4.16.2/dist/shaka-player.ui.js"></script>
   <script src="https://ssl.p.jwpcdn.com/player/v/8.21.2/jwplayer.js"></script>
   <script>jwplayer.key="64HPbvSQorQcd52B8XFuhMtEoitbvY/EXJmMBfKcXZQU2Rnn";</script>
-  <script src="https://cdn.jsdelivr.net/npm/cdnbye@latest/dist/jwplayer-p2p-wrapper.min.js"></script>
-  
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -869,15 +867,6 @@
 
         window.jwPlayerInstance = jwInstance;
 
-        // Initialize SwarmCloud P2P Wrapper
-        if (typeof JWPlayerP2PWrapper !== 'undefined') {
-          JWPlayerP2PWrapper.init(jwInstance, {
-            p2pConfig: {
-              logLevel: 'none',
-              token: '7vXiUvavR'
-            }
-          });
-        }
 
         // Sync watermark to JW Player container to stay visible in fullscreen
         jwInstance.on('ready', () => {
