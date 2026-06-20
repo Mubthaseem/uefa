@@ -119,7 +119,8 @@
       const jwInstance = jwplayer('player').setup({
         playlist: [{
           file: videoURL,
-          type: 'hls'
+          type: 'hls',
+          playsinline: true
         }],
         logo: {
           file: ''
@@ -127,7 +128,7 @@
         width: '100%',
         height: '100%',
         autostart: true,
-        mute: false,
+        mute: true,
         advertising: {
           client: 'vast',
           skipoffset: 5,
