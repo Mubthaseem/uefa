@@ -112,8 +112,8 @@
       }
 
       const replicas = [
-        'mubthaseem-zeta-stream.hf.space',
-        'mubthaseem-zeta-stream-3.hf.space'
+        'stream.zetasports.blog',
+        'stream3.zetasports.blog'
       ];
       const randomReplica = replicas[Math.floor(Math.random() * replicas.length)];
       
@@ -121,8 +121,8 @@
       const params = new URLSearchParams(location.search);
       let videoURL = params.get('x') || `https://${randomReplica}/live/live.m3u8`;
       
-      if (videoURL.includes('mubthaseem-zeta-stream.hf.space')) {
-        videoURL = videoURL.replace('mubthaseem-zeta-stream.hf.space', randomReplica);
+      if (videoURL.includes('mubthaseem-zeta-stream.hf.space') || videoURL.includes('stream.zetasports.blog')) {
+        videoURL = `https://${randomReplica}/live/live.m3u8`;
       }
       if (!videoURL) return;
 
