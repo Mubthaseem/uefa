@@ -136,6 +136,44 @@
         }
       });
 
+      jwInstance.on('error', (event) => {
+        console.warn("JW Player stream error:", event.message, event.code);
+        const item = jwInstance.getPlaylistItem();
+        const currentFile = item ? item.file : '';
+        if (currentFile !== 'https://stream.zetasports.blog/offline.mp4') {
+          console.log("Switching to fallback offline video...");
+          jwInstance.load([{
+            file: 'https://stream.zetasports.blog/offline.mp4',
+            type: 'mp4'
+          }]);
+          jwInstance.setConfig({ repeat: true });
+          jwInstance.play();
+        }
+      });
+
+      jwInstance.on('setupError', (event) => {
+        console.error("JW Player setup error:", event.message);
+        jwplayer('player').setup({
+          playlist: [{
+            file: 'https://stream.zetasports.blog/offline.mp4',
+            type: 'mp4'
+          }],
+          width: '100%',
+          height: '100%',
+          autostart: true,
+          mute: false,
+          repeat: true
+        });
+      });
+
+      jwInstance.on('complete', () => {
+        const item = jwInstance.getPlaylistItem();
+        const currentFile = item ? item.file : '';
+        if (currentFile === 'https://stream.zetasports.blog/offline.mp4') {
+          jwInstance.play();
+        }
+      });
+
       // Add watermark to player container
       jwInstance.on('ready', () => {
         const jwContainer = document.querySelector('.jwplayer');

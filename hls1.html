@@ -315,10 +315,28 @@
   }
 
   function showError(msg){
-    if (msg) errMsg.textContent = msg;
-    clearInterval(msgTimer);
-    loader.classList.add('off');
-    errBox.classList.add('on');
+    if (video.src !== 'https://stream.zetasports.blog/offline.mp4') {
+      console.log("Switching to fallback offline video...");
+      clearInterval(msgTimer);
+      loader.classList.add('off');
+      errBox.classList.remove('on');
+      
+      if (hls) {
+        try { hls.destroy(); } catch(_){}
+        hls = null;
+      }
+      
+      video.src = 'https://stream.zetasports.blog/offline.mp4';
+      video.loop = true;
+      video.controls = true;
+      video.play().catch(() => {});
+      mountWm();
+    } else {
+      if (msg) errMsg.textContent = msg;
+      clearInterval(msgTimer);
+      loader.classList.add('off');
+      errBox.classList.add('on');
+    }
   }
 
   let bootTimeout = setTimeout(() => {
@@ -561,7 +579,11 @@
       if (!data.fatal) return;
       switch (data.type) {
         case Hls.ErrorTypes.NETWORK_ERROR:
-          try { hls.startLoad(); } catch(_){}
+          if (data.details === Hls.ErrorDetails.MANIFEST_LOAD_ERROR || data.details === Hls.ErrorDetails.MANIFEST_LOAD_TIMEOUT) {
+            showError("Stream offline");
+          } else {
+            try { hls.startLoad(); } catch(_){}
+          }
           break;
         case Hls.ErrorTypes.MEDIA_ERROR:
           try { hls.recoverMediaError(); } catch(_){}

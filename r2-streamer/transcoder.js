@@ -50,14 +50,15 @@ function handlePublish(id, streamPath) {
   console.log(`===================================================`);
 
   cleanHlsFolder();
+  const streamId = Math.floor(Date.now() / 1000);
 
   const ffmpegArgs = [
     '-y',
     '-i', 'rtmp://127.0.0.1/live/mystream',
-    '-filter_complex', '[0:v]split=3[v1][v2][v3]; [v1]scale=1920:1080[v1out]; [v2]scale=1280:720[v2out]; [v3]scale=640:360[v3out]',
+    '-filter_complex', '[0:v]split=2[v2][v3]; [v2]scale=1280:720[v2out]; [v3]scale=640:360[v3out]',
     
     // 1080p stream
-    '-map', '[v1out]', '-c:v:0', 'h264_nvenc', '-b:v:0', '3500k', '-preset', 'p1', '-tune', 'ull', '-g', '150', '-keyint_min', '150', '-sc_threshold', '0',
+    '-map', '0:v', '-c:v:0', 'h264_nvenc', '-b:v:0', '3500k', '-preset', 'p1', '-tune', 'ull', '-g', '150', '-keyint_min', '150', '-sc_threshold', '0',
     '-map', '0:a', '-c:a:0', 'aac', '-b:a:0', '128k',
     
     // 720p stream
@@ -71,11 +72,11 @@ function handlePublish(id, streamPath) {
     // HLS output configuration (Using delete_segments + temp_file to prevent micro-lag)
     '-f', 'hls',
     '-hls_time', '5',
-    '-hls_list_size', '3',
+    '-hls_list_size', '15',
     '-hls_flags', 'delete_segments+temp_file',
     '-var_stream_map', 'v:0,a:0 v:1,a:1 v:2,a:2',
     '-master_pl_name', 'live.m3u8',
-    '-hls_segment_filename', path.join(WATCH_DIR, '%v', 'index%d.ts'),
+    '-hls_segment_filename', path.join(WATCH_DIR, '%v', `seg_${streamId}_%d.ts`),
     path.join(WATCH_DIR, '%v', 'index.m3u8')
   ];
 
