@@ -85,8 +85,9 @@
     <video id="player" controls playsinline webkit-playsinline preload="metadata"></video>
   </div>
 
-  <!-- CDNBye P2P-wrapped Hls.js and Plyr -->
-  <script src="https://cdn.jsdelivr.net/npm/cdnbye@latest/dist/hls.min.js"></script>
+  <!-- Standard Hls.js + SwarmCloud P2P Engine + Plyr -->
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/cdnbye@latest/dist/hlsjs-p2p-engine.min.js"></script>
   <script src="https://cdn.plyr.io/3.6.2/plyr.polyfilled.js"></script>
   
   <script>
@@ -142,13 +143,16 @@
 
       if (!Hls.isSupported()) return;
 
-      // Initialize P2P HLS Engine
-      const hls = new Hls({
-        p2pConfig: {
-          logLevel: 'none',
-          token: '7vXiUvavR'
-        }
-      });
+      // Initialize standard Hls.js
+      const hls = new Hls();
+      
+      // Bind SwarmCloud P2P Engine to Hls.js instance
+      if (typeof P2PEngine !== 'undefined' && P2PEngine.isSupported()) {
+        new P2PEngine(hls, {
+          token: '7vXiUvavR',
+          live: true
+        });
+      }
       
       hls.loadSource(videoURL);
       hls.attachMedia(video);
