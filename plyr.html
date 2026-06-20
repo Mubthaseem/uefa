@@ -169,6 +169,9 @@
         // Add 0 to represent "Auto" adaptive quality
         const qualityOptions = [0, ...qualities];
 
+        // Find 720p or fallback to the second-highest quality (typically 720p)
+        const defaultQualityVal = qualities.includes(720) ? 720 : (qualities[1] || qualities[0] || 0);
+
         const player = new Plyr(video, {
           settings: ['quality', 'speed', 'fullscreen'],
           fullscreen: { enabled: true, fallback: true, iosNative: true },
@@ -178,7 +181,7 @@
             }
           },
           quality: {
-            default: 0, // Default to Auto
+            default: defaultQualityVal, // Default to 720p first to prevent server overload
             options: qualityOptions,
             forced: true,
             onChange: function (q) {
