@@ -112,9 +112,20 @@
         return;
       }
 
+      const replicas = [
+        'mubthaseem-zeta-stream.hf.space',
+        'mubthaseem-zeta-stream-2.hf.space',
+        'mubthaseem-zeta-stream-3.hf.space'
+      ];
+      const randomReplica = replicas[Math.floor(Math.random() * replicas.length)];
+      
       const video = document.getElementById('player');
       const params = new URLSearchParams(location.search);
-      const videoURL = params.get('x') || 'https://mubthaseem-zeta-stream.hf.space/live/live.m3u8';
+      let videoURL = params.get('x') || `https://${randomReplica}/live/live.m3u8`;
+      
+      if (videoURL.includes('mubthaseem-zeta-stream.hf.space')) {
+        videoURL = videoURL.replace('mubthaseem-zeta-stream.hf.space', randomReplica);
+      }
       if (!videoURL) return;
 
       function addWatermark(player) {
