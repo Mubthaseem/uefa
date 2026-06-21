@@ -116,7 +116,9 @@
       const params = new URLSearchParams(location.search);
       let videoURL = params.get('x');
       
-      if (!videoURL || videoURL.includes('mubthaseem-zeta-stream.hf.space') || videoURL.includes('stream.zetasports.blog') || videoURL.includes('stream3.zetasports.blog')) {
+      if (!videoURL) {
+        videoURL = 'https://customer-d2wx6hg0y7zyfsis.cloudflarestream.com/a919aca8e8fadded8ba82cbbb3c43b04/manifest/video.m3u8';
+      } else if (videoURL.includes('mubthaseem-zeta-stream.hf.space') || videoURL.includes('stream.zetasports.blog') || videoURL.includes('stream3.zetasports.blog')) {
         const useReplica = Math.random() < 0.5;
         const targetSpace = useReplica ? 'mubthaseem-zeta-stream-3' : 'mubthaseem-zeta-stream';
         videoURL = `https://${targetSpace}.hf.space/live/live.m3u8`;
