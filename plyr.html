@@ -6,6 +6,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="referrer" content="origin">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>Zeta Sports Player (JW)</title>
   
   <!-- JW Player -->
@@ -118,6 +121,9 @@
         const targetSpace = useReplica ? 'mubthaseem-zeta-stream-3' : 'mubthaseem-zeta-stream';
         videoURL = `https://${targetSpace}.hf.space/live/live.m3u8`;
       }
+      
+      // Append cache buster to the main HLS manifest URL
+      videoURL = videoURL + (videoURL.includes('?') ? '&' : '?') + 't=' + Date.now();
 
       const jwInstance = jwplayer('player').setup({
         playlist: [{
@@ -139,10 +145,10 @@
       function getFallbackVideo() {
         const item = jwInstance.getPlaylistItem();
         const currentFile = item ? item.file : '';
-        if (currentFile.includes('mubthaseem-zeta-stream-3.hf.space')) {
-          return 'https://mubthaseem-zeta-stream-3.hf.space/live/offline.mp4';
-        }
-        return 'https://mubthaseem-zeta-stream.hf.space/live/offline.mp4';
+        const base = currentFile.includes('mubthaseem-zeta-stream-3.hf.space')
+          ? 'https://mubthaseem-zeta-stream-3.hf.space/live/offline.mp4'
+          : 'https://mubthaseem-zeta-stream.hf.space/live/offline.mp4';
+        return base + '?t=' + Date.now();
       }
 
       function loadFallbackVideo() {
