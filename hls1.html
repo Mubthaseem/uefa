@@ -321,6 +321,15 @@
     const streamUrl = DIRECT_SRC;
     consecutiveRetries++;
 
+    function getFallbackVideo() {
+      if (DIRECT_SRC.includes('mubthaseem-zeta-stream-3.hf.space')) {
+        return 'https://mubthaseem-zeta-stream-3.hf.space/live/offline.mp4';
+      }
+      return 'https://mubthaseem-zeta-stream.hf.space/live/offline.mp4';
+    }
+
+    const fallback = getFallbackVideo();
+
     if (consecutiveRetries > 3) {
       console.log("Too many consecutive stream errors. Switching to fallback.");
       switchToOffline();
@@ -336,7 +345,7 @@
         } else {
           console.log("Stream is still online. Rebuilding player in 3s...");
           setTimeout(() => {
-            if (video.src !== 'https://stream.zetasports.blog/offline.mp4') {
+            if (video.src !== fallback) {
               rebuildPlayer('Reconnecting to stream…');
             }
           }, 3000);
@@ -348,7 +357,7 @@
       });
 
     function switchToOffline() {
-      if (video.src !== 'https://stream.zetasports.blog/offline.mp4') {
+      if (video.src !== fallback) {
         console.log("Switching to fallback offline video...");
         clearInterval(msgTimer);
         loader.classList.add('off');
@@ -359,7 +368,7 @@
           hls = null;
         }
         
-        video.src = 'https://stream.zetasports.blog/offline.mp4';
+        video.src = fallback;
         video.loop = true;
         video.controls = true;
         video.play().catch(() => {});

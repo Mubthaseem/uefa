@@ -111,10 +111,12 @@
       }
 
       const params = new URLSearchParams(location.search);
-      let videoURL = params.get('x') || 'https://stream.zetasports.blog/live/live.m3u8';
+      let videoURL = params.get('x');
       
-      if (videoURL.includes('mubthaseem-zeta-stream.hf.space') || videoURL.includes('stream.zetasports.blog') || videoURL.includes('stream3.zetasports.blog')) {
-        videoURL = 'https://stream.zetasports.blog/live/live.m3u8';
+      if (!videoURL || videoURL.includes('mubthaseem-zeta-stream.hf.space') || videoURL.includes('stream.zetasports.blog') || videoURL.includes('stream3.zetasports.blog')) {
+        const useReplica = Math.random() < 0.5;
+        const targetSpace = useReplica ? 'mubthaseem-zeta-stream-3' : 'mubthaseem-zeta-stream';
+        videoURL = `https://${targetSpace}.hf.space/live/live.m3u8`;
       }
 
       const jwInstance = jwplayer('player').setup({
@@ -134,11 +136,32 @@
         consecutiveRetries = 0;
       });
 
+      function getFallbackVideo() {
+        const item = jwInstance.getPlaylistItem();
+        const currentFile = item ? item.file : '';
+        if (currentFile.includes('mubthaseem-zeta-stream-3.hf.space')) {
+          return 'https://mubthaseem-zeta-stream-3.hf.space/live/offline.mp4';
+        }
+        return 'https://mubthaseem-zeta-stream.hf.space/live/offline.mp4';
+      }
+
+      function loadFallbackVideo() {
+        const fallback = getFallbackVideo();
+        console.log("Loading fallback video:", fallback);
+        jwInstance.load([{
+          file: fallback,
+          type: 'mp4'
+        }]);
+        jwInstance.setConfig({ repeat: true });
+        jwInstance.play();
+      }
+
       jwInstance.on('error', (event) => {
         console.warn("JW Player stream error:", event.message, event.code);
         const item = jwInstance.getPlaylistItem();
         const currentFile = item ? item.file : '';
-        if (currentFile !== 'https://stream.zetasports.blog/offline.mp4') {
+        const fallback = getFallbackVideo();
+        if (currentFile !== fallback) {
           consecutiveRetries++;
           if (consecutiveRetries > 3) {
             console.log("Too many consecutive stream errors. Switching to fallback.");
@@ -157,7 +180,7 @@
                 setTimeout(() => {
                   const checkItem = jwInstance.getPlaylistItem();
                   const checkFile = checkItem ? checkItem.file : '';
-                  if (checkFile !== 'https://stream.zetasports.blog/offline.mp4') {
+                  if (checkFile !== fallback) {
                     jwInstance.load([{ file: currentFile, type: 'hls' }]);
                     jwInstance.play();
                   }
@@ -179,19 +202,10 @@
       jwInstance.on('complete', () => {
         const item = jwInstance.getPlaylistItem();
         const currentFile = item ? item.file : '';
-        if (currentFile === 'https://stream.zetasports.blog/offline.mp4') {
+        if (currentFile.includes('offline.mp4')) {
           jwInstance.play();
         }
       });
-
-      function loadFallbackVideo() {
-        jwInstance.load([{
-          file: 'https://stream.zetasports.blog/offline.mp4',
-          type: 'mp4'
-        }]);
-        jwInstance.setConfig({ repeat: true });
-        jwInstance.play();
-      }
 
       // Add watermark to player container
       jwInstance.on('ready', () => {
