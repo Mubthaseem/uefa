@@ -89,6 +89,46 @@
     #loading-overlay .text {
       animation: pulse 1.5s ease-in-out infinite;
     }
+
+    /* ── Offline Overlay ── */
+    #offline-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.92);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Rajdhani', sans-serif;
+      z-index: 11;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+      opacity: 1;
+      text-align: center;
+      padding: 24px;
+    }
+    #offline-overlay.hidden {
+      opacity: 0;
+    }
+    #offline-overlay .emoji {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+    #offline-overlay .text {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--primary);
+      letter-spacing: 2px;
+      margin-bottom: 8px;
+    }
+    #offline-overlay .subtext {
+      font-size: 15px;
+      font-weight: 600;
+      color: #94a3b8;
+      letter-spacing: 1px;
+    }
+
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
@@ -150,6 +190,11 @@
       <div class="spinner"></div>
       <div class="text">PLEASE WAIT TO LOAD...</div>
     </div>
+    <div id="offline-overlay" class="hidden">
+      <div class="emoji">📺</div>
+      <div class="text">STREAM OFFLINE</div>
+      <div class="subtext">PLEASE COME BACK 10 MINUTES BEFORE KICKOFF</div>
+    </div>
   </div>
 
   <script>
@@ -207,6 +252,7 @@
       let uiInstance = null;
 
       const loadingOverlay = document.getElementById('loading-overlay');
+      const offlineOverlay = document.getElementById('offline-overlay');
       
       function showLoading() {
         loadingOverlay.classList.remove('hidden');
@@ -214,6 +260,14 @@
 
       function hideLoading() {
         loadingOverlay.classList.add('hidden');
+      }
+
+      function showOffline() {
+        offlineOverlay.classList.remove('hidden');
+      }
+
+      function hideOffline() {
+        offlineOverlay.classList.add('hidden');
       }
 
       function getFallbackVideo() {
@@ -226,7 +280,10 @@
       async function loadFallbackVideo() {
         if (isPlayingFallback) return;
         isPlayingFallback = true;
-        showLoading();
+        
+        hideLoading();
+        showOffline();
+        
         const videoEl = document.getElementById('player');
         videoEl.loop = true;
         const fallback = getFallbackVideo();
@@ -247,7 +304,10 @@
         const containerEl = document.getElementById('player-container');
         
         // Hide overlay on actual video playback starting
-        videoEl.addEventListener('playing', hideLoading);
+        videoEl.addEventListener('playing', () => {
+          hideLoading();
+          hideOffline();
+        });
         videoEl.addEventListener('waiting', showLoading);
         
         playerInstance = new shaka.Player(videoEl);
@@ -321,6 +381,7 @@
         // Load stream
         try {
           showLoading();
+          hideOffline();
           await playerInstance.load(videoURL);
           console.log("Stream loaded successfully via Shaka Player");
         } catch (e) {
