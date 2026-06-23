@@ -6,6 +6,22 @@ const fs = require('fs');
 const WATCH_DIR = path.join(__dirname, 'hls_out');
 const FFMPEG_PATH = path.join(__dirname, 'bin', 'ffmpeg.exe');
 
+// Load config.json from root directory (one level up)
+let useNvidiaGpu = false;
+let qualities = ['1080p', '720p', '360p'];
+try {
+  const configPath = path.join(__dirname, '..', 'config.json');
+  if (fs.existsSync(configPath)) {
+    const appConfig = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+    useNvidiaGpu = appConfig.USE_NVIDIA_GPU === true;
+    if (Array.isArray(appConfig.QUALITIES) && appConfig.QUALITIES.length > 0) {
+      qualities = appConfig.QUALITIES;
+    }
+  }
+} catch (e) {
+  console.log('[Transcoder] Warning: Could not read config.json, defaulting to CPU encoding.');
+}
+
 // Ensure watch directories exist
 const folders = ['', '0', '1', '2']; // 0=1080p, 1=720p, 2=360p
 for (const folder of folders) {
@@ -52,33 +68,87 @@ function handlePublish(id, streamPath) {
   cleanHlsFolder();
   const streamId = Math.floor(Date.now() / 1000);
 
+  const videoEncoder = useNvidiaGpu ? 'h264_nvenc' : 'libx264';
+  const encoderFlags = useNvidiaGpu 
+    ? ['-preset', 'p1', '-tune', 'ull'] 
+    : ['-preset', 'veryfast', '-tune', 'zerolatency'];
+
+  // Dynamically compile qualities
+  let activeQualities = qualities;
+  if (!activeQualities || activeQualities.length === 0) {
+    activeQualities = ['360p']; // fallback to safe default
+  }
+
+  const needs1080 = activeQualities.includes('1080p');
+  const needs720 = activeQualities.includes('720p');
+  const needs360 = activeQualities.includes('360p');
+
+  // Dynamic filter complex configuration
+  let filterComplex = '';
+  if (needs720 && needs360) {
+    filterComplex = '[0:v]split=2[v2][v3]; [v2]scale=1280:720[v2out]; [v3]scale=640:360[v3out]';
+  } else if (needs720 && needs1080) {
+    filterComplex = '[0:v]scale=1280:720[v2out]';
+  } else if (needs360 && needs1080) {
+    filterComplex = '[0:v]scale=640:360[v3out]';
+  } else if (needs720) {
+    filterComplex = '[0:v]scale=1280:720[v2out]';
+  } else if (needs360) {
+    filterComplex = '[0:v]scale=640:360[v3out]';
+  }
+
   const ffmpegArgs = [
     '-y',
-    '-i', 'rtmp://127.0.0.1/live/mystream',
-    '-filter_complex', '[0:v]split=2[v2][v3]; [v2]scale=1280:720[v2out]; [v3]scale=640:360[v3out]',
-    
-    // 1080p stream
-    '-map', '0:v', '-c:v:0', 'h264_nvenc', '-b:v:0', '3500k', '-preset', 'p1', '-tune', 'ull', '-g', '150', '-keyint_min', '150', '-sc_threshold', '0',
-    '-map', '0:a', '-c:a:0', 'aac', '-b:a:0', '128k',
-    
-    // 720p stream
-    '-map', '[v2out]', '-c:v:1', 'h264_nvenc', '-b:v:1', '1800k', '-preset', 'p1', '-tune', 'ull', '-g', '150', '-keyint_min', '150', '-sc_threshold', '0',
-    '-map', '0:a', '-c:a:1', 'aac', '-b:a:1', '128k',
-    
-    // 360p stream
-    '-map', '[v3out]', '-c:v:2', 'h264_nvenc', '-b:v:2', '800k', '-preset', 'p1', '-tune', 'ull', '-g', '150', '-keyint_min', '150', '-sc_threshold', '0',
-    '-map', '0:a', '-c:a:2', 'aac', '-b:a:2', '128k',
-    
-    // HLS output configuration (Using delete_segments + temp_file to prevent micro-lag)
+    '-i', 'rtmp://127.0.0.1/live/mystream'
+  ];
+
+  if (filterComplex) {
+    ffmpegArgs.push('-filter_complex', filterComplex);
+  }
+
+  let streamIndex = 0;
+  const varStreamMap = [];
+
+  if (needs1080) {
+    ffmpegArgs.push(
+      '-map', '0:v', `-c:v:${streamIndex}`, videoEncoder, ...encoderFlags, `-b:v:${streamIndex}`, '3500k', '-g', '150', '-keyint_min', '150', '-sc_threshold', '0',
+      '-map', '0:a', `-c:a:${streamIndex}`, 'aac', `-b:a:${streamIndex}`, '128k'
+    );
+    varStreamMap.push(`v:${streamIndex},a:${streamIndex}`);
+    streamIndex++;
+  }
+
+  if (needs720) {
+    const videoInput = filterComplex.includes('[v2out]') ? '[v2out]' : '0:v';
+    ffmpegArgs.push(
+      '-map', videoInput, `-c:v:${streamIndex}`, videoEncoder, ...encoderFlags, `-b:v:${streamIndex}`, '1800k', '-g', '150', '-keyint_min', '150', '-sc_threshold', '0',
+      '-map', '0:a', `-c:a:${streamIndex}`, 'aac', `-b:a:${streamIndex}`, '128k'
+    );
+    varStreamMap.push(`v:${streamIndex},a:${streamIndex}`);
+    streamIndex++;
+  }
+
+  if (needs360) {
+    const videoInput = filterComplex.includes('[v3out]') ? '[v3out]' : '0:v';
+    ffmpegArgs.push(
+      '-map', videoInput, `-c:v:${streamIndex}`, videoEncoder, ...encoderFlags, `-b:v:${streamIndex}`, '800k', '-g', '150', '-keyint_min', '150', '-sc_threshold', '0',
+      '-map', '0:a', `-c:a:${streamIndex}`, 'aac', `-b:a:${streamIndex}`, '128k'
+    );
+    varStreamMap.push(`v:${streamIndex},a:${streamIndex}`);
+    streamIndex++;
+  }
+
+  // HLS output configuration
+  ffmpegArgs.push(
     '-f', 'hls',
     '-hls_time', '5',
     '-hls_list_size', '15',
     '-hls_flags', 'delete_segments+temp_file',
-    '-var_stream_map', 'v:0,a:0 v:1,a:1 v:2,a:2',
+    '-var_stream_map', varStreamMap.join(' '),
     '-master_pl_name', 'live.m3u8',
     '-hls_segment_filename', path.join(WATCH_DIR, '%v', `seg_${streamId}_%d.ts`),
     path.join(WATCH_DIR, '%v', 'index.m3u8')
-  ];
+  );
 
   ffmpegProcess = spawn(FFMPEG_PATH, ffmpegArgs);
 
