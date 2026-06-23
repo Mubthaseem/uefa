@@ -55,6 +55,48 @@
       background: var(--primary) !important;
     }
 
+    /* ── Loading Overlay ── */
+    #loading-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.8);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      z-index: 10;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+      opacity: 1;
+    }
+    #loading-overlay.hidden {
+      opacity: 0;
+    }
+    #loading-overlay .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      border-top-color: var(--primary);
+      animation: spin 1s ease-in-out infinite;
+      margin-bottom: 15px;
+    }
+    #loading-overlay .text {
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 1; }
+    }
+
     /* ── Floating Watermark ── */
     #hx-watermark {
       position: absolute;
@@ -104,6 +146,10 @@
 <body>
   <div class="player-wrap" id="player-container">
     <video id="player" autoplay playsinline></video>
+    <div id="loading-overlay">
+      <div class="spinner"></div>
+      <div class="text">PLEASE WAIT TO LOAD...</div>
+    </div>
   </div>
 
   <script>
@@ -160,6 +206,16 @@
       let playerInstance = null;
       let uiInstance = null;
 
+      const loadingOverlay = document.getElementById('loading-overlay');
+      
+      function showLoading() {
+        loadingOverlay.classList.remove('hidden');
+      }
+
+      function hideLoading() {
+        loadingOverlay.classList.add('hidden');
+      }
+
       function getFallbackVideo() {
         const base = videoURL.includes('mubthaseem-zeta-stream-3.hf.space')
           ? 'https://mubthaseem-zeta-stream-3.hf.space/live/offline.mp4'
@@ -170,6 +226,7 @@
       async function loadFallbackVideo() {
         if (isPlayingFallback) return;
         isPlayingFallback = true;
+        showLoading();
         const videoEl = document.getElementById('player');
         videoEl.loop = true;
         const fallback = getFallbackVideo();
@@ -188,6 +245,10 @@
 
         const videoEl = document.getElementById('player');
         const containerEl = document.getElementById('player-container');
+        
+        // Hide overlay on actual video playback starting
+        videoEl.addEventListener('playing', hideLoading);
+        videoEl.addEventListener('waiting', showLoading);
         
         playerInstance = new shaka.Player(videoEl);
 
@@ -233,6 +294,7 @@
           }
 
           console.log(`Verifying stream health (attempt ${consecutiveRetries})...`);
+          showLoading();
           fetch(videoURL, { method: 'HEAD' })
             .then(res => {
               if (res.status === 404 || res.status === 403) {
@@ -258,6 +320,7 @@
 
         // Load stream
         try {
+          showLoading();
           await playerInstance.load(videoURL);
           console.log("Stream loaded successfully via Shaka Player");
         } catch (e) {
