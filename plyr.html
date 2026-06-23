@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,11 +7,11 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>Zeta Sports Player (JW)</title>
+  <title>Zeta Sports Player (Shaka)</title>
   
-  <!-- JW Player -->
-  <script src="https://ssl.p.jwpcdn.com/player/v/8.21.2/jwplayer.js"></script>
-  <script>jwplayer.key="64HPbvSQorQcd52B8XFuhMtEoitbvY/EXJmMBfKcXZQU2Rnn";</script>
+  <!-- Shaka Player UI -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/shaka-player@4.16.2/dist/controls.css">
+  <script src="https://cdn.jsdelivr.net/npm/shaka-player@4.16.2/dist/shaka-player.ui.js"></script>
 
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
   
@@ -25,25 +23,36 @@
       background: #000;
       overflow: hidden;
     }
+    
+    /* Shaka video container to occupy full viewport */
     .player-wrap {
-      width: 100%;
-      height: 100%;
-      position: relative;
+      width: 100% !important;
+      height: 100% !important;
+      position: absolute;
+      inset: 0;
       background: #000;
     }
     #player {
       width: 100% !important;
       height: 100% !important;
+      object-fit: contain;
     }
     
-    /* Green active styling for JW Player */
-    .jwplayer {
-      --jw-color-active: #00e676 !important;
-      --jw-color-inactive: #94a3b8 !important;
-      --jw-controlbar-icons-active: #00e676 !important;
+    /* Green active styling for Shaka Player UI */
+    :root {
+      --primary: #00e676;
     }
-    .jw-logo, .jw-watermark {
-      display: none !important;
+    .shaka-range-element {
+      color: var(--primary) !important;
+    }
+    .shaka-volume-bar {
+      color: var(--primary) !important;
+    }
+    .shaka-spinner-path {
+      stroke: var(--primary) !important;
+    }
+    .shaka-play-button {
+      background: var(--primary) !important;
     }
 
     /* ── Floating Watermark ── */
@@ -84,11 +93,17 @@
       color: #c8d0da;
       margin-top: 2px;
     }
+
+    /* Watermark behavior when controls fade */
+    .shaka-controls-hide #hx-watermark {
+      opacity: 0.28 !important;
+      bottom: 25px;
+    }
   </style>
 </head>
 <body>
-  <div class="player-wrap">
-    <div id="player"></div>
+  <div class="player-wrap" id="player-container">
+    <video id="player" autoplay playsinline></video>
   </div>
 
   <script>
@@ -127,49 +142,89 @@
       // Append cache buster to the main HLS manifest URL
       videoURL = videoURL + (videoURL.includes('?') ? '&' : '?') + 't=' + Date.now();
 
-      const jwInstance = jwplayer('player').setup({
-        playlist: [{
-          file: videoURL,
-          type: 'hls'
-        }],
-        width: '100%',
-        height: '100%',
-        autostart: true,
-        mute: false
-      });
+      // Extract clearKeys DRM from query params (e.g. ?key=kid:keyval or ?key=kid1:keyval1,kid2:keyval2)
+      const clearKeys = {};
+      const keyParam = params.get('key');
+      if (keyParam) {
+        const parts = keyParam.split(',');
+        parts.forEach(part => {
+          const pair = part.split(':');
+          if (pair.length === 2) {
+            clearKeys[pair[0].trim()] = pair[1].trim();
+          }
+        });
+      }
 
       let consecutiveRetries = 0;
-
-      jwInstance.on('playing', () => {
-        consecutiveRetries = 0;
-      });
+      let isPlayingFallback = false;
+      let playerInstance = null;
+      let uiInstance = null;
 
       function getFallbackVideo() {
-        const item = jwInstance.getPlaylistItem();
-        const currentFile = item ? item.file : '';
-        const base = currentFile.includes('mubthaseem-zeta-stream-3.hf.space')
+        const base = videoURL.includes('mubthaseem-zeta-stream-3.hf.space')
           ? 'https://mubthaseem-zeta-stream-3.hf.space/live/offline.mp4'
           : 'https://mubthaseem-zeta-stream.hf.space/live/offline.mp4';
         return base + '?t=' + Date.now();
       }
 
-      function loadFallbackVideo() {
+      async function loadFallbackVideo() {
+        if (isPlayingFallback) return;
+        isPlayingFallback = true;
+        const videoEl = document.getElementById('player');
+        videoEl.loop = true;
         const fallback = getFallbackVideo();
         console.log("Loading fallback video:", fallback);
-        jwInstance.load([{
-          file: fallback,
-          type: 'mp4'
-        }]);
-        jwInstance.setConfig({ repeat: true });
-        jwInstance.play();
+        try {
+          await playerInstance.load(fallback);
+        } catch (e) {
+          console.error("Fallback load failed:", e.message);
+        }
       }
 
-      jwInstance.on('error', (event) => {
-        console.warn("JW Player stream error:", event.message, event.code);
-        const item = jwInstance.getPlaylistItem();
-        const currentFile = item ? item.file : '';
-        const fallback = getFallbackVideo();
-        if (currentFile !== fallback) {
+      async function initPlayer() {
+        if (typeof shaka !== 'undefined' && shaka.polyfill) {
+          shaka.polyfill.installAll();
+        }
+
+        const videoEl = document.getElementById('player');
+        const containerEl = document.getElementById('player-container');
+        
+        playerInstance = new shaka.Player(videoEl);
+
+        // DRM clearKeys setup
+        if (Object.keys(clearKeys).length > 0) {
+          playerInstance.configure({
+            drm: {
+              clearKeys: clearKeys
+            }
+          });
+        }
+
+        // Shaka UI Overlay Setup
+        if (shaka.ui && shaka.ui.Overlay) {
+          uiInstance = new shaka.ui.Overlay(playerInstance, containerEl, videoEl);
+          const uiConfig = {
+            controlPanelElements: [
+              'play_pause',
+              'mute',
+              'volume',
+              'spacer',
+              'time_and_duration',
+              'quality',
+              'fullscreen',
+              'overflow_menu'
+            ]
+          };
+          uiInstance.configure(uiConfig);
+        }
+
+        // Error listener
+        playerInstance.addEventListener('error', (event) => {
+          const error = event.detail;
+          console.warn("Shaka Player stream error:", error.code, error.message);
+          
+          if (isPlayingFallback) return;
+
           consecutiveRetries++;
           if (consecutiveRetries > 3) {
             console.log("Too many consecutive stream errors. Switching to fallback.");
@@ -178,19 +233,19 @@
           }
 
           console.log(`Verifying stream health (attempt ${consecutiveRetries})...`);
-          fetch(currentFile, { method: 'HEAD' })
+          fetch(videoURL, { method: 'HEAD' })
             .then(res => {
               if (res.status === 404 || res.status === 403) {
                 console.log("Stream file returned 404/403. Switching to fallback.");
                 loadFallbackVideo();
               } else {
                 console.log("Stream file is still present. Retrying playback in 3s...");
-                setTimeout(() => {
-                  const checkItem = jwInstance.getPlaylistItem();
-                  const checkFile = checkItem ? checkItem.file : '';
-                  if (checkFile !== fallback) {
-                    jwInstance.load([{ file: currentFile, type: 'hls' }]);
-                    jwInstance.play();
+                setTimeout(async () => {
+                  if (!isPlayingFallback) {
+                    try {
+                      await playerInstance.load(videoURL);
+                      consecutiveRetries = 0;
+                    } catch(_) {}
                   }
                 }, 3000);
               }
@@ -199,26 +254,18 @@
               console.log("Stream file fetch failed. Switching to fallback.");
               loadFallbackVideo();
             });
+        });
+
+        // Load stream
+        try {
+          await playerInstance.load(videoURL);
+          console.log("Stream loaded successfully via Shaka Player");
+        } catch (e) {
+          console.error("Initial load failed. Triggering fallback check:", e.message);
+          loadFallbackVideo();
         }
-      });
 
-      jwInstance.on('setupError', (event) => {
-        console.error("JW Player setup error:", event.message);
-        loadFallbackVideo();
-      });
-
-      jwInstance.on('complete', () => {
-        const item = jwInstance.getPlaylistItem();
-        const currentFile = item ? item.file : '';
-        if (currentFile.includes('offline.mp4')) {
-          jwInstance.play();
-        }
-      });
-
-      // Add watermark to player container
-      jwInstance.on('ready', () => {
-        const jwContainer = document.querySelector('.jwplayer');
-        
+        // Append Watermark
         const wm = document.createElement('div');
         wm.id = 'hx-watermark';
         wm.innerHTML =
@@ -228,16 +275,10 @@
             '<span class="wm-url"> </span>' +
           '</span>' +
           '<span class="wm-rule right"></span>';
-        
-        if (jwContainer) {
-          jwContainer.appendChild(wm);
-        }
-      });
+        containerEl.appendChild(wm);
+      }
 
-      // Autoplay play error catcher
-      jwInstance.on('playAttemptFailed', () => {
-        console.log("Autoplay failed, user interaction required.");
-      });
+      document.addEventListener('DOMContentLoaded', initPlayer);
     })();
   </script>
 </body>
