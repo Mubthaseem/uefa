@@ -831,6 +831,12 @@
           }
           shakaPlayerInstance = new shaka.Player(videoEl);
           shakaPlayerInstance.configure({
+            streaming: {
+              bufferingGoal: 6,
+              rebufferingGoal: 2,
+              liveSyncPosition: 5,
+              lowLatencyMode: true
+            },
             drm: {
               clearKeys: stream.keys || {}
             }

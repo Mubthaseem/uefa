@@ -312,6 +312,16 @@
         
         playerInstance = new shaka.Player(videoEl);
 
+        // Low latency & buffering optimizations for live streaming
+        playerInstance.configure({
+          streaming: {
+            bufferingGoal: 6,
+            rebufferingGoal: 2,
+            liveSyncPosition: 5,
+            lowLatencyMode: true
+          }
+        });
+
         // DRM clearKeys setup
         if (Object.keys(clearKeys).length > 0) {
           playerInstance.configure({
