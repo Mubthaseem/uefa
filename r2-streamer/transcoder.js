@@ -114,7 +114,7 @@ function handlePublish(id, streamPath) {
   const varStreamMap = [];
 
   const fpsArgs = maxFps ? ['-r', maxFps.toString()] : [];
-  const gopSize = maxFps ? (maxFps * 2.5).toString() : '150';
+  const gopSize = maxFps ? (maxFps * 2).toString() : '120';
 
   if (needs1080) {
     ffmpegArgs.push(
@@ -145,11 +145,11 @@ function handlePublish(id, streamPath) {
     streamIndex++;
   }
 
-  // HLS output configuration
+  // HLS output configuration for low-latency (2s segments, 6 segments playlist)
   ffmpegArgs.push(
     '-f', 'hls',
-    '-hls_time', '5',
-    '-hls_list_size', '15',
+    '-hls_time', '2',
+    '-hls_list_size', '6',
     '-hls_flags', 'delete_segments+temp_file',
     '-var_stream_map', varStreamMap.join(' '),
     '-master_pl_name', 'live.m3u8',
