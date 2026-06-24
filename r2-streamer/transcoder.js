@@ -9,6 +9,7 @@ const FFMPEG_PATH = path.join(__dirname, 'bin', 'ffmpeg.exe');
 // Load config.json from root directory (one level up)
 let useNvidiaGpu = false;
 let qualities = ['1080p', '720p', '360p'];
+let maxFps = 0;
 try {
   const configPath = path.join(__dirname, '..', 'config.json');
   if (fs.existsSync(configPath)) {
@@ -16,6 +17,9 @@ try {
     useNvidiaGpu = appConfig.USE_NVIDIA_GPU === true;
     if (Array.isArray(appConfig.QUALITIES) && appConfig.QUALITIES.length > 0) {
       qualities = appConfig.QUALITIES;
+    }
+    if (appConfig.MAX_FPS) {
+      maxFps = parseInt(appConfig.MAX_FPS, 10);
     }
   }
 } catch (e) {
@@ -109,9 +113,12 @@ function handlePublish(id, streamPath) {
   let streamIndex = 0;
   const varStreamMap = [];
 
+  const fpsArgs = maxFps ? ['-r', maxFps.toString()] : [];
+  const gopSize = maxFps ? (maxFps * 2.5).toString() : '150';
+
   if (needs1080) {
     ffmpegArgs.push(
-      '-map', '0:v', `-c:v:${streamIndex}`, videoEncoder, ...encoderFlags, `-b:v:${streamIndex}`, '3500k', '-g', '150', '-keyint_min', '150', '-sc_threshold', '0',
+      '-map', '0:v', `-c:v:${streamIndex}`, videoEncoder, ...encoderFlags, `-b:v:${streamIndex}`, '3500k', ...fpsArgs, '-g', gopSize, '-keyint_min', gopSize, '-sc_threshold', '0',
       '-map', '0:a', `-c:a:${streamIndex}`, 'aac', `-b:a:${streamIndex}`, '128k'
     );
     varStreamMap.push(`v:${streamIndex},a:${streamIndex}`);
@@ -121,7 +128,7 @@ function handlePublish(id, streamPath) {
   if (needs720) {
     const videoInput = filterComplex.includes('[v2out]') ? '[v2out]' : '0:v';
     ffmpegArgs.push(
-      '-map', videoInput, `-c:v:${streamIndex}`, videoEncoder, ...encoderFlags, `-b:v:${streamIndex}`, '1800k', '-g', '150', '-keyint_min', '150', '-sc_threshold', '0',
+      '-map', videoInput, `-c:v:${streamIndex}`, videoEncoder, ...encoderFlags, `-b:v:${streamIndex}`, '1800k', ...fpsArgs, '-g', gopSize, '-keyint_min', gopSize, '-sc_threshold', '0',
       '-map', '0:a', `-c:a:${streamIndex}`, 'aac', `-b:a:${streamIndex}`, '128k'
     );
     varStreamMap.push(`v:${streamIndex},a:${streamIndex}`);
@@ -131,7 +138,7 @@ function handlePublish(id, streamPath) {
   if (needs360) {
     const videoInput = filterComplex.includes('[v3out]') ? '[v3out]' : '0:v';
     ffmpegArgs.push(
-      '-map', videoInput, `-c:v:${streamIndex}`, videoEncoder, ...encoderFlags, `-b:v:${streamIndex}`, '800k', '-g', '150', '-keyint_min', '150', '-sc_threshold', '0',
+      '-map', videoInput, `-c:v:${streamIndex}`, videoEncoder, ...encoderFlags, `-b:v:${streamIndex}`, '800k', ...fpsArgs, '-g', gopSize, '-keyint_min', gopSize, '-sc_threshold', '0',
       '-map', '0:a', `-c:a:${streamIndex}`, 'aac', `-b:a:${streamIndex}`, '128k'
     );
     varStreamMap.push(`v:${streamIndex},a:${streamIndex}`);

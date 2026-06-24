@@ -69,6 +69,8 @@ async function uploadFile(relativePath) {
     if (relativePath === 'live.m3u8') {
       let content = fs.readFileSync(filePath, 'utf8');
       content = content.replace(/\\/g, '/'); // Convert \ to /
+      // Append cache buster to variant playlists (index.m3u8 -> index.m3u8?t=TIMESTAMP)
+      content = content.replace(/(index\.m3u8)/g, `$1?t=${Date.now()}`);
       fileBuffer = Buffer.from(content, 'utf8');
       contentType = 'application/vnd.apple.mpegurl';
     } else if (relativePath.endsWith('.m3u8')) {
