@@ -436,9 +436,29 @@
   video.addEventListener('webkitbeginfullscreen', lockLandscape);
   video.addEventListener('webkitendfullscreen', unlockOrientation);
 
+  // Cache busting playlist loader to override CDN caching on poll requests
+  class CacheBustingPlaylistLoader extends Hls.DefaultConfig.loader {
+    constructor(config) {
+      super(config);
+    }
+    load(context, config, callbacks) {
+      const originalUrl = context.url;
+      const separator = originalUrl.includes('?') ? '&' : '?';
+      let newUrl = originalUrl;
+      if (originalUrl.includes('t=')) {
+        newUrl = originalUrl.replace(/t=\d+/, `t=${Date.now()}`);
+      } else {
+        newUrl = originalUrl + separator + 't=' + Date.now();
+      }
+      context.url = newUrl;
+      super.load(context, config, callbacks);
+    }
+  }
+
   // ── Build Hls.js ──
   function buildHls(){
     return new Hls({
+      pLoader:                  CacheBustingPlaylistLoader,
       startLevel:               -1,
       capLevelToPlayerSize:     false,
       abrEwmaDefaultEstimate:   2500000,

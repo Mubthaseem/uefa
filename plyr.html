@@ -312,6 +312,21 @@
         
         playerInstance = new shaka.Player(videoEl);
 
+        // Force cache busting on manifest updates (poll requests) to eliminate CDN edge caching lag
+        playerInstance.getNetworkingEngine().registerRequestFilter((type, request) => {
+          if (type === shaka.net.NetworkingEngine.RequestType.MANIFEST) {
+            const originalUri = request.uris[0];
+            const separator = originalUri.includes('?') ? '&' : '?';
+            let newUri = originalUri;
+            if (originalUri.includes('t=')) {
+              newUri = originalUri.replace(/t=\d+/, `t=${Date.now()}`);
+            } else {
+              newUri = originalUri + separator + 't=' + Date.now();
+            }
+            request.uris[0] = newUri;
+          }
+        });
+
         // Low latency & buffering optimizations for live streaming
         playerInstance.configure({
           streaming: {
