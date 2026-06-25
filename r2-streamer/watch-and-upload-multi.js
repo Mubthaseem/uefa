@@ -61,29 +61,36 @@ async function uploadFile(relativePath) {
   if (uploadQueue.has(targetPath)) return;
   uploadQueue.add(targetPath);
 
+  // Setup abort controller for timeout to prevent upload deadlock
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => {
+    console.warn(`[Timeout] Upload of ${targetPath} took too long, aborting.`);
+    controller.abort();
+  }, 10000); // 10 seconds timeout
+
   try {
     let fileBuffer;
     let contentType = 'application/octet-stream';
 
     // If it's the master playlist, fix the Windows backslash issue locally before uploading
-    if (relativePath === 'live.m3u8') {
+    if (targetPath === 'live.m3u8') {
       let content = fs.readFileSync(filePath, 'utf8');
       content = content.replace(/\\/g, '/'); // Convert \ to /
       // Append cache buster to variant playlists (index.m3u8 -> index.m3u8?t=TIMESTAMP)
       content = content.replace(/(index\.m3u8)/g, `$1?t=${Date.now()}`);
       fileBuffer = Buffer.from(content, 'utf8');
       contentType = 'application/vnd.apple.mpegurl';
-    } else if (relativePath.endsWith('.m3u8')) {
+    } else if (targetPath.endsWith('.m3u8')) {
       fileBuffer = fs.readFileSync(filePath);
       contentType = 'application/vnd.apple.mpegurl';
-    } else if (relativePath.endsWith('.ts')) {
+    } else if (targetPath.endsWith('.ts')) {
       fileBuffer = fs.readFileSync(filePath);
       contentType = 'video/MP2T';
     } else {
       fileBuffer = fs.readFileSync(filePath);
     }
 
-    const cacheControl = relativePath.endsWith('.ts') 
+    const cacheControl = targetPath.endsWith('.ts') 
       ? 'public, max-age=3600' 
       : 'public, max-age=0, s-maxage=3, must-revalidate';
 
@@ -95,7 +102,7 @@ async function uploadFile(relativePath) {
       CacheControl: cacheControl
     });
 
-    await s3Client.send(command);
+    await s3Client.send(command, { abortSignal: controller.signal });
     console.log(`Uploaded successfully to R2: live/${targetPath}`);
     
     // Delete local .ts file after successful upload to save disk space
@@ -107,6 +114,7 @@ async function uploadFile(relativePath) {
   } catch (err) {
     console.error(`Error uploading ${targetPath} to R2:`, err.message);
   } finally {
+    clearTimeout(timeoutId);
     uploadQueue.delete(targetPath);
   }
 }
@@ -121,3 +129,18 @@ fs.watch(WATCH_DIR, { recursive: true }, (eventType, filename) => {
     setTimeout(() => uploadFile(filename), 50);
   }
 });
+
+// Initial check for master playlist on startup
+const initialMasterPath = path.join(WATCH_DIR, 'live.m3u8');
+if (fs.existsSync(initialMasterPath)) {
+  console.log("Master playlist live.m3u8 found on startup, triggering initial upload...");
+  uploadFile('live.m3u8');
+}
+
+// Periodic safety check to ensure master playlist is always present in R2
+setInterval(() => {
+  const masterPath = path.join(WATCH_DIR, 'live.m3u8');
+  if (fs.existsSync(masterPath)) {
+    uploadFile('live.m3u8');
+  }
+}, 15000); // Check every 15 seconds
