@@ -114,7 +114,7 @@ function handlePublish(id, streamPath) {
   const varStreamMap = [];
 
   const fpsArgs = maxFps ? ['-r', maxFps.toString()] : [];
-  const gopSize = maxFps ? (maxFps * 2).toString() : '120';
+  const gopSize = maxFps ? (maxFps * 2).toString() : '60';
 
   if (needs1080) {
     ffmpegArgs.push(
