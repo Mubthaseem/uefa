@@ -1,13 +1,4 @@
 {
-  "HELL_L3": {
-    "name": "Link 4 | Malayalam | HD",
-    "url": "https://ts.lolgod.cfd/v/8939469e7ca63a34838e5eb49468aa52/index.m3u8",
-    "type": "jw",
-    "keys": {},
-    "meta": "Malayalam",
-    "vpn": "",
-    "enabled": true
-  },
   "MAL": {
     "name": "MALAYALAM MAIN SERVER",
     "url": "https://malayalamzee5.zetasports.online/live/live.m3u8",
@@ -37,7 +28,7 @@
     "sandbox": "strict"
   },
   "GOLIVE": {
-    "name": "ARGENTINA VS JORDAN | ARABIC",
+    "name": "ARABIC 2",
     "url": "https://ex.roooom.online/?alba-player=home1&serv=0",
     "type": "iframe",
     "keys": {},
@@ -46,15 +37,6 @@
     "enabled": true,
     "sandbox": "strict"
   },
-  "CAZE1": {
-    "name": "CHINESE",
-    "url": "https://live06.zuqiu106.com/live/20233432.m3u8",
-    "type": "shaka",
-    "keys": {},
-    "meta": "",
-    "vpn": "",
-    "enabled": false
-  },
   "NTV": {
     "name": "NTV English HD",
     "url": "https://qp-pldt-live-bpk-ucd-prod.akamaized.net/bpk-tv/ch299/default/index.mpd",
@@ -62,46 +44,6 @@
       "549ab7cd35a64bb6bb479ecead04d69d": "829799ed534d11fcadeb4b192467e050"
     },
     "meta": "FHD · Multi-Audio",
-    "vpn": "",
-    "enabled": false
-  },
-  "U1": {
-    "name": "iOS Link 1 - HLS",
-    "url": "https://live05.msdht.app/live/24561735.m3u8",
-    "keys": {
-      "493eab903cf5a797e731d6e5c8d30c98": "353930004d8da5907ccf70a5ff776f45"
-    },
-    "meta": "iOS/Safari Friendly · Worldwide",
-    "vpn": "",
-    "enabled": false
-  },
-  "TELE": {
-    "name": "Telemundo HD",
-    "url": "https://live-oneapp-prd-news.akamaized.net/Content/CMAF_OL2-CTR-4s-v2/Live/channel(kvea)/master.mpd",
-    "keys": {
-      "ce7ab3022e753307997f58afe001bac4": "72d631a66e635c60829a0fe7705516c1"
-    },
-    "meta": "HD · Spanish Commentary",
-    "vpn": "",
-    "enabled": false
-  },
-  "M6": {
-    "name": "M6 France HD [50FPS]",
-    "url": "https://origin-m6web.live.6cloud.fr/out/v1/6play/6play-m6/cmaf_cenc00/dash-short-hd.mpd",
-    "keys": {
-      "433ffba670963e70857859a9dff4be04": "51ede3a821229fe81e71282c8eff80e3"
-    },
-    "meta": "HD · French Commentary",
-    "vpn": "",
-    "enabled": false
-  },
-  "TIPIK": {
-    "name": "Tipik France HD",
-    "url": "https://c9851ec-rbm-hilv-fsly.cdn.redbee.live/L26/6b640fa2/a765d074.isml/dash/.mpd",
-    "keys": {
-      "adca25b8779e4168a0cd710f59f61ccf": "be5383ed3cd8079f4ffe78ad067f476a"
-    },
-    "meta": "HD · French Commentary",
     "vpn": "",
     "enabled": false
   },
@@ -176,56 +118,101 @@
     "enabled": false
   },
   "HELL_L1": {
-    "name": "Link 2 | Arabic | HD Stream",
-    "url": "https://am.homom.store/braz1.m3u8",
+    "name": "Link 1 | English HD Stream",
+    "url": "https://live2.eu-north-1b.cf.dmcdn.net/sec2(cJe1zKCrZjLzIdwmyhj7raFnkvFN8rmcU0LlV68rVHplJN8mi-KhQiWNgclNmnVfmbWqPDlwa9QuUY4oMamPsNg2KvRS7_NQXiSF1ismXFbc584eyfklJPna9faU0Wbn)/cloud/3/x9ko9z8/s/live-720.m3u8",
+    "type": "jw",
+    "keys": {},
+    "meta": "English HD",
+    "vpn": "",
+    "enabled": true
+  },
+  "HELL_L1B": {
+    "name": "Link 1B | English | iframe",
+    "url": "https://lordatomic.github.io/uefa/engl.html",
+    "type": "iframe",
+    "keys": {},
+    "meta": "English",
+    "vpn": "",
+    "enabled": true
+  },
+  "HELL_L2": {
+    "name": "Link 2 | Arabic HD Stream",
+    "url": "https://mc.rootsee.shop/citroo3.m3u8",
     "type": "jw",
     "keys": {},
     "meta": "Arabic",
     "vpn": "",
     "enabled": true
   },
-  "HELL_L2": {
-    "name": "Link 3 | FussBall | 4K UHD",
+  "HELL_L3": {
+    "name": "Link 3 | CCTV | HD",
     "url": "https://play.gzxdby.com/live/183334344568_2547627111.m3u8",
     "type": "jw",
     "keys": {},
-    "meta": "FussBall",
+    "meta": "CCTV Chinese",
+    "vpn": "",
+    "enabled": true
+  },
+  "HELL_L3B": {
+    "name": "Link 3B | CCTV Backup",
+    "url": "https://live05.paznhl.app/live/08552895.m3u8",
+    "type": "jw",
+    "keys": {},
+    "meta": "CCTV Backup",
     "vpn": "",
     "enabled": true
   },
   "HELL_L4": {
-    "name": "Link 5 | CCTV | HD Quality",
-    "url": "https://live05.meung.app/live/78905744.m3u8",
+    "name": "Link 4 | Malayalam | HD",
+    "url": "https://ts.rokki.cfd/v/ca871b5c8746c030307a084ee80196bd/index.m3u8",
     "type": "jw",
     "keys": {},
-    "meta": "CCTV",
+    "meta": "Malayalam",
     "vpn": "",
     "enabled": true
   },
   "HELL_L5": {
-    "name": "Link 6 | Fox 4K English | UHD Quality",
-    "url": "https://cdn011.viaplus.site/fox4k-usa.m3u8",
+    "name": "Link 5 | DSports | HD",
+    "url": "https://live05.paznhl.app/live/08552895.m3u8",
     "type": "jw",
     "keys": {},
-    "meta": "Fox 4K English",
+    "meta": "DSports",
     "vpn": "",
     "enabled": true
   },
   "HELL_L6": {
-    "name": "Link 7 | Bein Sports 4K | Arabic",
-    "url": "https://cdn011.viaplus.site/beinsportsmax-sa.m3u8",
+    "name": "Link 6 | Fox English | HD",
+    "url": "https://cdn011.viaplus.site/fox-usa.m3u8",
     "type": "jw",
     "keys": {},
-    "meta": "Bein Sports 4K",
+    "meta": "Fox English",
+    "vpn": "",
+    "enabled": true
+  },
+  "HELL_L6B": {
+    "name": "Link 6B | Fox 4K | UHD",
+    "url": "https://cdn011.viaplus.site/fox4k-usa.m3u8",
+    "type": "jw",
+    "keys": {},
+    "meta": "Fox 4K English UHD",
     "vpn": "",
     "enabled": true
   },
   "HELL_L7": {
-    "name": "Link 8 | Telemundo | IOS",
+    "name": "Link 7 | Bein Sports 4K | Arabic",
+    "url": "https://cdn011.viaplus.site/beinsportsmax2-sa.m3u8",
+    "type": "jw",
+    "keys": {},
+    "meta": "Bein Sports Arabic 4K",
+    "vpn": "",
+    "enabled": true
+  },
+  "HELL_L8": {
+    "name": "Link 8 | Fussball 4K | German",
     "url": "https://cdn011.viaplus.site/fussballtv1uhd-de.m3u8",
     "type": "jw",
     "keys": {},
-    "meta": "Telemundo",
+    "meta": "Fussball German 4K",
     "vpn": "",
     "enabled": true
   }
