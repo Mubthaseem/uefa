@@ -1,4 +1,13 @@
 {
+  "HELL_L3": {
+    "name": "Link 4 | Malayalam | HD",
+    "url": "https://ts.lolgod.cfd/v/8939469e7ca63a34838e5eb49468aa52/index.m3u8",
+    "type": "jw",
+    "keys": {},
+    "meta": "Malayalam",
+    "vpn": "",
+    "enabled": true
+  },
   "MAL": {
     "name": "MALAYALAM MAIN SERVER",
     "url": "https://malayalamzee5.zetasports.online/live/live.m3u8",
@@ -181,15 +190,6 @@
     "type": "jw",
     "keys": {},
     "meta": "FussBall",
-    "vpn": "",
-    "enabled": true
-  },
-  "HELL_L3": {
-    "name": "Link 4 | Malayalam | HD",
-    "url": "https://ts.lolgod.cfd/v/8939469e7ca63a34838e5eb49468aa52/index.m3u8",
-    "type": "jw",
-    "keys": {},
-    "meta": "Malayalam",
     "vpn": "",
     "enabled": true
   },
