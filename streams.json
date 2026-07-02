@@ -117,17 +117,35 @@
     "vpn": "",
     "enabled": false
   },
-  "HELL_L4": {
-    "name": "Link 4 | Malayalam | HD",
-    "url": "https://ts.hsztxc.cfd/v/bde65819746354f90fe3130d51db3f0a/index.m3u8",
+  "HELL_L1": {
+    "name": "Link 1 | M6 TV Spanish | HD Stream",
+    "url": "https://live05.koepgd.app/live/08552895.m3u8",
     "type": "jw",
     "keys": {},
-    "meta": "Malayalam",
+    "meta": "M6 TV Spanish",
     "vpn": "",
     "enabled": true
   },
-  "HELL_L1": {
-    "name": "Link 1 | English HD Stream",
+  "HELL_L1B": {
+    "name": "Link 1B | M6 TV Spanish | Backup",
+    "url": "https://lordatomic.github.io/uefa/m6hd.html",
+    "type": "iframe",
+    "keys": {},
+    "meta": "M6 TV Spanish (iframe)",
+    "vpn": "",
+    "enabled": true
+  },
+  "HELL_L2": {
+    "name": "Link 2 | Arabic | HD Stream",
+    "url": "https://za.emoranz.cfd/albaplayer/karern/?serv=1",
+    "type": "iframe",
+    "keys": {},
+    "meta": "Arabic",
+    "vpn": "",
+    "enabled": true
+  },
+  "HELL_L3": {
+    "name": "Link 3 | English | HD Stream",
     "url": "https://play.666666.zip/live/4459728.m3u8",
     "type": "jw",
     "keys": {},
@@ -135,54 +153,36 @@
     "vpn": "",
     "enabled": true
   },
-  "HELL_L1B": {
-    "name": "Link 1B | English | iframe",
+  "HELL_L3B": {
+    "name": "Link 3B | English | Backup",
     "url": "https://lordatomic.github.io/uefa/engl.html",
     "type": "iframe",
     "keys": {},
-    "meta": "English",
+    "meta": "English (iframe)",
     "vpn": "",
     "enabled": true
   },
-  "HELL_L2": {
-    "name": "Link 2 | Arabic HD Stream",
-    "url": "https://lordatomic.github.io/uefa/m6hd.html",
+  "HELL_L4": {
+    "name": "Link 4 | Malayalam | HD Stream",
+    "url": "https://ts.hsztxc.cfd/v/bde65819746354f90fe3130d51db3f0a/index.m3u8",
     "type": "jw",
     "keys": {},
-    "meta": "Arabic",
-    "vpn": "",
-    "enabled": true
-  },
-  "HELL_L3": {
-    "name": "Link 3 | CCTV | HD",
-    "url": "https://play.gzxdby.com/live/183334344568_2547627111.m3u8",
-    "type": "jw",
-    "keys": {},
-    "meta": "CCTV Chinese",
-    "vpn": "",
-    "enabled": true
-  },
-  "HELL_L3B": {
-    "name": "Link 3B | CCTV Backup",
-    "url": "https://live05.paznhl.app/live/08552895.m3u8",
-    "type": "jw",
-    "keys": {},
-    "meta": "CCTV Backup",
+    "meta": "Malayalam HD",
     "vpn": "",
     "enabled": true
   },
   "HELL_L5": {
-    "name": "Link 5 | DSports | HD",
-    "url": "https://live05.paznhl.app/live/08552895.m3u8",
+    "name": "Link 5 | Bein Sports | IOS Stream",
+    "url": "https://1nyaler.streamhostingcdn.top/stream/23/index.m3u8",
     "type": "jw",
     "keys": {},
-    "meta": "DSports",
+    "meta": "Bein Sports IOS",
     "vpn": "",
     "enabled": true
   },
   "HELL_L6": {
-    "name": "Link 6 | Fox English | HD",
-    "url": "https://cdn011.viaplus.site/fox-usa.m3u8",
+    "name": "Link 6 | Fox English | HD Stream",
+    "url": "https://cp11.adabmedia.com/hls2/sport.m3u8",
     "type": "jw",
     "keys": {},
     "meta": "Fox English",
@@ -199,20 +199,83 @@
     "enabled": true
   },
   "HELL_L7": {
-    "name": "Link 7 | Bein Sports 4K | Arabic",
-    "url": "https://cdn011.viaplus.site/beinsportsmax2-sa.m3u8",
+    "name": "Link 7 | Japanese | HD Stream",
+    "url": "https://pul-tenm.gkykp.com/live/hd-en-1-4459728.m3u8?txSecret=aa8e428ad617355d8b76ec258d7d7c23&txTime=6A480368",
     "type": "jw",
     "keys": {},
-    "meta": "Bein Sports Arabic 4K",
+    "meta": "Japanese",
     "vpn": "",
     "enabled": true
   },
   "HELL_L8": {
-    "name": "Link 8 | Fussball 4K | German",
-    "url": "https://cdn011.viaplus.site/fussballtv1uhd-de.m3u8",
+    "name": "Link 8 | Bein HD | IOS Stream",
+    "url": "https://play.666666.zip/live/4459728.m3u8",
     "type": "jw",
     "keys": {},
-    "meta": "Fussball German 4K",
+    "meta": "Bein HD IOS",
+    "vpn": "",
+    "enabled": true
+  },
+  "YALLA_L1": {
+    "name": "Portugal L1 | Migu Auto | HD",
+    "url": "https://live.666666.zip/migu/1.m3u8",
+    "type": "jw",
+    "keys": {},
+    "meta": "Auto Quality Mobile/PC",
+    "vpn": "",
+    "enabled": true
+  },
+  "YALLA_L2": {
+    "name": "Portugal L2 | Peacock ENG | HD",
+    "url": "https://za.emoranz.cfd/albaplayer/karern/?serv=1",
+    "type": "iframe",
+    "keys": {},
+    "meta": "ENG Auto Quality Android/PC",
+    "vpn": "",
+    "enabled": true
+  },
+  "YALLA_L3": {
+    "name": "Portugal L3 | Migu Malayalam | HD",
+    "url": "https://live.666666.zip/migu/1.m3u8",
+    "type": "jw",
+    "keys": {},
+    "meta": "Malayalam Mobile/PC",
+    "vpn": "",
+    "enabled": true
+  },
+  "YALLA_L4": {
+    "name": "Portugal L4 | Arabic | 480p",
+    "url": "https://live05.meung.app/live/08552895.m3u8",
+    "type": "jw",
+    "keys": {},
+    "meta": "Arabic 480p Mobile",
+    "vpn": "",
+    "enabled": true
+  },
+  "YALLA_L5": {
+    "name": "Portugal L5 | Bein Arabic | HD",
+    "url": "https://d23t8upgeejpm8.cloudfront.net/live/bein1_hls.m3u8",
+    "type": "jw",
+    "keys": {},
+    "meta": "Bein Arabic 480p Mobile",
+    "vpn": "",
+    "enabled": true
+  },
+  "YALLA_L7": {
+    "name": "Portugal L7 | Fox USA | HD",
+    "url": "https://nhjjhhjhjjhfjj.pages.dev/1782611483/dfd12f9957f04ee8b3d507f2d01aec16/I6ixt0Efwc2DMq76jHBKqxpi_0DDccQRmERX0ED0VYo/fox-usa.m3u8",
+    "type": "jw",
+    "keys": {},
+    "meta": "Arabic 480p Mobile",
+    "vpn": "",
+    "enabled": true
+  },
+  "YALLA_L8": {
+    "name": "Portugal L8 | Arabic | HD",
+    "url": "https://live05.meung.app/live/08552895.m3u8",
+    "type": "jw",
+    "keys": {},
+    "meta": "Arabic 480p Mobile",
     "vpn": "",
     "enabled": true
   }
