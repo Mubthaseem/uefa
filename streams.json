@@ -1,11 +1,11 @@
 {
-  "MYSTREAM": {
-    "name": "MALAYALAM 2",
+  "MAL": {
+    "name": "MALAYALAM MAIN SERVER",
     "url": "https://malayalamzee5.zetasports.online/live/live.m3u8",
-    "type": "plyr",
+    "type": "jw",
     "keys": {},
-    "meta": "DONT USE THE TIMELINE FOR MALAYALAM ,",
-    "vpn": "DONT USE TIMELINE OF PLAYER",
+    "meta": "",
+    "vpn": "",
     "enabled": true
   },
   "HELL_L8": {
