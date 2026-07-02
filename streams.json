@@ -1,4 +1,13 @@
 {
+  "MYSTREAM": {
+    "name": "MALAYALAM 2",
+    "url": "https://malayalamzee5.zetasports.online/live/live.m3u8",
+    "type": "plyr",
+    "keys": {},
+    "meta": "DONT USE THE TIMELINE FOR MALAYALAM ,",
+    "vpn": "DONT USE TIMELINE OF PLAYER",
+    "enabled": true
+  },
   "HELL_L8": {
     "name": "Link 8 | Bein HD | IOS Stream",
     "url": "https://play.666666.zip/live/4459728.m3u8",
@@ -34,15 +43,6 @@
     "meta": "ENG Auto Quality Android/PC",
     "vpn": "",
     "enabled": true
-  },
-  "MYSTREAM": {
-    "name": "MALAYALAM 2",
-    "url": "https://malayalamzee5.zetasports.online/live/live.m3u8",
-    "type": "plyr",
-    "keys": {},
-    "meta": "DONT USE THE TIMELINE FOR MALAYALAM ,",
-    "vpn": "DONT USE TIMELINE OF PLAYER",
-    "enabled": false
   },
   "FOX": {
     "name": "Fox 60FPS [USA]",
