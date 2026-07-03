@@ -1,26 +1,17 @@
 {
-  "MAL": {
-    "name": "MALAYALAM MAIN SERVER",
-    "url": "https://malayalamzee5.zetasports.online/live/live.m3u8",
-    "type": "jw",
+  "HELL_L1B": {
+    "name": "Link 1B | Migu Auto | Backup",
+    "url": "https://lordatomic.github.io/uefa/dx.html",
+    "type": "iframe",
     "keys": {},
-    "meta": "",
-    "vpn": "",
-    "enabled": true
-  },
-  "HELL_L8": {
-    "name": "Link 8 | Bein HD | IOS Stream",
-    "url": "https://play.666666.zip/live/4459728.m3u8",
-    "type": "plyr",
-    "keys": {},
-    "meta": "Bein HD IOS",
+    "meta": "Migu Auto (iframe)",
     "vpn": "",
     "enabled": true
   },
   "YALLA_L3": {
     "name": "Portugal L3 | Migu Malayalam | HD",
     "url": "https://live.666666.zip/migu/1.m3u8",
-    "type": "plyr",
+    "type": "jw",
     "keys": {},
     "meta": "Malayalam Mobile/PC",
     "vpn": "",
@@ -35,24 +26,23 @@
     "vpn": "",
     "enabled": true
   },
-  "YALLA_L2": {
-    "name": "Portugal L2 | Peacock ENG | HD",
-    "url": "https://za.emoranz.cfd/albaplayer/karern/?serv=1",
-    "type": "iframe",
+  "MAL": {
+    "name": "MALAYALAM MAIN SERVER",
+    "url": "https://malayalamzee5.zetasports.online/live/live.m3u8",
+    "type": "jw",
     "keys": {},
-    "meta": "ENG Auto Quality Android/PC",
+    "meta": "",
     "vpn": "",
     "enabled": true
   },
-  "FOX": {
-    "name": "Fox 60FPS [USA]",
-    "url": "https://a26live-pv-ta-amazon.akamaized.net/iad-nitro/live/clients/dash/enc/ajfoeddkbz/out/v1/b78800b9b2304879b15843f455836829/cenc.mpd",
-    "keys": {
-      "f6564ec2aee819046328a0e153be574d": "ff46a8a1031eb27ef22576a077c98ab7"
-    },
-    "meta": "60 FPS · English Commentary",
-    "vpn": "USA",
-    "enabled": false
+  "HELL_L7": {
+    "name": "Link 7 | Bein Sports 4K | Arabic",
+    "url": "https://live05.koepgd.app/live/78905744.m3u8",
+    "type": "jw",
+    "keys": {},
+    "meta": "Bein Sports Arabic 4K",
+    "vpn": "",
+    "enabled": true
   },
   "YALLA_L4": {
     "name": "Portugal L4 | Arabic | 480p",
@@ -63,30 +53,12 @@
     "vpn": "",
     "enabled": true
   },
-  "HELL_L1": {
-    "name": "Link 1 | M6 TV Spanish | HD Stream",
-    "url": "https://live05.koepgd.app/live/08552895.m3u8",
-    "type": "plyr",
-    "keys": {},
-    "meta": "M6 TV Spanish",
-    "vpn": "",
-    "enabled": true
-  },
   "HELL_L5": {
     "name": "Link 5 | Bein Sports | IOS Stream",
     "url": "https://1nyaler.streamhostingcdn.top/stream/23/index.m3u8",
-    "type": "plyr",
+    "type": "jw",
     "keys": {},
     "meta": "Bein Sports IOS",
-    "vpn": "",
-    "enabled": true
-  },
-  "HELL_L1B": {
-    "name": "Link 1B | M6 TV Spanish | Backup",
-    "url": "https://lordatomic.github.io/uefa/m6hd.html",
-    "type": "plyr",
-    "keys": {},
-    "meta": "M6 TV Spanish (iframe)",
     "vpn": "",
     "enabled": true
   }
