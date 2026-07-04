@@ -2,7 +2,7 @@
   "YALLA_L3": {
     "name": "Malayalam | HD",
     "url": "https://malayalamzee5.zetasports.online/live/live.m3u8",
-    "type": "jw",
+    "type": "plyr",
     "keys": {},
     "meta": "Malayalam Mobile/PC",
     "vpn": "",
