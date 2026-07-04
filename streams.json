@@ -65,5 +65,95 @@
     "meta": "Bein Sports IOS",
     "vpn": "",
     "enabled": true
+  },
+  "PAR_NTV": {
+    "name": "Nd TV English | HD",
+    "url": "https://footsters-live.pages.dev/?id=ntv",
+    "type": "iframe",
+    "keys": {},
+    "meta": "ND TV English",
+    "vpn": "",
+    "enabled": true
+  },
+  "PAR_IOS": {
+    "name": "CC5 Chinese HD | All Devices",
+    "url": "https://footsters-live.pages.dev/?id=ios",
+    "type": "iframe",
+    "keys": {},
+    "meta": "CC5 Chinese All Devices",
+    "vpn": "",
+    "enabled": true
+  },
+  "PAR_TSN": {
+    "name": "TSN | The Sports Network 1",
+    "url": "https://live.api-live.workers.dev/?id=tsn1",
+    "type": "iframe",
+    "keys": {},
+    "meta": "TSN Canada",
+    "vpn": "",
+    "enabled": true
+  },
+  "PAR_FOX": {
+    "name": "Fox Sports | USA",
+    "url": "https://footsters-tv.pages.dev/1?play=50072&stream=0",
+    "type": "iframe",
+    "keys": {},
+    "meta": "Fox Sports USA",
+    "vpn": "",
+    "enabled": true
+  },
+  "PAR_TSN2": {
+    "name": "TSN | Canada Stream",
+    "url": "https://footsters-tv.pages.dev/1?play=50072&stream=4",
+    "type": "iframe",
+    "keys": {},
+    "meta": "TSN Canada",
+    "vpn": "",
+    "enabled": true
+  },
+  "PAR_CTV": {
+    "name": "CTV | Canada",
+    "url": "https://footsters-tv.pages.dev/1?play=50072&stream=2",
+    "type": "iframe",
+    "keys": {},
+    "meta": "CTV Canada",
+    "vpn": "",
+    "enabled": true
+  },
+  "PAR_FOX4K": {
+    "name": "Fox 4K | VPN Required",
+    "url": "https://footsters-tv.pages.dev/1?play=50072&stream=8",
+    "type": "iframe",
+    "keys": {},
+    "meta": "Fox 4K (VPN)",
+    "vpn": "VPN",
+    "enabled": true
+  },
+  "PAR_GOAL": {
+    "name": "Goal TV | International",
+    "url": "https://footsters-tv.pages.dev/1?play=50072&stream=12",
+    "type": "iframe",
+    "keys": {},
+    "meta": "Goal TV International",
+    "vpn": "",
+    "enabled": true
+  },
+  "PAR_FOX2": {
+    "name": "Fox | Alternative",
+    "url": "https://footsters-tv.pages.dev/?play=1&stream=11",
+    "type": "iframe",
+    "keys": {},
+    "meta": "Fox Alt Stream",
+    "vpn": "",
+    "enabled": true
+  },
+  "PAR_CAZE": {
+    "name": "Caze TV | Brazil",
+    "url": "https://footsters-tv.pages.dev/1?play=50072&stream=10",
+    "type": "iframe",
+    "keys": {},
+    "meta": "CazeTV Brazil",
+    "vpn": "",
+    "enabled": true
   }
 }
