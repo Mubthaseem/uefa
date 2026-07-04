@@ -19,12 +19,13 @@
   },
   "HELL_L3B": {
     "name": "Link 3B | English | Backup",
-    "url": "https://lordatomic.github.io/uefa/engl.html",
+    "url": "https://player.twitch.tv/?channel=majedsports1&muted=false&parent=www.zetasports.blog&parent=mubthaseem.github.io",
     "type": "iframe",
     "keys": {},
     "meta": "English (iframe)",
     "vpn": "",
-    "enabled": true
+    "enabled": true,
+    "sandbox": "strict"
   },
   "MAL": {
     "name": "MALAYALAM MAIN SERVER",
@@ -37,21 +38,24 @@
   },
   "HELL_L7": {
     "name": "Link 7 | Bein Sports 4K | Arabic",
-    "url": "https://live05.koepgd.app/live/78905744.m3u8",
-    "type": "jw",
-    "keys": {},
+    "url": "https://qp-pldt-live-bpk-ucd-prod.akamaized.net/bpk-tv/fifa_ppv1/default/index.mpd",
+    "type": "shaka",
+    "keys": {
+      "2c338a117d434ce4bbe3569231af90f1": "a9633d901ee8a3f4f58ac314b5c5f4fb"
+    },
     "meta": "Bein Sports Arabic 4K",
     "vpn": "",
     "enabled": true
   },
   "YALLA_L4": {
     "name": "Portugal L4 | Arabic | 480p",
-    "url": "https://live05.meung.app/live/08552895.m3u8",
-    "type": "plyr",
+    "url": "https://ok.ru/videoembed/15082970947188",
+    "type": "iframe",
     "keys": {},
     "meta": "Arabic 480p Mobile",
     "vpn": "",
-    "enabled": true
+    "enabled": true,
+    "sandbox": "strict"
   },
   "HELL_L5": {
     "name": "Link 5 | Bein Sports | IOS Stream",
