@@ -39,7 +39,7 @@
   "HELL_L7": {
     "name": "Link 7 | Bein Sports 4K | Arabic",
     "url": "https://qp-pldt-live-bpk-ucd-prod.akamaized.net/bpk-tv/fifa_ppv1/default/index.mpd",
-    "type": "shaka",
+    "type": "jw",
     "keys": {
       "2c338a117d434ce4bbe3569231af90f1": "a9633d901ee8a3f4f58ac314b5c5f4fb"
     },
