@@ -1,12 +1,13 @@
 {
   "YALLA_L3": {
     "name": "Malayalam | HD",
-    "url": "https://malayalamzee5.zetasports.online/live/live.m3u8",
-    "type": "plyr",
+    "url": "https://player.twitch.tv/?channel=majed92921&muted=false&parent=www.zetasports.blog",
+    "type": "iframe",
     "keys": {},
     "meta": "Malayalam Mobile/PC",
     "vpn": "",
-    "enabled": true
+    "enabled": true,
+    "sandbox": "strict"
   },
   "HELL_L1B": {
     "name": "Link 1B | Migu Auto | Backup",
