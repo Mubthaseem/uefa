@@ -1,4 +1,14 @@
 {
+  "OK_RU_STREAM": {
+    "name": "OK.ru Stream | HD",
+    "url": "https://ok.ru/videoembed/17565388185159",
+    "type": "iframe",
+    "keys": {},
+    "meta": "OK.ru Multi-quality Stream",
+    "vpn": "",
+    "enabled": true,
+    "sandbox": "strict"
+  },
   "YALLA_L3": {
     "name": "Malayalam | HD",
     "url": "https://player.twitch.tv/?channel=majed92921&muted=false&parent=www.zetasports.blog",
@@ -20,7 +30,7 @@
   },
   "HELL_L3B": {
     "name": "Link 3B | English | Backup",
-    "url": "https://player.twitch.tv/?channel=majedsports1&muted=false&parent=www.zetasports.blog&parent=mubthaseem.github.io",
+    "url": "https://player.twitch.tv/?channel=majed92921&muted=false&parent=www.zetasports.blog",
     "type": "iframe",
     "keys": {},
     "meta": "English (iframe)",
