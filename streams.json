@@ -184,5 +184,15 @@
     "vpn": "",
     "enabled": true,
     "sandbox": "strict"
+  },
+  "FOX4K": {
+    "name": "FOX 4K USA",
+    "url": "https://vileembeds.pages.dev/embed/fox4k-usa",
+    "type": "iframe",
+    "keys": {},
+    "meta": "",
+    "vpn": "",
+    "enabled": true,
+    "sandbox": "strict"
   }
 }
