@@ -1,8 +1,8 @@
 {
   "OK_RU_STREAM": {
-    "name": "OK.ru Proxied | HD",
+    "name": "MALAYALAM",
     "url": "https://okru-proxy.mubthaseembinalavi.workers.dev/stream/17565388185159/index.m3u8",
-    "type": "plyr",
+    "type": "jw",
     "keys": {},
     "meta": "OK.ru Proxied HLS Stream",
     "vpn": "",
@@ -15,7 +15,7 @@
     "keys": {},
     "meta": "Malayalam Mobile/PC",
     "vpn": "",
-    "enabled": true,
+    "enabled": false,
     "sandbox": "strict"
   },
   "HELL_L1B": {
@@ -25,7 +25,7 @@
     "keys": {},
     "meta": "Migu Auto (iframe)",
     "vpn": "",
-    "enabled": true
+    "enabled": false
   },
   "HELL_L3B": {
     "name": "Link 3B | English | Backup",
@@ -34,7 +34,7 @@
     "keys": {},
     "meta": "English (iframe)",
     "vpn": "",
-    "enabled": true,
+    "enabled": false,
     "sandbox": "strict"
   },
   "MAL": {
@@ -44,7 +44,7 @@
     "keys": {},
     "meta": "",
     "vpn": "",
-    "enabled": true
+    "enabled": false
   },
   "HELL_L7": {
     "name": "Link 7 | Bein Sports 4K | Arabic",
@@ -55,7 +55,7 @@
     },
     "meta": "Bein Sports Arabic 4K",
     "vpn": "",
-    "enabled": true
+    "enabled": false
   },
   "YALLA_L4": {
     "name": "Portugal L4 | Arabic | 480p",
@@ -64,7 +64,7 @@
     "keys": {},
     "meta": "Arabic 480p Mobile",
     "vpn": "",
-    "enabled": true,
+    "enabled": false,
     "sandbox": "strict"
   },
   "HELL_L5": {
@@ -74,7 +74,7 @@
     "keys": {},
     "meta": "Bein Sports IOS",
     "vpn": "",
-    "enabled": true
+    "enabled": false
   },
   "PAR_NTV": {
     "name": "Nd TV English | HD",
@@ -83,7 +83,7 @@
     "keys": {},
     "meta": "ND TV English",
     "vpn": "",
-    "enabled": true
+    "enabled": false
   },
   "PAR_IOS": {
     "name": "CC5 Chinese HD | All Devices",
@@ -92,7 +92,7 @@
     "keys": {},
     "meta": "CC5 Chinese All Devices",
     "vpn": "",
-    "enabled": true
+    "enabled": false
   },
   "PAR_TSN": {
     "name": "TSN | The Sports Network 1",
@@ -101,7 +101,7 @@
     "keys": {},
     "meta": "TSN Canada",
     "vpn": "",
-    "enabled": true
+    "enabled": false
   },
   "PAR_FOX": {
     "name": "Fox Sports | USA",
@@ -110,7 +110,7 @@
     "keys": {},
     "meta": "Fox Sports USA",
     "vpn": "",
-    "enabled": true
+    "enabled": false
   },
   "PAR_TSN2": {
     "name": "TSN | Canada Stream",
@@ -119,7 +119,7 @@
     "keys": {},
     "meta": "TSN Canada",
     "vpn": "",
-    "enabled": true
+    "enabled": false
   },
   "PAR_CTV": {
     "name": "CTV | Canada",
@@ -128,7 +128,7 @@
     "keys": {},
     "meta": "CTV Canada",
     "vpn": "",
-    "enabled": true
+    "enabled": false
   },
   "PAR_FOX4K": {
     "name": "Fox 4K | VPN Required",
@@ -137,7 +137,7 @@
     "keys": {},
     "meta": "Fox 4K (VPN)",
     "vpn": "VPN",
-    "enabled": true
+    "enabled": false
   },
   "PAR_GOAL": {
     "name": "Goal TV | International",
@@ -146,7 +146,7 @@
     "keys": {},
     "meta": "Goal TV International",
     "vpn": "",
-    "enabled": true
+    "enabled": false
   },
   "PAR_FOX2": {
     "name": "Fox | Alternative",
@@ -155,7 +155,7 @@
     "keys": {},
     "meta": "Fox Alt Stream",
     "vpn": "",
-    "enabled": true
+    "enabled": false
   },
   "PAR_CAZE": {
     "name": "Caze TV | Brazil",
@@ -164,7 +164,7 @@
     "keys": {},
     "meta": "CazeTV Brazil",
     "vpn": "",
-    "enabled": true
+    "enabled": false
   },
   "VILE_FOX4K": {
     "name": "Fox 4K USA | Premium",
@@ -173,6 +173,6 @@
     "keys": {},
     "meta": "Fox 4K USA direct stream",
     "vpn": "",
-    "enabled": true
+    "enabled": false
   }
 }
