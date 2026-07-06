@@ -204,5 +204,16 @@
     "vpn": "",
     "enabled": true,
     "sandbox": "strict"
+  },
+  "FO": {
+    "name": "FOX ONE",
+    "url": "https://otte.cache.aiv-cdn.net/iad-nitro/live/clients/enc/emxr7ezsoi/out/v1/9e895e2c1c894a75ac6d21a4deddd5d3/cenc.mpd",
+    "type": "shaka",
+    "keys": {
+      "f6564ec2aee819046328a0e153be574d": "ff46a8a1031eb27ef22576a077c98ab7"
+    },
+    "meta": "",
+    "vpn": "",
+    "enabled": true
   }
 }
