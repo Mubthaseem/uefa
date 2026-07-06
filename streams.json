@@ -1,12 +1,13 @@
 {
   "OK_RU_STREAM": {
     "name": "MALAYALAM",
-    "url": "https://okru-proxy.mubthaseembinalavi.workers.dev/stream/17565388185159/index.m3u8",
-    "type": "jw",
+    "url": "https://ok.ru/videoembed/17565388185159",
+    "type": "iframe",
     "keys": {},
     "meta": "OK.ru Proxied HLS Stream",
     "vpn": "",
-    "enabled": true
+    "enabled": true,
+    "sandbox": "strict"
   },
   "YALLA_L3": {
     "name": "Malayalam | HD",
