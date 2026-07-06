@@ -1,0 +1,1399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UEFA Live Stream Player</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700;800&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Shaka Player UI & Video Engine -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.3.5/shaka-player.ui.min.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.3.5/controls.min.css" crossorigin="anonymous">
+
+  <!-- Google IMA SDK (for VAST pre-rolls) -->
+  <script src="https://imasdk.googleapis.com/js/sdkloader/ima3.js"></script>
+
+  <!-- JW Player -->
+  <script src="https://ssl.p.jwpcdn.com/player/v/8.21.2/jwplayer.js"></script>
+  <script>jwplayer.key="64HPbvSQorQcd52B8XFuhMtEoitbvY/EXJmMBfKcXZQU2Rnn";</script>
+  
+  <!-- Plyr & Hls.js -->
+  <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
+  <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.4.12/dist/hls.min.js"></script>
+
+  <!-- Socket.io client -->
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+
+  <style>
+    :root {
+      --bg: #030712;
+      --bg-card: #0b0f19;
+      --primary: #00e676;
+      --primary-hover: #00c853;
+      --text: #f3f4f6;
+      --text-muted: #9ca3af;
+      --border: rgba(255, 255, 255, 0.08);
+      --font-display: 'Rajdhani', sans-serif;
+      --font-body: 'Outfit', sans-serif;
+    }
+
+    /* Reset & self-contained scope inside Blogger */
+    .blogger-uefa-wrapper {
+      container-type: inline-size;
+      container-name: widget;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      max-width: 1200px;
+      margin: 20px auto;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    /* ── EMBED MODE ── */
+    html.embed-html, body.embed-body {
+      margin: 0 !important;
+      padding: 0 !important;
+      overflow: hidden !important;
+      background: #000 !important;
+      height: 100vh !important;
+      width: 100vw !important;
+    }
+    .blogger-uefa-wrapper.embed-mode {
+      margin: 0 !important;
+      max-width: 100% !important;
+      border: none !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+      height: 100vh !important;
+      width: 100vw !important;
+    }
+    .blogger-uefa-wrapper.embed-mode .header {
+      display: none !important;
+    }
+    .blogger-uefa-wrapper.embed-mode .app-container {
+      grid-template-columns: 1fr !important;
+      height: 100vh !important;
+    }
+    .blogger-uefa-wrapper.embed-mode .player-panel {
+      grid-column: 1 !important;
+    }
+    .blogger-uefa-wrapper.embed-mode .servers-panel,
+    .blogger-uefa-wrapper.embed-mode .chat-panel,
+    .blogger-uefa-wrapper.embed-mode .mobile-tab-bar {
+      display: none !important;
+    }
+
+    /* ═══════════════════════════════════════════
+       3-PANEL LAYOUT: Servers | Player | Chat
+    ═══════════════════════════════════════════ */
+    .app-container {
+      display: grid;
+      grid-template-columns: 260px 1fr 300px;
+      height: 600px;
+      background: var(--bg);
+    }
+
+    /* ── PANEL 1: Servers ── */
+    .servers-panel {
+      background: var(--bg-card);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(0,0,0,0.3);
+      flex-shrink: 0;
+    }
+    .panel-title {
+      font-family: var(--font-display);
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      color: #fff;
+      text-transform: uppercase;
+    }
+    .panel-title span { color: var(--primary); }
+    .server-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .server-list::-webkit-scrollbar { width: 4px; }
+    .server-list::-webkit-scrollbar-track { background: transparent; }
+    .server-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    /* ── PANEL 2: Player ── */
+    .player-panel {
+      position: relative;
+      background: #000;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .video-wrapper {
+      flex: 1;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #000;
+      overflow: hidden;
+    }
+    video { width: 100%; height: 100%; object-fit: contain; }
+    iframe { width: 100%; height: 100%; border: none; background: #000; }
+
+    .watermark {
+      position: absolute;
+      bottom: 12px;
+      left: 12px;
+      z-index: 5;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      pointer-events: none;
+      background: rgba(0,0,0,0.4);
+      padding: 5px 10px;
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.06);
+      backdrop-filter: blur(8px);
+    }
+    .wm-logo {
+      width: 20px; height: 20px;
+      background: var(--primary);
+      border-radius: 4px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-display);
+      font-weight: 800; color: #000; font-size: 13px;
+    }
+    .wm-text {
+      font-family: var(--font-display);
+      font-size: 12px; font-weight: 800;
+      color: rgba(255,255,255,0.7); letter-spacing: 0.5px;
+    }
+    #join-btn {
+      position: absolute; top: 12px; left: 12px; z-index: 6;
+      background: var(--primary); border: none; color: #000;
+      font-family: var(--font-display); font-weight: 800;
+      font-size: 11px; padding: 5px 12px; border-radius: 6px;
+      cursor: pointer; text-transform: uppercase; letter-spacing: 1px;
+      transition: background 0.2s;
+    }
+    #join-btn:hover { background: var(--primary-hover); }
+
+    .loader-overlay {
+      display: none !important;
+      position: absolute; inset: 0; background: #000;
+      z-index: 10; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      transition: opacity 0.5s ease;
+    }
+    .loader-overlay.hidden { opacity: 0; pointer-events: none; }
+    .spinner {
+      width: 48px; height: 48px;
+      border: 3px solid rgba(0, 230, 118, 0.1);
+      border-radius: 50%;
+      border-top-color: var(--primary);
+      animation: spin 1s linear infinite;
+      margin-bottom: 14px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .ld-text {
+      font-family: var(--font-display);
+      font-size: 17px; font-weight: 700; color: #fff; letter-spacing: 1px;
+    }
+
+    /* ── PANEL 3: Chat ── */
+    .chat-panel {
+      background: var(--bg-card);
+      border-left: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .chat-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: #ef4444;
+      animation: pulse 1.5s infinite; flex-shrink: 0;
+    }
+    @keyframes pulse {
+      0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; }
+    }
+    .chat-messages {
+      flex: 1; overflow-y: auto;
+      padding: 10px 14px;
+      display: flex; flex-direction: column; gap: 6px; font-size: 12px;
+    }
+    .chat-messages::-webkit-scrollbar { width: 4px; }
+    .chat-messages::-webkit-scrollbar-track { background: transparent; }
+    .chat-messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+    .chat-msg { line-height: 1.4; word-break: break-word; }
+    .chat-msg-time { font-size: 9px; color: var(--text-muted); margin-right: 4px; }
+    .chat-msg-user { font-weight: 700; color: var(--primary); margin-right: 4px; }
+    .chat-msg-text { color: #fff; }
+    .chat-input-row {
+      display: flex; gap: 6px; padding: 8px 10px;
+      border-top: 1px solid var(--border);
+      background: rgba(0,0,0,0.2); flex-shrink: 0;
+    }
+    #chat-nickname {
+      width: 64px; background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border); color: var(--primary);
+      padding: 5px 6px; border-radius: 6px;
+      font-size: 11px; font-weight: 700; text-align: center;
+    }
+    #chat-input {
+      flex: 1; background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border); color: #fff;
+      padding: 5px 8px; border-radius: 6px; font-size: 12px;
+    }
+    .chat-input-row button {
+      background: var(--primary); border: none; color: #000;
+      font-weight: 800; font-size: 11px; padding: 0 10px;
+      border-radius: 6px; cursor: pointer; text-transform: uppercase;
+    }
+
+    /* Server items */
+    .server-item {
+      display: flex; align-items: center; padding: 9px 10px;
+      background: rgba(255,255,255,0.02); border: 1px solid var(--border);
+      border-radius: 8px; cursor: pointer; transition: all 0.2s ease;
+    }
+    .server-item:hover { background: rgba(255,255,255,0.04); border-color: rgba(0,230,118,0.2); }
+    .server-item.active { background: rgba(0,230,118,0.08); border-color: var(--primary); }
+    .server-status-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: #ef4444; margin-right: 9px; flex-shrink: 0;
+    }
+    .server-status-dot.online { background: var(--primary); box-shadow: 0 0 7px var(--primary); }
+    .server-info { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+    .server-name {
+      font-family: var(--font-display); font-size: 12px; font-weight: 700;
+      color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .server-meta { font-size: 9px; color: var(--text-muted); font-weight: 500; letter-spacing: 0.3px; }
+    .badge-type {
+      background: rgba(255,255,255,0.08); color: #fff;
+      padding: 1px 3px; border-radius: 3px; font-size: 8px;
+      font-weight: 700; margin-left: 4px; text-transform: uppercase;
+    }
+    .badge-vpn {
+      background: #e65100; color: #fff;
+      padding: 1px 3px; border-radius: 3px; font-size: 8px;
+      font-weight: 700; margin-left: 4px;
+    }
+    .sidebar-close-btn {
+      background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+      border-radius: 6px; color: var(--text-muted); font-size: 18px;
+      width: 26px; height: 26px; display: flex; align-items: center;
+      justify-content: center; cursor: pointer; transition: all 0.2s;
+    }
+    .sidebar-close-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
+
+    /* Modal */
+    .custom-modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(12px); z-index: 999999999;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+    }
+    .custom-modal-overlay.active { opacity: 1; pointer-events: auto; }
+    .custom-modal {
+      background: #080c14; border: 1px solid rgba(0,230,118,0.2);
+      box-shadow: 0 0 30px rgba(0,230,118,0.15); border-radius: 12px;
+      width: 90%; max-width: 440px; padding: 24px;
+      transform: translateY(20px); transition: transform 0.3s ease;
+    }
+    .custom-modal-overlay.active .custom-modal { transform: translateY(0); }
+    .custom-modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .custom-modal-title {
+      font-family: var(--font-display); font-size: 20px; font-weight: 800;
+      color: #fff; letter-spacing: 1px; text-transform: uppercase;
+    }
+    .custom-modal-close {
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 6px; color: #94a3b8; font-size: 20px;
+      width: 32px; height: 32px; display: flex; align-items: center;
+      justify-content: center; cursor: pointer; transition: all 0.2s;
+    }
+    .custom-modal-close:hover { background: rgba(255,255,255,0.1); color: #fff; }
+    .custom-modal-subtitle {
+      font-family: var(--font-display); font-size: 13px; color: #94a3b8;
+      margin-bottom: 20px; font-weight: 600; letter-spacing: 0.5px;
+    }
+    .join-options-grid { display: flex; flex-direction: column; gap: 12px; }
+    .join-option-btn {
+      display: flex; align-items: center; gap: 14px;
+      background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 8px; padding: 12px 16px; color: #fff;
+      text-decoration: none; transition: all 0.25s ease; cursor: pointer;
+    }
+    .join-option-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+    .join-option-btn.wa-group:hover, .join-option-btn.wa-channel:hover { border-color: #25d366; background: rgba(37,211,102,0.08); }
+    .join-option-btn.telegram:hover { border-color: #0088cc; background: rgba(0,136,204,0.08); }
+    .option-icon { font-size: 24px; flex-shrink: 0; }
+    .option-info { display: flex; flex-direction: column; gap: 2px; }
+    .option-title { font-family: var(--font-display); font-size: 15px; font-weight: 700; letter-spacing: 0.5px; }
+    .option-desc { font-family: var(--font-display); font-size: 11px; color: #64748b; font-weight: 500; }
+
+    /* ── MOBILE TAB BAR ── */
+    .mobile-tab-bar {
+      display: none;
+      background: #0b0f19;
+      border-top: 1px solid var(--border);
+    }
+    .mobile-tabs { display: flex; width: 100%; }
+    .mobile-tab {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 10px 6px 8px; background: transparent; border: none;
+      color: var(--text-muted); font-family: var(--font-display);
+      font-size: 10px; font-weight: 700; letter-spacing: 0.5px;
+      text-transform: uppercase; cursor: pointer;
+      transition: all 0.2s; gap: 4px;
+      border-top: 2px solid transparent;
+    }
+    .mobile-tab .tab-icon { font-size: 20px; line-height: 1; }
+    .mobile-tab.active {
+      color: var(--primary); border-top-color: var(--primary);
+      background: rgba(0,230,118,0.05);
+    }
+
+    .plyr, .plyr--video {
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    /* ── RESPONSIVE: Mobile / Squeezed containers ── */
+    @container widget (max-width: 950px) {
+      .app-container {
+        display: flex; flex-direction: column; height: auto;
+      }
+      .player-panel {
+        display: flex !important; width: 100%; height: auto;
+        border: none; order: 0; flex-shrink: 0;
+      }
+      .video-wrapper {
+        aspect-ratio: 16/9; width: 100%; height: auto !important;
+      }
+      .servers-panel, .chat-panel {
+        display: none; width: 100%; border: none;
+        order: 1; height: 380px; flex-shrink: 0;
+      }
+      .servers-panel.mobile-active, .chat-panel.mobile-active { display: flex; }
+      .mobile-tab-bar { display: block; order: 2; }
+      #join-btn { font-size: 10px; padding: 4px 10px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="blogger-uefa-wrapper">
+
+  <div class="app-container">
+
+    <!-- ═══ PANEL 1: SERVERS ═══ -->
+    <div class="servers-panel mobile-active" id="servers-panel">
+      <div class="panel-header">
+        <div class="panel-title">📡 <span>Servers</span></div>
+      </div>
+      <div class="server-list" id="server-list"></div>
+    </div>
+
+    <!-- ═══ PANEL 2: PLAYER ═══ -->
+    <div class="player-panel" id="player-panel">
+      <div class="watermark">
+        <div class="wm-logo">Z</div>
+        <div class="wm-text">ZETA SPORTS</div>
+      </div>
+      <button id="join-btn" onclick="openJoinModal()">Join us</button>
+      <div class="loader-overlay" id="loader-overlay">
+        <div class="spinner"></div>
+        <div class="ld-text" id="ld-status">Connecting to stream...</div>
+      </div>
+      <div class="video-wrapper" id="video-wrapper">
+        <video id="video" playsinline controls></video>
+        <!-- VAST Pre-roll Ad Container -->
+        <div id="ad-container" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; background: #000;">
+          <video id="ad-video" style="width: 100%; height: 100%;" playsinline></video>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ PANEL 3: LIVE CHAT ═══ -->
+    <div class="chat-panel" id="chat-panel">
+      <div class="panel-header">
+        <div class="panel-title" style="display:flex;align-items:center;gap:8px;">
+          <span class="chat-dot"></span> Live Chat
+        </div>
+      </div>
+      <div class="chat-messages" id="chat-messages"></div>
+      <div class="chat-input-row">
+        <input type="text" id="chat-nickname" value="Guest" placeholder="Name">
+        <input type="text" id="chat-input" placeholder="Type a message..." onkeydown="if(event.key==='Enter') sendChatMessage()">
+        <button onclick="sendChatMessage()">Send</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══ MOBILE TAB BAR ═══ -->
+  <div class="mobile-tab-bar">
+    <div class="mobile-tabs">
+      <button class="mobile-tab active" id="tab-servers" onclick="switchTab('servers')">
+        <span class="tab-icon">📡</span>Servers
+      </button>
+      <button class="mobile-tab" id="tab-chat" onclick="switchTab('chat')">
+        <span class="tab-icon">💬</span>Chat
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<!-- Custom Join Modal Popup Overlay -->
+<div class="custom-modal-overlay" id="join-modal-overlay" onclick="closeJoinModal(event)">
+  <div class="custom-modal">
+    <div class="custom-modal-header">
+      <div class="custom-modal-title">Join Zeta Sports</div>
+      <button class="custom-modal-close" onclick="closeJoinModal(event, true)">&times;</button>
+    </div>
+    <div class="custom-modal-subtitle">Choose your preferred platform to stay updated with live matches:</div>
+    <div class="join-options-grid">
+      <a class="join-option-btn wa-group" href="https://www.zetasports.blog/wp" target="_blank">
+        <span class="option-icon">💬</span>
+        <div class="option-info">
+          <span class="option-title">WhatsApp Group</span>
+          <span class="option-desc">Chat with other fans and get fast backup links</span>
+        </div>
+      </a>
+      <a class="join-option-btn wa-channel" href="https://www.zetasports.blog/wpc" target="_blank">
+        <span class="option-icon">📢</span>
+        <div class="option-info">
+          <span class="option-title">WhatsApp Channel</span>
+          <span class="option-desc">Official announcements and daily schedule</span>
+        </div>
+      </a>
+      <a class="join-option-btn telegram" href="https://t.me/isl_live_stream_links_2023_24" target="_blank">
+        <span class="option-icon">✈️</span>
+        <div class="option-info">
+          <span class="option-title">Telegram Channel</span>
+          <span class="option-desc">Alternative match links and stream alerts</span>
+        </div>
+      </a>
+    </div>
+  </div>
+</div>
+
+<script>
+  (async function() {
+    let streams = {};
+    let activeServerId = null;
+    let shakaPlayerInstance = null;
+    let shakaUiInstance = null;
+    let jwInstance = null;
+    let plyrInstance = null;
+    let fallbackTimer = null;
+    let isPlayingFallback = false;
+    let consecutiveRetries = 0;
+    let chatSocket = null;
+    
+    const videoEl = document.getElementById('video');
+    const wrapper = document.getElementById('video-wrapper');
+    const loader = document.getElementById('loader-overlay');
+    const statusText = document.getElementById('ld-status');
+
+    // VAST Pre-roll Ad Configuration
+    let adsLoader = null;
+    let adsManager = null;
+    let adDisplayContainer = null;
+    let currentAdCallback = null;
+    let adsInitialized = false;
+    let adTimeoutTimer = null;
+    const VAST_TAG = "https://ronracepub.com/e/base36/2plie0buxhrpu07q7zuklsfnh4ghsad8cl74b71h0oba9m5amqnquzpg8574c7beggyzvg05lm8p2m3c612u86ckl2";
+
+    function initAdPlayer() {
+      if (adsInitialized) return;
+      try {
+        if (typeof google === 'undefined' || typeof google.ima === 'undefined') {
+          console.warn("IMA SDK not loaded. Ad blocker is likely active.");
+          return;
+        }
+        const adContainer = document.getElementById('ad-container');
+        const adVideo = document.getElementById('ad-video');
+        if (!adContainer || !adVideo) return;
+        
+        adDisplayContainer = new google.ima.AdDisplayContainer(adContainer, adVideo);
+        adsLoader = new google.ima.AdsLoader(adDisplayContainer);
+        
+        adsLoader.addEventListener(
+          google.ima.AdsManagerLoadedEvent.Type.ADS_MANAGER_LOADED,
+          onAdsManagerLoaded,
+          false
+        );
+        adsLoader.addEventListener(
+          google.ima.AdErrorEvent.Type.AD_ERROR,
+          onAdError,
+          false
+        );
+        
+        adsInitialized = true;
+      } catch (e) {
+        console.error("Error initializing IMA SDK:", e);
+      }
+    }
+
+    function playPreRollAd(callback) {
+      currentAdCallback = callback;
+      
+      // Set safety timeout of 4 seconds to prevent loading hangs
+      if (adTimeoutTimer) clearTimeout(adTimeoutTimer);
+      adTimeoutTimer = setTimeout(() => {
+        console.warn("VAST ad loading timed out. Bypassing pre-roll.");
+        bypassAd();
+      }, 4000);
+
+      try {
+        if (typeof google === 'undefined' || typeof google.ima === 'undefined') {
+          console.log("IMA SDK not found, skipping pre-roll ad.");
+          bypassAd();
+          return;
+        }
+        
+        initAdPlayer();
+        const adContainer = document.getElementById('ad-container');
+        const adVideo = document.getElementById('ad-video');
+        
+        if (!adContainer || !adVideo || !adDisplayContainer || !adsLoader) {
+          bypassAd();
+          return;
+        }
+
+        adContainer.style.display = 'block';
+        adDisplayContainer.initialize();
+        
+        const adsRequest = new google.ima.AdsRequest();
+        adsRequest.adTagUrl = VAST_TAG;
+        adsRequest.linearAdSizeWidth = adContainer.clientWidth || 640;
+        adsRequest.linearAdSizeHeight = adContainer.clientHeight || 360;
+        
+        adsLoader.requestAds(adsRequest);
+      } catch (e) {
+        console.error("Ad playback error, bypassing:", e);
+        bypassAd();
+      }
+    }
+
+    function onAdsManagerLoaded(adsManagerLoadedEvent) {
+      try {
+        const adsRenderingSettings = new google.ima.AdsRenderingSettings();
+        adsRenderingSettings.restorePlayerStateOnAdComplete = true;
+        
+        const adVideo = document.getElementById('ad-video');
+        adsManager = adsManagerLoadedEvent.getAdsManager(adVideo, adsRenderingSettings);
+        
+        adsManager.addEventListener(google.ima.AdErrorEvent.Type.AD_ERROR, onAdError);
+        adsManager.addEventListener(google.ima.AdEvent.Type.ALL_ADS_COMPLETED, onAdComplete);
+        adsManager.addEventListener(google.ima.AdEvent.Type.SKIPPED, onAdComplete);
+        adsManager.addEventListener(google.ima.AdEvent.Type.USER_CLOSE, onAdComplete);
+        
+        const adContainer = document.getElementById('ad-container');
+        adsManager.init(
+          adContainer.clientWidth || 640,
+          adContainer.clientHeight || 360,
+          google.ima.ViewMode.NORMAL
+        );
+        adsManager.start();
+      } catch (adError) {
+        console.error("Failed to start ad manager, bypassing:", adError);
+        onAdComplete();
+      }
+    }
+
+    function onAdError(adErrorEvent) {
+      console.warn("IMA Ad error:", adErrorEvent.getError().toString());
+      if (adsManager) {
+        try { adsManager.destroy(); } catch(_) {}
+        adsManager = null;
+      }
+      bypassAd();
+    }
+
+    function onAdComplete() {
+      if (adsManager) {
+        try { adsManager.destroy(); } catch(_) {}
+        adsManager = null;
+      }
+      bypassAd();
+    }
+
+    function bypassAd() {
+      if (adTimeoutTimer) {
+        clearTimeout(adTimeoutTimer);
+        adTimeoutTimer = null;
+      }
+      const adContainer = document.getElementById('ad-container');
+      if (adContainer) adContainer.style.display = 'none';
+      if (currentAdCallback) {
+        currentAdCallback();
+        currentAdCallback = null;
+      }
+    }
+
+    window.addEventListener('resize', () => {
+      if (adsManager) {
+        const adContainer = document.getElementById('ad-container');
+        if (adContainer) {
+          adsManager.resize(
+            adContainer.clientWidth,
+            adContainer.clientHeight,
+            google.ima.ViewMode.NORMAL
+          );
+        }
+      }
+    });
+
+    // Fetch stream definitions dynamically from raw.githubusercontent.com for instant updates
+    async function loadStreams() {
+      const streamsUrl = 'https://raw.githubusercontent.com/Mubthaseem/uefa/main/streams.json';
+      try {
+        statusText.textContent = 'Loading match configuration...';
+        const res = await fetch(streamsUrl + '?t=' + Date.now());
+        streams = await res.json();
+      } catch (err) {
+        console.error("Error loading streams config:", err);
+        statusText.textContent = 'Network error. Retrying...';
+        setTimeout(loadStreams, 3000);
+        return;
+      }
+      initUI();
+      initChat();
+      startStallMonitor();
+    }
+
+    function initUI() {
+      const urlParams = new URLSearchParams(window.location.search);
+      let targetId = urlParams.get('stream') || urlParams.get('s');
+      let isEmbed = urlParams.get('embed') === 'true' || urlParams.get('sidebar') === 'false';
+
+      // Support old raw query style: e.g. ?mystream or ?server1
+      const rawQuery = window.location.search.replace('?', '').trim();
+      if (rawQuery && !window.location.search.includes('=')) {
+        const numMatch = rawQuery.match(/^server(\d+)$/i);
+        if (numMatch) {
+          const n = parseInt(numMatch[1], 10);
+          const enabledIds = Object.keys(streams).filter(id => streams[id].enabled !== false);
+          targetId = enabledIds[n - 1] || enabledIds[0];
+          isEmbed = true;
+        } else {
+          const directId = Object.keys(streams).find(id => id.toLowerCase() === rawQuery.toLowerCase());
+          if (directId) {
+            targetId = directId;
+            isEmbed = true;
+          }
+        }
+      }
+
+      if (isEmbed) {
+        document.documentElement.classList.add('embed-html');
+        document.body.classList.add('embed-body');
+        const wrapperEl = document.querySelector('.blogger-uefa-wrapper');
+        if (wrapperEl) wrapperEl.classList.add('embed-mode');
+      }
+
+      buildServerList();
+      
+      if (targetId) {
+        const matchingId = Object.keys(streams).find(id => id.toLowerCase() === targetId.toLowerCase());
+        if (matchingId) {
+          selectServer(matchingId);
+          return;
+        }
+      }
+      
+      const firstEnabled = Object.keys(streams).find(id => streams[id].enabled !== false);
+      if (firstEnabled) {
+        selectServer(firstEnabled);
+      }
+    }
+
+    function buildServerList() {
+      const container = document.getElementById('server-list');
+      container.innerHTML = '';
+      
+      Object.keys(streams).forEach(id => {
+        const stream = streams[id];
+        if (stream.enabled === false) return; // Skip disabled
+        
+        const item = document.createElement('div');
+        item.className = 'server-item' + (activeServerId === id ? ' active' : '');
+        item.onclick = () => selectServer(id);
+        
+        // Dot status
+        const dot = document.createElement('div');
+        dot.className = 'server-status-dot online'; // assume online
+        item.appendChild(dot);
+        
+        // Info
+        const info = document.createElement('div');
+        info.className = 'server-info';
+        
+        const nameWrapper = document.createElement('div');
+        nameWrapper.style.display = 'flex';
+        nameWrapper.style.alignItems = 'center';
+        
+        const nameSpan = document.createElement('span');
+        nameSpan.className = 'server-name';
+        nameSpan.textContent = stream.name || id;
+        nameWrapper.appendChild(nameSpan);
+        
+        // Type Badge
+        const typeBadge = document.createElement('span');
+        typeBadge.className = 'badge-type';
+        typeBadge.textContent = stream.type || 'HLS';
+        nameWrapper.appendChild(typeBadge);
+        
+        // VPN Badge
+        if (stream.vpn) {
+          const vpnBadge = document.createElement('span');
+          vpnBadge.className = 'badge-vpn';
+          vpnBadge.textContent = 'VPN';
+          nameWrapper.appendChild(vpnBadge);
+        }
+        
+        info.appendChild(nameWrapper);
+        
+        const metaSpan = document.createElement('span');
+        metaSpan.className = 'server-meta';
+        metaSpan.textContent = stream.meta || 'ONLINE';
+        info.appendChild(metaSpan);
+        
+        item.appendChild(info);
+        container.appendChild(item);
+      });
+    }
+
+    let lastVideoTime = -1;
+    let videoStallCount = 0;
+
+    function startStallMonitor() {
+      setInterval(() => {
+        if (isPlayingFallback) {
+          videoStallCount = 0;
+          return;
+        }
+
+        // 1. Monitor HTML5 video tag (Shaka & Plyr)
+        const video = document.getElementById('video');
+        if (video) {
+          if (!video.paused) {
+            if (video.currentTime === lastVideoTime) {
+              videoStallCount++;
+              console.warn(`[Stall Monitor] Video stalled for ${videoStallCount * 2} seconds...`);
+            } else {
+              videoStallCount = 0;
+            }
+          } else {
+            // If it's paused but should be playing (reconnecting state)
+            if (consecutiveRetries > 0) {
+              videoStallCount++;
+            } else {
+              videoStallCount = 0;
+            }
+          }
+          lastVideoTime = video.currentTime;
+        }
+
+        // 2. Monitor JW Player
+        if (window.jwplayer && jwInstance) {
+          try {
+            const state = jwInstance.getState();
+            if (state === 'buffering' || state === 'paused') {
+              videoStallCount++;
+              console.warn(`[Stall Monitor] JW Player in ${state} state for ${videoStallCount * 2} seconds...`);
+            } else if (state === 'playing') {
+              videoStallCount = 0;
+            }
+          } catch (_) {}
+        }
+
+        // 3. Force reload after 12 seconds of consecutive stalling
+        if (videoStallCount >= 6) {
+          console.warn("[Stall Monitor] Stall threshold reached. Force reloading stream...");
+          videoStallCount = 0;
+          lastVideoTime = -1;
+          if (activeServerId) {
+            selectServer(activeServerId, true);
+          }
+        }
+      }, 2000);
+    }
+
+    async function selectServer(id, force = false) {
+      if (activeServerId === id && !force) return;
+      activeServerId = id;
+      
+      // Update sidebar UI highlights
+      document.querySelectorAll('.server-item').forEach(el => el.classList.remove('active'));
+      buildServerList();
+      
+      const stream = streams[id];
+      if (!stream) return;
+      
+      destroyPlayers();
+      showLoader('Loading stream engine...');
+      
+      isPlayingFallback = false;
+      consecutiveRetries = 0;
+      
+      playPreRollAd(async () => {
+        if (stream.type === 'iframe') {
+          loadIframePlayer(stream.url);
+        } else if (stream.type === 'jw') {
+          loadJwPlayer(stream);
+        } else if (stream.type === 'plyr') {
+          loadPlyrPlayer(stream.url);
+        } else {
+          await loadShakaPlayer(id, stream);
+        }
+      });
+    }
+
+    function destroyPlayers() {
+      if (fallbackTimer) {
+        clearTimeout(fallbackTimer);
+        fallbackTimer = null;
+      }
+      if (window.jwplayer && document.getElementById('jw-player-container')) {
+        try {
+          jwplayer('jw-player-container').remove();
+        } catch(_) {}
+      }
+      if (shakaUiInstance) {
+        shakaUiInstance.destroy();
+        shakaUiInstance = null;
+      }
+      if (shakaPlayerInstance) {
+        shakaPlayerInstance.destroy();
+        shakaPlayerInstance = null;
+      }
+      if (plyrInstance) {
+        plyrInstance.destroy();
+        plyrInstance = null;
+      }
+      wrapper.innerHTML = '<video id="video" playsinline controls></video>';
+    }
+
+    function showLoader(text) {
+      loader.classList.remove('hidden');
+      statusText.textContent = text;
+    }
+
+    function hideLoader() {
+      loader.classList.add('hidden');
+    }
+
+    function loadIframePlayer(url) {
+      const iframe = document.createElement('iframe');
+      iframe.src = url;
+      iframe.allow = "autoplay; encrypted-media; fullscreen";
+      iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-presentation allow-forms');
+      
+      wrapper.innerHTML = '';
+      wrapper.appendChild(iframe);
+      
+      hideLoader();
+    }
+
+    async function loadShakaPlayer(id, stream) {
+      const newVideo = document.createElement('video');
+      newVideo.id = 'video';
+      newVideo.playsInline = true;
+      newVideo.autoplay = true;
+      newVideo.muted = true; // Required for autoplay policy
+      
+      wrapper.innerHTML = '';
+      wrapper.appendChild(newVideo);
+
+      try {
+        // Install polyfills first (required for EME/DRM support)
+        shaka.polyfill.installAll();
+
+        if (!shaka.Player.isBrowserSupported()) {
+          throw new Error("Browser does not support Shaka Player.");
+        }
+        
+        shakaPlayerInstance = new shaka.Player(newVideo);
+        
+        // Cache-busting manifest requests + direct R2 segment routing
+        shakaPlayerInstance.getNetworkingEngine().registerRequestFilter((type, request) => {
+          const originalUri = request.uris[0];
+          if (type === shaka.net.NetworkingEngine.RequestType.MANIFEST) {
+            const separator = originalUri.includes('?') ? '&' : '?';
+            let newUri = originalUri;
+            if (originalUri.includes('t=')) {
+              newUri = originalUri.replace(/t=\d+/, `t=${Date.now()}`);
+            } else {
+              newUri = originalUri + separator + 't=' + Date.now();
+            }
+            request.uris[0] = newUri;
+          } else if (type === shaka.net.NetworkingEngine.RequestType.SEGMENT) {
+            if (originalUri.includes('hf.space') || originalUri.includes('zetasports.blog')) {
+              let directR2Domain = 'https://pub-e4976394220e49bb8684852f4973fdb1.r2.dev';
+              try {
+                const urlObj = new URL(stream.url);
+                directR2Domain = urlObj.origin;
+              } catch(_) {}
+              
+              const pathParts = originalUri.split('/live/');
+              if (pathParts.length > 1) {
+                request.uris[0] = directR2Domain + '/live/' + pathParts[1];
+              }
+            }
+          }
+        });
+
+        // Build player config — only apply DRM clearKeys when keys actually exist
+        const hasKeys = stream.keys && Object.keys(stream.keys).length > 0;
+        const playerConfig = {
+          streaming: {
+            bufferingGoal: 10,
+            rebufferingGoal: 2,
+            bufferBehind: 15,
+            // Do NOT use lowLatencyMode for standard HLS/DASH streams — it breaks them
+          }
+        };
+        if (hasKeys) {
+          playerConfig.drm = {
+            clearKeys: stream.keys,
+            preferredKeySystems: ['org.w3.clearkey']
+          };
+        }
+        shakaPlayerInstance.configure(playerConfig);
+
+        // Set up Shaka UI overlay
+        const container = document.getElementById('video-wrapper');
+        if (shaka.ui && shaka.ui.Overlay) {
+          shakaUiInstance = new shaka.ui.Overlay(shakaPlayerInstance, container, newVideo);
+          shakaUiInstance.configure({
+            controlPanelElements: ['play_pause', 'mute', 'volume', 'spacer', 'time_and_duration', 'quality', 'fullscreen', 'overflow_menu']
+          });
+        }
+
+        // Setup stream error handlers with auto-retry
+        shakaPlayerInstance.addEventListener('error', (event) => {
+          const error = event.detail;
+          console.warn("Shaka Stream Error:", error.code, error.message);
+          
+          if (isPlayingFallback) return;
+          
+          consecutiveRetries++;
+          if (consecutiveRetries > 25) {
+            loadFallbackVideo();
+            return;
+          }
+
+          showLoader(`Reconnecting to stream (Attempt ${consecutiveRetries}/25)...`);
+          setTimeout(async () => {
+            if (!isPlayingFallback && shakaPlayerInstance) {
+              try {
+                await shakaPlayerInstance.load(stream.url + (stream.url.includes('?') ? '&' : '?') + 't=' + Date.now());
+                consecutiveRetries = 0;
+                hideLoader();
+                newVideo.muted = false;
+                newVideo.play().catch(() => {});
+              } catch(_) {}
+            }
+          }, 4000);
+        });
+
+        // Load and play
+        await shakaPlayerInstance.load(stream.url);
+        hideLoader();
+        newVideo.muted = false;
+        newVideo.play().catch(() => {});
+        
+      } catch (err) {
+        console.error("Shaka loading error:", err);
+        loadFallbackVideo();
+      }
+    }
+
+    function loadJwPlayer(stream) {
+      const jwContainer = document.createElement('div');
+      jwContainer.id = 'jw-player-container';
+      jwContainer.style.width = '100%';
+      jwContainer.style.height = '100%';
+      
+      wrapper.innerHTML = '';
+      wrapper.appendChild(jwContainer);
+
+      try {
+        const busterUrl = stream.url + (stream.url.includes('?') ? '&' : '?') + 't=' + Date.now();
+        jwInstance = jwplayer('jw-player-container').setup({
+          playlist: [{
+            file: busterUrl,
+            type: 'hls'
+          }],
+          width: '100%',
+          height: '100%',
+          autostart: true,
+          mute: false
+        });
+
+        jwInstance.on('ready', () => {
+          hideLoader();
+          try {
+            const dur = jwInstance.getDuration();
+            if (dur === Infinity || dur < 0) {
+              jwInstance.seek(999999);
+            }
+          } catch(_) {}
+        });
+
+        jwInstance.on('error', (err) => {
+          console.error("JW Player Error:", err);
+          if (isPlayingFallback) return;
+          consecutiveRetries++;
+          if (consecutiveRetries > 25) {
+            loadFallbackVideo();
+            return;
+          }
+          showLoader(`Reconnecting to stream (Attempt ${consecutiveRetries}/25)...`);
+          setTimeout(() => {
+            if (!isPlayingFallback && jwInstance) {
+              try {
+                const retryBusterUrl = stream.url + (stream.url.includes('?') ? '&' : '?') + 't=' + Date.now();
+                jwInstance.load([{ file: retryBusterUrl, type: 'hls' }]);
+                jwInstance.play();
+              } catch(_) {}
+            }
+          }, 4000);
+        });
+      } catch (err) {
+        console.error("JW Player Setup Error:", err);
+        loadFallbackVideo();
+      }
+    }
+
+    function loadPlyrPlayer(url) {
+      const newVideo = document.createElement('video');
+      newVideo.id = 'video';
+      newVideo.playsInline = true;
+      newVideo.controls = true;
+      
+      wrapper.innerHTML = '';
+      wrapper.appendChild(newVideo);
+      
+      const busterUrl = url + (url.includes('?') ? '&' : '?') + 't=' + Date.now();
+      
+      if (Hls.isSupported()) {
+        const hls = new Hls({
+          maxBufferLength: 10,
+          maxMaxBufferLength: 20,
+          enableWorker: true,
+          lowLatencyMode: true,
+          liveSyncDurationCount: 3,
+          liveMaxLatencyDurationCount: 6,
+          xhrSetup: function(xhr, segmentUrl) {
+            if (segmentUrl.includes('hf.space') || segmentUrl.includes('zetasports.blog')) {
+              let directR2Domain = 'https://pub-e4976394220e49bb8684852f4973fdb1.r2.dev';
+              try {
+                const stream = streams[activeServerId];
+                if (stream) {
+                  const urlObj = new URL(stream.url);
+                  directR2Domain = urlObj.origin;
+                }
+              } catch(_) {}
+              const pathParts = segmentUrl.split('/live/');
+              if (pathParts.length > 1) {
+                xhr.open('GET', directR2Domain + '/live/' + pathParts[1], true);
+              }
+            }
+          }
+        });
+        hls.loadSource(busterUrl);
+        hls.attachMedia(newVideo);
+        
+        plyrInstance = new Plyr(newVideo, {
+          controls: ['play-large', 'play', 'mute', 'volume', 'settings', 'fullscreen'],
+          keyboard: { focused: true, global: true },
+          fullscreen: { iosNative: true, fallback: true }
+        });
+
+        plyrInstance.on('enterfullscreen', () => {
+          if (newVideo.requestFullscreen) {
+            newVideo.requestFullscreen();
+          } else if (newVideo.webkitEnterFullscreen) {
+            newVideo.webkitEnterFullscreen();
+          }
+        });
+        
+        hls.on(Hls.Events.MANIFEST_PARSED, () => {
+          hideLoader();
+          if (hls.liveSyncPosition !== null && hls.liveSyncPosition !== undefined && hls.liveSyncPosition > 0) {
+            newVideo.currentTime = hls.liveSyncPosition;
+          }
+          
+          // Quality option binding for Plyr
+          try {
+            const levels = hls.levels;
+            if (levels && levels.length > 1) {
+              const heights = levels.map(l => l.height);
+              heights.unshift(0); // Auto quality
+              plyrInstance.config.quality = {
+                default: 0,
+                options: heights,
+                forced: true,
+                onChange: (q) => {
+                  if (q === 0) {
+                    hls.currentLevel = -1;
+                  } else {
+                    const idx = levels.findIndex(l => l.height === q);
+                    hls.currentLevel = idx;
+                  }
+                }
+              };
+            }
+          } catch(e) {
+            console.error("Failed to map quality levels to Plyr:", e);
+          }
+          
+          newVideo.play().catch(() => {});
+        });
+        
+        hls.on(Hls.Events.ERROR, function (event, data) {
+          if (data.fatal) {
+            console.error("Fatal Hls.js error:", data.type);
+            if (isPlayingFallback) return;
+            consecutiveRetries++;
+            if (consecutiveRetries > 25) {
+              loadFallbackVideo();
+              return;
+            }
+            showLoader(`Reconnecting to stream (Attempt ${consecutiveRetries}/25)...`);
+            setTimeout(() => {
+              if (!isPlayingFallback && hls) {
+                const retryBusterUrl = url + (url.includes('?') ? '&' : '?') + 't=' + Date.now();
+                hls.loadSource(retryBusterUrl);
+                hls.attachMedia(newVideo);
+              }
+            }, 4000);
+          }
+        });
+      } else if (newVideo.canPlayType('application/vnd.apple.mpegurl')) {
+        // Native iOS HLS support
+        newVideo.src = busterUrl;
+        
+        newVideo.addEventListener('error', () => {
+          console.error("Native HLS Video Error");
+          if (isPlayingFallback) return;
+          consecutiveRetries++;
+          if (consecutiveRetries > 25) {
+            loadFallbackVideo();
+            return;
+          }
+          showLoader(`Reconnecting to stream (Attempt ${consecutiveRetries}/25)...`);
+          setTimeout(() => {
+            if (!isPlayingFallback) {
+              const retryBusterUrl = url + (url.includes('?') ? '&' : '?') + 't=' + Date.now();
+              newVideo.src = retryBusterUrl;
+              newVideo.load();
+              newVideo.play().catch(() => {});
+            }
+          }, 4000);
+        });
+
+        plyrInstance = new Plyr(newVideo, {
+          controls: ['play-large', 'play', 'mute', 'volume', 'fullscreen'],
+          fullscreen: { iosNative: true, fallback: true }
+        });
+
+        plyrInstance.on('enterfullscreen', () => {
+          if (newVideo.webkitEnterFullscreen) {
+            newVideo.webkitEnterFullscreen();
+          }
+        });
+
+        newVideo.addEventListener('loadedmetadata', () => {
+          hideLoader();
+          consecutiveRetries = 0;
+          newVideo.play().catch(() => {});
+        });
+      } else {
+        loadFallbackVideo();
+      }
+    }
+
+    function loadFallbackVideo() {
+      if (isPlayingFallback) return;
+      isPlayingFallback = true;
+      showLoader("Stream Offline. Playing Backup Loop...");
+      
+      const stream = streams[activeServerId];
+      let fallbackUrl = 'https://mubthaseem-zeta-stream.hf.space/live/offline.mp4?t=' + Date.now();
+      if (stream && stream.url.includes('mubthaseem-zeta-stream-3.hf.space')) {
+        fallbackUrl = 'https://mubthaseem-zeta-stream-3.hf.space/live/offline.mp4?t=' + Date.now();
+      }
+
+      destroyPlayers();
+      
+      const loopVideo = document.createElement('video');
+      loopVideo.id = 'video';
+      loopVideo.playsInline = true;
+      loopVideo.controls = true;
+      loopVideo.loop = true;
+      loopVideo.src = fallbackUrl;
+      
+      wrapper.innerHTML = '';
+      wrapper.appendChild(loopVideo);
+      
+      loopVideo.addEventListener('loadedmetadata', () => {
+        hideLoader();
+        loopVideo.play().catch(() => {});
+      });
+
+      fallbackTimer = setTimeout(checkStreamRecovery, 10000);
+    }
+
+    async function checkStreamRecovery() {
+      const stream = streams[activeServerId];
+      if (!stream || !isPlayingFallback) return;
+      
+      try {
+        const res = await fetch(stream.url, { method: 'HEAD', cache: 'no-store' });
+        if (res.status >= 200 && res.status < 400) {
+          console.log("Stream recovered! Reloading...");
+          const recoveryId = activeServerId;
+          activeServerId = null;
+          selectServer(recoveryId);
+        } else {
+          fallbackTimer = setTimeout(checkStreamRecovery, 10000);
+        }
+      } catch (_) {
+        fallbackTimer = setTimeout(checkStreamRecovery, 10000);
+      }
+    }
+
+    // ── Live Chat Socket.io functions ──
+    function initChat() {
+      try {
+        chatSocket = io('https://mubthaseem-zeta-stream.hf.space');
+        const chatMsgs = document.getElementById('chat-messages');
+
+        chatSocket.on('chat_history', (history) => {
+          chatMsgs.innerHTML = '';
+          history.forEach(appendMessage);
+          scrollToBottom();
+        });
+
+        chatSocket.on('new_message', (msg) => {
+          appendMessage(msg);
+          scrollToBottom();
+        });
+      } catch (err) {
+        console.error("Socket.io initialization failed:", err);
+      }
+    }
+
+    function appendMessage(msg) {
+      const chatMsgs = document.getElementById('chat-messages');
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'chat-msg';
+      
+      const timeSpan = document.createElement('span');
+      timeSpan.className = 'chat-msg-time';
+      timeSpan.textContent = msg.time || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      
+      const userSpan = document.createElement('span');
+      userSpan.className = 'chat-msg-user';
+      userSpan.textContent = msg.username + ':';
+      
+      const textSpan = document.createElement('span');
+      textSpan.className = 'chat-msg-text';
+      textSpan.textContent = msg.text;
+      
+      msgDiv.appendChild(timeSpan);
+      msgDiv.appendChild(userSpan);
+      msgDiv.appendChild(textSpan);
+      chatMsgs.appendChild(msgDiv);
+    }
+
+    function scrollToBottom() {
+      const chatMsgs = document.getElementById('chat-messages');
+      chatMsgs.scrollTop = chatMsgs.scrollHeight;
+    }
+
+    window.sendChatMessage = function() {
+      const input = document.getElementById('chat-input');
+      const nicknameInput = document.getElementById('chat-nickname');
+      const text = input.value.trim();
+      const username = nicknameInput.value.trim() || 'Guest';
+      
+      if (text && chatSocket) {
+        chatSocket.emit('send_message', { username, text });
+        input.value = '';
+      }
+    };
+
+    // Mobile Tab Switching — only between Servers and Chat (Player is always visible)
+    window.switchTab = function(tab) {
+      const panels = {
+        servers: document.getElementById('servers-panel'),
+        chat:    document.getElementById('chat-panel'),
+      };
+      const tabs = {
+        servers: document.getElementById('tab-servers'),
+        chat:    document.getElementById('tab-chat'),
+      };
+
+      Object.keys(panels).forEach(key => {
+        if (panels[key]) panels[key].classList.toggle('mobile-active', key === tab);
+      });
+      Object.keys(tabs).forEach(key => {
+        if (tabs[key]) tabs[key].classList.toggle('active', key === tab);
+      });
+    };
+
+    // Modal Control Functions
+    window.openJoinModal = function() {
+      const overlay = document.getElementById('join-modal-overlay');
+      if (overlay) overlay.classList.add('active');
+    };
+
+    window.closeJoinModal = function(event, force = false) {
+      if (force) {
+        const overlay = document.getElementById('join-modal-overlay');
+        if (overlay) overlay.classList.remove('active');
+        return;
+      }
+      const modal = document.querySelector('.custom-modal');
+      if (modal && !modal.contains(event.target)) {
+        const overlay = document.getElementById('join-modal-overlay');
+        if (overlay) overlay.classList.remove('active');
+      }
+    };
+
+    // Bootstrap app
+    loadStreams();
+  })();
+</script>
+
+</body>
+</html>
