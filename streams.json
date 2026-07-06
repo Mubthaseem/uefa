@@ -174,5 +174,15 @@
     "meta": "Fox 4K USA direct stream",
     "vpn": "",
     "enabled": false
+  },
+  "FOX": {
+    "name": "FOX USA",
+    "url": "https://vileembeds.pages.dev/embed/fox-usa",
+    "type": "iframe",
+    "keys": {},
+    "meta": "",
+    "vpn": "",
+    "enabled": true,
+    "sandbox": "strict"
   }
 }
