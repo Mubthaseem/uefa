@@ -886,18 +886,26 @@
         } catch(_) {}
       }
       if (shakaUiInstance) {
-        shakaUiInstance.destroy();
+        try { shakaUiInstance.destroy(); } catch(_) {}
         shakaUiInstance = null;
       }
       if (shakaPlayerInstance) {
-        shakaPlayerInstance.destroy();
+        try { shakaPlayerInstance.destroy(); } catch(_) {}
         shakaPlayerInstance = null;
       }
       if (plyrInstance) {
-        plyrInstance.destroy();
+        try { plyrInstance.destroy(); } catch(_) {}
         plyrInstance = null;
       }
-      wrapper.innerHTML = '<video id="video" playsinline controls></video>';
+      
+      // Reset the video wrapper content while preserving the ad container
+      wrapper.innerHTML = `
+        <video id="video" playsinline controls></video>
+        <!-- VAST Pre-roll Ad Container -->
+        <div id="ad-container" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; background: #000;">
+          <video id="ad-video" style="width: 100%; height: 100%;" playsinline></video>
+        </div>
+      `;
     }
 
     function showLoader(text) {
@@ -910,27 +918,26 @@
     }
 
     function loadIframePlayer(url) {
+      // Remove only the video element, leaving the ad container intact
+      const video = document.getElementById('video');
+      if (video) video.remove();
+
       const iframe = document.createElement('iframe');
       iframe.src = url;
       iframe.allow = "autoplay; encrypted-media; fullscreen";
       iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-presentation allow-forms');
       
-      wrapper.innerHTML = '';
       wrapper.appendChild(iframe);
-      
       hideLoader();
     }
 
     async function loadShakaPlayer(id, stream) {
-      const newVideo = document.createElement('video');
-      newVideo.id = 'video';
+      const newVideo = document.getElementById('video');
+      if (!newVideo) return;
       newVideo.playsInline = true;
       newVideo.autoplay = true;
       newVideo.muted = true; // Required for autoplay policy
       
-      wrapper.innerHTML = '';
-      wrapper.appendChild(newVideo);
-
       try {
         // Install polyfills first (required for EME/DRM support)
         shaka.polyfill.installAll();
@@ -969,23 +976,17 @@
           }
         });
 
-        // Build player config — only apply DRM clearKeys when keys actually exist
-        const hasKeys = stream.keys && Object.keys(stream.keys).length > 0;
-        const playerConfig = {
+        // Build player config — restore stable DRM configuration
+        shakaPlayerInstance.configure({
           streaming: {
-            bufferingGoal: 10,
+            bufferingGoal: 20,
             rebufferingGoal: 2,
-            bufferBehind: 15,
-            // Do NOT use lowLatencyMode for standard HLS/DASH streams — it breaks them
+            bufferBehind: 20
+          },
+          drm: {
+            clearKeys: stream.keys || {}
           }
-        };
-        if (hasKeys) {
-          playerConfig.drm = {
-            clearKeys: stream.keys,
-            preferredKeySystems: ['org.w3.clearkey']
-          };
-        }
-        shakaPlayerInstance.configure(playerConfig);
+        });
 
         // Set up Shaka UI overlay
         const container = document.getElementById('video-wrapper');
@@ -1093,13 +1094,10 @@
     }
 
     function loadPlyrPlayer(url) {
-      const newVideo = document.createElement('video');
-      newVideo.id = 'video';
+      const newVideo = document.getElementById('video');
+      if (!newVideo) return;
       newVideo.playsInline = true;
       newVideo.controls = true;
-      
-      wrapper.innerHTML = '';
-      wrapper.appendChild(newVideo);
       
       const busterUrl = url + (url.includes('?') ? '&' : '?') + 't=' + Date.now();
       
