@@ -1,13 +1,12 @@
 {
   "OK_RU_STREAM": {
-    "name": "OK.ru Stream | HD",
-    "url": "https://ok.ru/videoembed/17565388185159",
-    "type": "iframe",
+    "name": "OK.ru Proxied | HD",
+    "url": "https://okru-proxy.mubthaseembinalavi.workers.dev/stream/17565388185159/index.m3u8",
+    "type": "plyr",
     "keys": {},
-    "meta": "OK.ru Multi-quality Stream",
+    "meta": "OK.ru Proxied HLS Stream",
     "vpn": "",
-    "enabled": true,
-    "sandbox": "strict"
+    "enabled": true
   },
   "YALLA_L3": {
     "name": "Malayalam | HD",
@@ -164,6 +163,15 @@
     "type": "iframe",
     "keys": {},
     "meta": "CazeTV Brazil",
+    "vpn": "",
+    "enabled": true
+  },
+  "VILE_FOX4K": {
+    "name": "Fox 4K USA | Premium",
+    "url": "https://inproviszon.st/fox4k-usa.m3u8",
+    "type": "plyr",
+    "keys": {},
+    "meta": "Fox 4K USA direct stream",
     "vpn": "",
     "enabled": true
   }
