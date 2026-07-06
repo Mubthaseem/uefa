@@ -194,5 +194,15 @@
     "vpn": "",
     "enabled": true,
     "sandbox": "strict"
+  },
+  "TUSN": {
+    "name": "TUSN",
+    "url": "https://vileembeds.pages.dev/embed/tsn1-ca",
+    "type": "iframe",
+    "keys": {},
+    "meta": "",
+    "vpn": "",
+    "enabled": true,
+    "sandbox": "strict"
   }
 }
