@@ -227,50 +227,5 @@
     "meta": "",
     "vpn": "",
     "enabled": true
-  },
-  "DTV_PLAYER": {
-    "name": "DTV | FIFA Embed",
-    "url": "https://live.mdtv.dpdns.org/player?id=DPDWMgei8gVJyQRNxshJ",
-    "type": "iframe",
-    "keys": {},
-    "meta": "DTV HINDI Player embed",
-    "vpn": "",
-    "enabled": true
-  },
-  "MDTV_ENG": {
-    "name": "MDTV | English 720p",
-    "url": "https://liveakmt-p.slivcdn.com/hls/live/2119931/cricacc12809/ENG/hdntl=exp=1759152113~acl=%2f*~id=08256164294326655782156522458255~data=hdntl,2119931,cricacc12809,ENG~hmac=6aad7c4a78385f2f8e80ea34d44666d3987847de9d72b795c0b41d6d9b49a2f5/std_lrh-800300010_720_1840000.m3u8",
-    "type": "plyr",
-    "keys": {},
-    "meta": "MDTV English 720p",
-    "vpn": "",
-    "enabled": true
-  },
-  "MDTV_HIN": {
-    "name": "MDTV | Hindi 720p",
-    "url": "https://liveakmt-p.slivcdn.com/hls/live/2119921/cricacc12809/HIN/hdntl=exp=1759152130~acl=%2f*~id=08256164294326655782156522458255~data=hdntl,2119921,cricacc12809,HIN~hmac=cd95c093ed649adf05c46b01586a55ffb4d52823d5ad2288b1117bdb966a1c09/std_lrh-800300010_720_1840000.m3u8",
-    "type": "plyr",
-    "keys": {},
-    "meta": "MDTV Hindi 720p",
-    "vpn": "",
-    "enabled": true
-  },
-  "MDTV_TAM": {
-    "name": "MDTV | Tamil 720p",
-    "url": "https://liveakmt-p.slivcdn.com/hls/live/2119951/cricacc12809/TAM/hdntl=exp=1759152259~acl=%2f*~id=22578330065883230781541944555446~data=hdntl,2119951,cricacc12809,TAM~hmac=a7068e232ec441e3498d284a942b46fa655eefa13f1dff6b2f9ef0dd3d13613f/std_lrh-800300010_720_1840000.m3u8",
-    "type": "plyr",
-    "keys": {},
-    "meta": "MDTV Tamil 720p",
-    "vpn": "",
-    "enabled": true
-  },
-  "MDTV_TEL": {
-    "name": "MDTV | Telugu 720p",
-    "url": "https://liveakmt-p.slivcdn.com/hls/live/2119941/cricacc12809/TEL/hdntl=exp=1759152292~acl=%2f*~id=22578330065883230781541944555446~data=hdntl,2119941,cricacc12809,TEL~hmac=b3779d38f5bcb2ebb43da400e0a4fd6baa2699cb38b58a1f4c2bcf2364d2bc6e/std_lrh-800300010_720_1840000.m3u8",
-    "type": "plyr",
-    "keys": {},
-    "meta": "MDTV Telugu 720p",
-    "vpn": "",
-    "enabled": true
   }
 }
