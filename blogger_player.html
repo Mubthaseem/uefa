@@ -429,10 +429,14 @@
       </div>
       <div class="video-wrapper" id="video-wrapper">
         <video id="video" playsinline controls></video>
-        <!-- VAST Pre-roll Ad Container -->
-        <div id="ad-container" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; background: #000;">
-          <video id="ad-video" style="width: 100%; height: 100%;" playsinline></video>
+      </div>
+      <!-- VAST Pre-roll Ad Container (outside wrapper so it's never destroyed) -->
+      <div id="ad-container" style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; z-index:2000; background:#000;">
+        <video id="ad-video" style="width:100%; height:100%; display:block;" playsinline></video>
+        <div id="ad-skip-bar" style="position:absolute; bottom:20px; right:20px; display:none;">
+          <button id="ad-skip-btn" onclick="window._skipAd && window._skipAd()" style="background:rgba(0,0,0,0.8); color:#fff; border:1px solid #fff; padding:8px 18px; font-size:14px; cursor:pointer; border-radius:4px;">Skip Ad ▶</button>
         </div>
+        <div id="ad-countdown" style="position:absolute; top:16px; left:16px; color:#fff; font-size:13px; background:rgba(0,0,0,0.6); padding:4px 10px; border-radius:4px;">Ad loading...</div>
       </div>
     </div>
 
@@ -519,152 +523,198 @@
     const loader = document.getElementById('loader-overlay');
     const statusText = document.getElementById('ld-status');
 
-    // VAST Pre-roll Ad Configuration
-    let adsLoader = null;
+    // ═══════════════════════════════════════════════════
+    // VAST PRE-ROLL AD SYSTEM (Google IMA SDK)
+    // ═══════════════════════════════════════════════════
     let adsManager = null;
-    let adDisplayContainer = null;
     let currentAdCallback = null;
-    let adsInitialized = false;
     let adTimeoutTimer = null;
+    let adSkipTimer = null;
+    let adContainerInitialized = false;
+    let adDisplayContainer = null;
+    let adsLoader = null;
     const VAST_TAG = "https://ronracepub.com/e/base36/2plie0buxhrpu07q7zuklsfnh4ghsad8cl74b71h0oba9m5amqnquzpg8574c7beggyzvg05lm8p2m3c612u86ckl2";
 
-    function initAdPlayer() {
-      if (adsInitialized) return;
+    // Expose skip function globally for inline onclick
+    window._skipAd = function() {
+      if (adsManager) {
+        try { adsManager.skip(); } catch(_) {}
+      }
+      onAdComplete();
+    };
+
+    function getAdContainer() { return document.getElementById('ad-container'); }
+    function getAdVideo() { return document.getElementById('ad-video'); }
+
+    function setupAdDisplayContainer() {
+      // Only create AdDisplayContainer ONCE (IMA requirement)
+      if (adDisplayContainer) return true;
       try {
-        if (typeof google === 'undefined' || typeof google.ima === 'undefined') {
-          console.warn("IMA SDK not loaded. Ad blocker is likely active.");
-          return;
-        }
-        const adContainer = document.getElementById('ad-container');
-        const adVideo = document.getElementById('ad-video');
-        if (!adContainer || !adVideo) return;
-        
+        if (typeof google === 'undefined' || !google.ima) return false;
+        const adContainer = getAdContainer();
+        const adVideo = getAdVideo();
+        if (!adContainer || !adVideo) return false;
         adDisplayContainer = new google.ima.AdDisplayContainer(adContainer, adVideo);
-        adsLoader = new google.ima.AdsLoader(adDisplayContainer);
-        
-        adsLoader.addEventListener(
-          google.ima.AdsManagerLoadedEvent.Type.ADS_MANAGER_LOADED,
-          onAdsManagerLoaded,
-          false
-        );
-        adsLoader.addEventListener(
-          google.ima.AdErrorEvent.Type.AD_ERROR,
-          onAdError,
-          false
-        );
-        
-        adsInitialized = true;
-      } catch (e) {
-        console.error("Error initializing IMA SDK:", e);
+        return true;
+      } catch(e) {
+        console.error("AdDisplayContainer init failed:", e);
+        return false;
       }
     }
 
     function playPreRollAd(callback) {
       currentAdCallback = callback;
-      
-      // Set safety timeout of 4 seconds to prevent loading hangs
-      if (adTimeoutTimer) clearTimeout(adTimeoutTimer);
-      adTimeoutTimer = setTimeout(() => {
-        console.warn("VAST ad loading timed out. Bypassing pre-roll.");
+
+      // Clear any previous timers
+      if (adTimeoutTimer) { clearTimeout(adTimeoutTimer); adTimeoutTimer = null; }
+      if (adSkipTimer)    { clearTimeout(adSkipTimer);    adSkipTimer = null; }
+
+      // Destroy any existing adsManager
+      if (adsManager) {
+        try { adsManager.destroy(); } catch(_) {}
+        adsManager = null;
+      }
+
+      // Hide skip bar & reset countdown
+      const skipBar = document.getElementById('ad-skip-bar');
+      const countdown = document.getElementById('ad-countdown');
+      if (skipBar) skipBar.style.display = 'none';
+      if (countdown) { countdown.style.display = 'block'; countdown.textContent = 'Ad loading...'; }
+
+      // Safety bypass: if IMA SDK not available (ad-blocker), go straight to stream
+      if (typeof google === 'undefined' || !google.ima) {
+        console.warn("IMA SDK not available — skipping ad");
         bypassAd();
-      }, 4000);
+        return;
+      }
 
+      // Set up the one-time AdDisplayContainer (requires user gesture context)
+      if (!setupAdDisplayContainer()) {
+        bypassAd();
+        return;
+      }
+
+      // Initialize the container on first use
+      if (!adContainerInitialized) {
+        try { adDisplayContainer.initialize(); adContainerInitialized = true; }
+        catch(e) { console.error("adDisplayContainer.initialize failed:", e); bypassAd(); return; }
+      }
+
+      // Show ad container
+      const adContainer = getAdContainer();
+      if (adContainer) adContainer.style.display = 'block';
+
+      // Create a fresh AdsLoader each time (reusing causes silent failures)
       try {
-        if (typeof google === 'undefined' || typeof google.ima === 'undefined') {
-          console.log("IMA SDK not found, skipping pre-roll ad.");
-          bypassAd();
-          return;
+        if (adsLoader) {
+          try { adsLoader.contentComplete(); } catch(_) {}
         }
-        
-        initAdPlayer();
-        const adContainer = document.getElementById('ad-container');
-        const adVideo = document.getElementById('ad-video');
-        
-        if (!adContainer || !adVideo || !adDisplayContainer || !adsLoader) {
-          bypassAd();
-          return;
-        }
+        adsLoader = new google.ima.AdsLoader(adDisplayContainer);
+        adsLoader.addEventListener(google.ima.AdsManagerLoadedEvent.Type.ADS_MANAGER_LOADED, onAdsManagerLoaded, false);
+        adsLoader.addEventListener(google.ima.AdErrorEvent.Type.AD_ERROR, onAdError, false);
 
-        adContainer.style.display = 'block';
-        adDisplayContainer.initialize();
-        
         const adsRequest = new google.ima.AdsRequest();
         adsRequest.adTagUrl = VAST_TAG;
-        adsRequest.linearAdSizeWidth = adContainer.clientWidth || 640;
-        adsRequest.linearAdSizeHeight = adContainer.clientHeight || 360;
-        
+        adsRequest.linearAdSizeWidth  = adContainer ? adContainer.clientWidth  : 640;
+        adsRequest.linearAdSizeHeight = adContainer ? adContainer.clientHeight : 360;
         adsLoader.requestAds(adsRequest);
-      } catch (e) {
-        console.error("Ad playback error, bypassing:", e);
+      } catch(e) {
+        console.error("AdsLoader request failed:", e);
         bypassAd();
+        return;
       }
+
+      // Safety timeout: if ad doesn't start within 8s, skip it
+      adTimeoutTimer = setTimeout(() => {
+        console.warn("VAST ad timed out after 8s — bypassing");
+        bypassAd();
+      }, 8000);
     }
 
-    function onAdsManagerLoaded(adsManagerLoadedEvent) {
+    function onAdsManagerLoaded(loadedEvent) {
+      // Cancel the safety timeout since ad loaded
+      if (adTimeoutTimer) { clearTimeout(adTimeoutTimer); adTimeoutTimer = null; }
+
       try {
-        const adsRenderingSettings = new google.ima.AdsRenderingSettings();
-        adsRenderingSettings.restorePlayerStateOnAdComplete = true;
-        
-        const adVideo = document.getElementById('ad-video');
-        adsManager = adsManagerLoadedEvent.getAdsManager(adVideo, adsRenderingSettings);
-        
-        adsManager.addEventListener(google.ima.AdErrorEvent.Type.AD_ERROR, onAdError);
-        adsManager.addEventListener(google.ima.AdEvent.Type.ALL_ADS_COMPLETED, onAdComplete);
-        adsManager.addEventListener(google.ima.AdEvent.Type.SKIPPED, onAdComplete);
-        adsManager.addEventListener(google.ima.AdEvent.Type.USER_CLOSE, onAdComplete);
-        
-        const adContainer = document.getElementById('ad-container');
+        const settings = new google.ima.AdsRenderingSettings();
+        settings.restorePlayerStateOnAdComplete = true;
+
+        const adVideo = getAdVideo();
+        adsManager = loadedEvent.getAdsManager(adVideo, settings);
+
+        adsManager.addEventListener(google.ima.AdErrorEvent.Type.AD_ERROR,         onAdError);
+        adsManager.addEventListener(google.ima.AdEvent.Type.ALL_ADS_COMPLETED,     onAdComplete);
+        adsManager.addEventListener(google.ima.AdEvent.Type.SKIPPED,               onAdComplete);
+        adsManager.addEventListener(google.ima.AdEvent.Type.STARTED, (e) => {
+          const ad = e.getAd();
+          const duration = ad ? ad.getDuration() : 0;
+          const countdown = document.getElementById('ad-countdown');
+          if (countdown && duration > 0) {
+            let remaining = Math.ceil(duration);
+            countdown.textContent = `Ad: ${remaining}s`;
+            const tick = setInterval(() => {
+              remaining--;
+              if (remaining <= 0) { clearInterval(tick); countdown.style.display = 'none'; }
+              else countdown.textContent = `Ad: ${remaining}s`;
+            }, 1000);
+          } else if (countdown) {
+            countdown.style.display = 'none';
+          }
+
+          // Show skip button after 5s
+          const skipBar = document.getElementById('ad-skip-bar');
+          adSkipTimer = setTimeout(() => {
+            if (skipBar) skipBar.style.display = 'block';
+          }, 5000);
+        });
+
+        const adContainer = getAdContainer();
         adsManager.init(
-          adContainer.clientWidth || 640,
-          adContainer.clientHeight || 360,
+          adContainer ? adContainer.clientWidth  : 640,
+          adContainer ? adContainer.clientHeight : 360,
           google.ima.ViewMode.NORMAL
         );
         adsManager.start();
-      } catch (adError) {
-        console.error("Failed to start ad manager, bypassing:", adError);
+      } catch(e) {
+        console.error("adsManager init/start failed:", e);
         onAdComplete();
       }
     }
 
-    function onAdError(adErrorEvent) {
-      console.warn("IMA Ad error:", adErrorEvent.getError().toString());
-      if (adsManager) {
-        try { adsManager.destroy(); } catch(_) {}
-        adsManager = null;
-      }
+    function onAdError(evt) {
+      console.warn("IMA ad error:", evt && evt.getError ? evt.getError().toString() : evt);
+      if (adsManager) { try { adsManager.destroy(); } catch(_) {} adsManager = null; }
       bypassAd();
     }
 
     function onAdComplete() {
-      if (adsManager) {
-        try { adsManager.destroy(); } catch(_) {}
-        adsManager = null;
-      }
+      if (adSkipTimer)  { clearTimeout(adSkipTimer);  adSkipTimer = null; }
+      if (adTimeoutTimer) { clearTimeout(adTimeoutTimer); adTimeoutTimer = null; }
+      if (adsManager) { try { adsManager.destroy(); } catch(_) {} adsManager = null; }
       bypassAd();
     }
 
     function bypassAd() {
-      if (adTimeoutTimer) {
-        clearTimeout(adTimeoutTimer);
-        adTimeoutTimer = null;
-      }
-      const adContainer = document.getElementById('ad-container');
+      if (adTimeoutTimer) { clearTimeout(adTimeoutTimer); adTimeoutTimer = null; }
+      if (adSkipTimer)    { clearTimeout(adSkipTimer);    adSkipTimer = null; }
+      const adContainer = getAdContainer();
       if (adContainer) adContainer.style.display = 'none';
+      const skipBar = document.getElementById('ad-skip-bar');
+      if (skipBar) skipBar.style.display = 'none';
       if (currentAdCallback) {
-        currentAdCallback();
+        const cb = currentAdCallback;
         currentAdCallback = null;
+        cb();
       }
     }
 
     window.addEventListener('resize', () => {
       if (adsManager) {
-        const adContainer = document.getElementById('ad-container');
+        const adContainer = getAdContainer();
         if (adContainer) {
-          adsManager.resize(
-            adContainer.clientWidth,
-            adContainer.clientHeight,
-            google.ima.ViewMode.NORMAL
-          );
+          try {
+            adsManager.resize(adContainer.clientWidth, adContainer.clientHeight, google.ima.ViewMode.NORMAL);
+          } catch(_) {}
         }
       }
     });
@@ -881,9 +931,7 @@
         fallbackTimer = null;
       }
       if (window.jwplayer && document.getElementById('jw-player-container')) {
-        try {
-          jwplayer('jw-player-container').remove();
-        } catch(_) {}
+        try { jwplayer('jw-player-container').remove(); } catch(_) {}
       }
       if (shakaUiInstance) {
         try { shakaUiInstance.destroy(); } catch(_) {}
@@ -897,15 +945,7 @@
         try { plyrInstance.destroy(); } catch(_) {}
         plyrInstance = null;
       }
-      
-      // Reset the video wrapper content while preserving the ad container
-      wrapper.innerHTML = `
-        <video id="video" playsinline controls></video>
-        <!-- VAST Pre-roll Ad Container -->
-        <div id="ad-container" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; background: #000;">
-          <video id="ad-video" style="width: 100%; height: 100%;" playsinline></video>
-        </div>
-      `;
+      wrapper.innerHTML = '<video id="video" playsinline controls></video>';
     }
 
     function showLoader(text) {
@@ -918,26 +958,23 @@
     }
 
     function loadIframePlayer(url) {
-      // Remove only the video element, leaving the ad container intact
-      const video = document.getElementById('video');
-      if (video) video.remove();
-
+      wrapper.innerHTML = '';
       const iframe = document.createElement('iframe');
       iframe.src = url;
       iframe.allow = "autoplay; encrypted-media; fullscreen";
-      iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-presentation allow-forms');
-      
+      iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-presentation allow-forms allow-popups');
       wrapper.appendChild(iframe);
       hideLoader();
     }
 
     async function loadShakaPlayer(id, stream) {
-      const newVideo = document.getElementById('video');
-      if (!newVideo) return;
+      const newVideo = document.createElement('video');
+      newVideo.id = 'video';
       newVideo.playsInline = true;
       newVideo.autoplay = true;
-      newVideo.muted = true; // Required for autoplay policy
-      
+      newVideo.muted = true;
+      wrapper.innerHTML = '';
+      wrapper.appendChild(newVideo);
       try {
         // Install polyfills first (required for EME/DRM support)
         shaka.polyfill.installAll();
