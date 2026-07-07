@@ -1,7 +1,7 @@
 {
   "OK_RU_STREAM": {
-    "name": "MALAYALAM",
-    "url": "https://ok.ru/videoembed/15580773818076",
+    "name": "tiwitch",
+    "url": "https://player.twitch.tv/?channel=mamajjeedd99&enableExtensions=true&muted=false&parent=www.zetasports.blog&parent=mubthaseem.github.io&player=popout&quality=chunked&volume=0.5",
     "type": "iframe",
     "keys": {},
     "meta": "OK.ru Proxied HLS Stream",
@@ -11,7 +11,7 @@
   },
   "YALLA_L3": {
     "name": "Malayalam | HD",
-    "url": "https://vileembeds.pages.dev/embed/fox-usa",
+    "url": "https://ok.ru/videoembed/15580773818076",
     "type": "iframe",
     "keys": {},
     "meta": "Malayalam Mobile/PC",
