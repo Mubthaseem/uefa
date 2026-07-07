@@ -68,7 +68,7 @@
   },
   "FOX": {
     "name": "FOX USA (Proxied HLS)",
-    "url": "https://stream.zetasports.blog/proxy/https/inproviszon.st/fox-usa.m3u8",
+    "url": "https/inproviszon.st/fox-usa.m3u8",
     "type": "plyr",
     "keys": {},
     "meta": "Bypasses all vileembeds iframe ads",
@@ -77,7 +77,7 @@
   },
   "FOX4K": {
     "name": "FOX 4K USA (Proxied HLS)",
-    "url": "https://stream.zetasports.blog/proxy/https/inproviszon.st/fox4k-usa.m3u8",
+    "url": "https/inproviszon.st/fox4k-usa.m3u8",
     "type": "plyr",
     "keys": {},
     "meta": "Bypasses all vileembeds iframe ads",
@@ -86,7 +86,7 @@
   },
   "TUSN": {
     "name": "TSN Canada (Proxied HLS)",
-    "url": "https://stream.zetasports.blog/proxy/https/inproviszon.st/tsn1-ca.m3u8",
+    "url": "https/inproviszon.st/tsn1-ca.m3u8",
     "type": "plyr",
     "keys": {},
     "meta": "Bypasses all vileembeds iframe ads",
