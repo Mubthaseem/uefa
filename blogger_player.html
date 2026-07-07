@@ -914,7 +914,7 @@
       
       playPreRollAd(async () => {
         if (stream.type === 'iframe') {
-          loadIframePlayer(stream.url);
+          loadIframePlayer(stream);
         } else if (stream.type === 'jw') {
           loadJwPlayer(stream);
         } else if (stream.type === 'plyr') {
@@ -957,12 +957,23 @@
       loader.classList.add('hidden');
     }
 
-    function loadIframePlayer(url) {
+    function loadIframePlayer(stream) {
+      const url = stream.url;
       wrapper.innerHTML = '';
       const iframe = document.createElement('iframe');
       iframe.src = url;
-      iframe.allow = "autoplay; encrypted-media; fullscreen";
-      iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-presentation allow-forms allow-popups');
+      iframe.allow = "autoplay; encrypted-media; fullscreen; camera; microphone";
+      iframe.allowFullscreen = true;
+
+      // Use per-stream sandbox setting from streams.json
+      // 'strict' = standard permissions; anything else / missing = full permissions (no sandbox)
+      if (stream.sandbox === 'strict') {
+        iframe.setAttribute('sandbox',
+          'allow-scripts allow-same-origin allow-presentation allow-forms allow-popups allow-popups-to-escape-sandbox'
+        );
+      }
+      // If no sandbox key, don't set sandbox at all — lets embeds like Twitch work fully
+
       wrapper.appendChild(iframe);
       hideLoader();
     }
