@@ -167,44 +167,32 @@
     "vpn": "",
     "enabled": false
   },
-  "VILE_FOX4K": {
-    "name": "Fox 4K USA | Premium",
-    "url": "https://inproviszon.st/fox4k-usa.m3u8",
-    "type": "plyr",
-    "keys": {},
-    "meta": "Fox 4K USA direct stream",
-    "vpn": "",
-    "enabled": false
-  },
   "FOX": {
     "name": "FOX USA",
-    "url": "https://vileembeds.pages.dev/embed/fox-usa",
-    "type": "iframe",
+    "url": "https://inproviszon.st/fox-usa.m3u8",
+    "type": "plyr",
     "keys": {},
-    "meta": "",
+    "meta": "Fox USA HLS",
     "vpn": "",
-    "enabled": true,
-    "sandbox": "strict"
+    "enabled": true
   },
   "FOX4K": {
     "name": "FOX 4K USA",
-    "url": "https://vileembeds.pages.dev/embed/fox4k-usa",
-    "type": "iframe",
+    "url": "https://inproviszon.st/fox4k-usa.m3u8",
+    "type": "plyr",
     "keys": {},
-    "meta": "",
+    "meta": "Fox 4K USA HLS",
     "vpn": "",
-    "enabled": true,
-    "sandbox": "strict"
+    "enabled": true
   },
   "TUSN": {
     "name": "TUSN",
-    "url": "https://vileembeds.pages.dev/embed/tsn1-ca",
-    "type": "iframe",
+    "url": "https://inproviszon.st/tsn1-ca.m3u8",
+    "type": "plyr",
     "keys": {},
-    "meta": "",
+    "meta": "TSN Canada HLS",
     "vpn": "",
-    "enabled": true,
-    "sandbox": "strict"
+    "enabled": true
   },
   "FO": {
     "name": "FOX ONE",
