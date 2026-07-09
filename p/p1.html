@@ -32,16 +32,10 @@ const loading = document.getElementById('loading');
 const container = document.getElementById('container');
 const watermark = document.getElementById('watermark');
 
-// Move watermark into fullscreen element so it shows in fullscreen
 function handleFullscreenChange() {
   const fsEl = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement;
-  if (fsEl) {
-    fsEl.appendChild(watermark);
-    watermark.style.position = 'fixed';
-  } else {
-    container.appendChild(watermark);
-    watermark.style.position = 'absolute';
-  }
+  if (fsEl) { fsEl.appendChild(watermark); watermark.style.position='fixed'; }
+  else { container.appendChild(watermark); watermark.style.position='absolute'; }
 }
 document.addEventListener('fullscreenchange', handleFullscreenChange);
 document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
@@ -50,22 +44,15 @@ document.addEventListener('mozfullscreenchange', handleFullscreenChange);
 function startPlayer(src) {
   if (Hls.isSupported()) {
     const hls = new Hls({ enableWorker: true, maxBufferLength: 30 });
-    hls.loadSource(src);
-    hls.attachMedia(video);
+    hls.loadSource(src); hls.attachMedia(video);
     hls.on(Hls.Events.MANIFEST_PARSED, () => {
-      loading.style.display = 'none';
-      container.style.display = 'flex';
-      new Plyr(video, { controls: ['play','progress','current-time','mute','volume','fullscreen'], autoplay: true });
-      video.play().catch(() => {});
+      loading.style.display='none'; container.style.display='flex';
+      new Plyr(video, { controls:['play','progress','current-time','mute','volume','fullscreen'], autoplay:true });
+      video.play().catch(()=>{});
     });
-    hls.on(Hls.Events.ERROR, (e, data) => {
-      if (data.fatal) loading.innerHTML = '<div>⚠️ Stream Error.</div>';
-    });
+    hls.on(Hls.Events.ERROR, (e,data) => { if(data.fatal) loading.innerHTML='<div>⚠️ Stream Error.</div>'; });
   } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-    video.src = src;
-    video.addEventListener('loadedmetadata', () => {
-      loading.style.display='none'; container.style.display='flex'; video.play();
-    });
+    video.src=src; video.addEventListener('loadedmetadata',()=>{ loading.style.display='none'; container.style.display='flex'; video.play(); });
   }
 }
 startPlayer(STREAM_URL);

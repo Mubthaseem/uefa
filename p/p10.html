@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Stream P10 - Fox Sports HD DASH</title>
+<title>Stream P10 - TSN 1 (DASH)</title>
 <script src="https://cdn.jsdelivr.net/npm/shaka-player@4.7.11/dist/shaka-player.compiled.js"></script>
 <style>
   *{margin:0;padding:0;box-sizing:border-box}
@@ -11,7 +11,7 @@
   #container{position:relative;width:100vw;height:100vh}
   video{width:100%;height:100%;object-fit:contain;display:block}
   #loading{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;font-family:sans-serif;font-size:18px;text-align:center;z-index:99}
-  .spinner{width:50px;height:50px;border:4px solid rgba(255,255,255,.2);border-top-color:#ff6f00;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 15px}
+  .spinner{width:50px;height:50px;border:4px solid rgba(255,255,255,.2);border-top-color:#00e676;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 15px}
   @keyframes spin{to{transform:rotate(360deg)}}
   #err{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);color:#f44;font-family:sans-serif;font-size:16px;text-align:center;display:none;z-index:100}
   #watermark{position:absolute;bottom:65px;right:18px;color:rgba(255,255,255,0.55);font-family:'Segoe UI',Arial,sans-serif;font-size:15px;font-weight:600;letter-spacing:1px;pointer-events:none;z-index:9999;text-shadow:0 1px 6px rgba(0,0,0,0.9),0 0 12px rgba(0,0,0,0.7);user-select:none;display:flex;align-items:center;gap:6px}
@@ -19,17 +19,18 @@
 </style>
 </head>
 <body>
-<div id="loading"><div class="spinner"></div>Loading Fox Sports HD...</div>
+<div id="loading"><div class="spinner"></div>Loading stream...</div>
 <div id="err">⚠️ Stream failed to load.</div>
 <div id="container">
   <video id="video" autoplay playsinline controls></video>
   <div id="watermark">ZetaSports.blog</div>
 </div>
 <script>
-const MANIFEST = 'https://otte.cache.aiv-cdn.net/bom-nitro/live/clients/dash/enc/zpfs5hlgya/out/v1/84b1d591a23640178a8e8aa43c6e59a7/cenc.mpd';
-const KEYS = { '0cc2f872759c96de70237e6fa6de03d0': 'a879b1d38ed002d4018bce96f9219b8d' };
+const MANIFEST = 'https://otte.cache.aiv-cdn.net/bom-nitro/live/clients/dash/enc/w0rehjjrwe/out/v1/69a2a7041395406b970598f61680e7cf/cenc.mpd';
+const KEYS = {"14eeabf30c14b7fbf3008c03099ce011":"17d2ac8dbc5429bd70af3433aa12158d"};
 const container = document.getElementById('container');
 const watermark = document.getElementById('watermark');
+
 function handleFullscreenChange() {
   const fsEl = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement;
   if (fsEl) { fsEl.appendChild(watermark); watermark.style.position='fixed'; }
@@ -38,6 +39,7 @@ function handleFullscreenChange() {
 document.addEventListener('fullscreenchange', handleFullscreenChange);
 document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
 document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+
 async function initPlayer() {
   shaka.polyfill.installAll();
   if (!shaka.Player.isBrowserSupported()) { document.getElementById('err').style.display='block'; document.getElementById('loading').style.display='none'; return; }
