@@ -1,39 +1,20 @@
 {
   "OK_RU_STREAM": {
-    "name": "tiwitch",
-    "url": "https://player.twitch.tv/?channel=mamajjeedd99&enableExtensions=true&muted=false&parent=www.zetasports.blog&parent=mubthaseem.github.io&player=popout&quality=chunked&volume=0.5",
+    "name": "MALAYALAM",
+    "url": "https://ok.ru/videoembed/17565388185159",
     "type": "iframe",
     "keys": {},
     "meta": "OK.ru Proxied HLS Stream",
     "vpn": "",
-    "enabled": true,
+    "enabled": false,
     "sandbox": "strict"
   },
   "YALLA_L3": {
     "name": "Malayalam | HD",
-    "url": "https://ok.ru/videoembed/15580773818076",
+    "url": "https://player.twitch.tv/?channel=mmaajjeedd999&muted=false&parent=www.zetasports.blog&parent=mubthaseem.github.io",
     "type": "iframe",
     "keys": {},
     "meta": "Malayalam Mobile/PC",
-    "vpn": "",
-    "enabled": true,
-    "sandbox": "strict"
-  },
-  "HELL_L1B": {
-    "name": "Link 1B | Migu Auto | Backup",
-    "url": "https://live.666666.zip/migu/1.m3u8",
-    "type": "plyr",
-    "keys": {},
-    "meta": "Migu Auto (iframe)",
-    "vpn": "",
-    "enabled": false
-  },
-  "HELL_L3B": {
-    "name": "Link 3B | English | Backup",
-    "url": "https://player.twitch.tv/?channel=majed92921&muted=false&parent=www.zetasports.blog",
-    "type": "iframe",
-    "keys": {},
-    "meta": "English (iframe)",
     "vpn": "",
     "enabled": false,
     "sandbox": "strict"
@@ -57,41 +38,32 @@
     "enabled": false,
     "sandbox": "strict"
   },
-  "HELL_L5": {
-    "name": "Link 5 | Bein Sports | IOS Stream",
-    "url": "https://1nyaler.streamhostingcdn.top/stream/23/index.m3u8",
-    "type": "jw",
+  "FOX": {
+    "name": "FOX USA (Proxied HLS)",
+    "url": "https://mubthaseem-zeta-stream.hf.space/proxy?url=https%3A%2F%2F1nyaler.streamhostingcdn.top%2Fstream%2F23%2Findex.m3u8&type=m3u8",
+    "type": "plyr",
     "keys": {},
-    "meta": "Bein Sports IOS",
+    "meta": "Bypasses all vileembeds iframe ads",
     "vpn": "",
     "enabled": false
   },
-  "FOX": {
-    "name": "FOX USA (Proxied HLS)",
-    "url": "https/inproviszon.st/fox-usa.m3u8",
-    "type": "plyr",
-    "keys": {},
-    "meta": "Bypasses all vileembeds iframe ads",
-    "vpn": "",
-    "enabled": true
-  },
   "FOX4K": {
     "name": "FOX 4K USA (Proxied HLS)",
-    "url": "https/inproviszon.st/fox4k-usa.m3u8",
+    "url": "https://mubthaseem-zeta-stream.hf.space/proxy?url=https%3A%2F%2F1nyaler.streamhostingcdn.top%2Fstream%2F23%2Findex.m3u8&type=m3u8",
     "type": "plyr",
     "keys": {},
     "meta": "Bypasses all vileembeds iframe ads",
     "vpn": "",
-    "enabled": true
+    "enabled": false
   },
   "TUSN": {
     "name": "TSN Canada (Proxied HLS)",
-    "url": "https/inproviszon.st/tsn1-ca.m3u8",
+    "url": "https://mubthaseem-zeta-stream.hf.space/proxy?url=https%3A%2F%2F1nyaler.streamhostingcdn.top%2Fstream%2F23%2Findex.m3u8&type=m3u8",
     "type": "plyr",
     "keys": {},
     "meta": "Bypasses all vileembeds iframe ads",
     "vpn": "",
-    "enabled": true
+    "enabled": false
   },
   "TSN1_IOS": {
     "name": "TSN 1 English (iOS/All Devices)",
@@ -100,7 +72,7 @@
     "keys": {},
     "meta": "Direct TSN English HLS",
     "vpn": "",
-    "enabled": true
+    "enabled": false
   },
   "CC5_CHINESE": {
     "name": "CC5 Chinese HD (All Devices)",
@@ -109,7 +81,7 @@
     "keys": {},
     "meta": "Direct Chinese HLS stream",
     "vpn": "",
-    "enabled": true
+    "enabled": false
   },
   "TSN1_DASH": {
     "name": "TSN 1 English (DASH)",
@@ -120,7 +92,7 @@
     },
     "meta": "Premium direct DASH feed",
     "vpn": "",
-    "enabled": true
+    "enabled": false
   },
   "TSN3_DASH": {
     "name": "TSN 3 English (DASH)",
@@ -131,7 +103,7 @@
     },
     "meta": "Premium direct DASH feed",
     "vpn": "",
-    "enabled": true
+    "enabled": false
   },
   "TSN4_DASH": {
     "name": "TSN 4 English (DASH)",
@@ -142,7 +114,7 @@
     },
     "meta": "Premium direct DASH feed",
     "vpn": "",
-    "enabled": true
+    "enabled": false
   },
   "NTV_DASH": {
     "name": "NTV English (DASH)",
@@ -153,7 +125,7 @@
     },
     "meta": "Direct DASH feed",
     "vpn": "",
-    "enabled": true
+    "enabled": false
   },
   "GOLTV_DASH": {
     "name": "GolTV Vivo (DASH)",
@@ -164,7 +136,7 @@
     },
     "meta": "GolTV direct DASH feed",
     "vpn": "",
-    "enabled": true
+    "enabled": false
   },
   "TELEMUNDO_DASH": {
     "name": "Telemundo USA (DASH)",
@@ -175,7 +147,7 @@
     },
     "meta": "Telemundo direct DASH feed",
     "vpn": "",
-    "enabled": true
+    "enabled": false
   },
   "FUSSBALL_DASH": {
     "name": "Fussball TV (DASH)",
@@ -186,7 +158,7 @@
     },
     "meta": "German feed",
     "vpn": "",
-    "enabled": true
+    "enabled": false
   },
   "FO": {
     "name": "FOX ONE",
@@ -197,7 +169,7 @@
     },
     "meta": "",
     "vpn": "",
-    "enabled": true
+    "enabled": false
   },
   "FO4K": {
     "name": "Fox 4k",
@@ -207,6 +179,201 @@
       "1f68713028d439ec03be07f56c1d6213": "20093db6455160fffed4c394def3193d"
     },
     "meta": "",
+    "vpn": "",
+    "enabled": false
+  },
+  "ITV_SPORTS_DASH": {
+    "name": "ITV Sports (DASH)",
+    "url": "https://otte.cache.aiv-cdn.net/bom-nitro/live/clients/dash/enc/0eiyyz8qzm/out/v1/dd17af8835fe4bd087d1a4e359b635d7/cenc.mpd",
+    "type": "shaka",
+    "keys": {
+      "30089c52924f037b225b82c616fee2a5": "f55dc8b66ed4fc6753d6035ae7e17144"
+    },
+    "meta": "Premium UK Sports feed",
+    "vpn": "",
+    "enabled": false
+  },
+  "CAZE_TV_DASH": {
+    "name": "Caze TV (DASH)",
+    "url": "https://otte.cache.aiv-cdn.net/iad-nitro/live/clients/dash/enc/iayg0kyrof/out/v1/91dc04907f56415b897faccfa9d252da/cenc.mpd",
+    "type": "shaka",
+    "keys": {
+      "1223d5105392cabf1bb9c2c1fdf6539a": "340b409f4b8f78a343e0363a7938df38"
+    },
+    "meta": "Direct Brazil World Cup feed",
+    "vpn": "",
+    "enabled": false
+  },
+  "SPORTV_DASH": {
+    "name": "SporTV BR (DASH)",
+    "url": "https://otte.cache.aiv-cdn.net/gru-nitro/live/clients/dash/enc/w8kwdfmlgs/out/v1/3aa321e477504937a439b602e078eb18/cenc.mpd",
+    "type": "shaka",
+    "keys": {
+      "51c0ef23b17297e5c01cd7f36dd0a6ce": "8823f713ba6fdb9bbe0a2ad82d309a4b"
+    },
+    "meta": "Brazil World Cup feed",
+    "vpn": "",
+    "enabled": false
+  },
+  "D_SPORTS_DASH": {
+    "name": "DirecTV Sports (DASH)",
+    "url": "https://otte.cache.aiv-cdn.net/iad-nitro/live/clients/dash/enc/z5oyxzsxdk/out/v1/7695a0f64a0e424b973d5b09a2a3eb91/cenc.mpd",
+    "type": "shaka",
+    "keys": {
+      "f836853d8eac19446ed9535f5fc568b1": "b3bc5ef00602b29abac7e482d3d9fbf3"
+    },
+    "meta": "Spanish commentary World Cup feed",
+    "vpn": "",
+    "enabled": false
+  },
+  "TVE_LA_1_DASH": {
+    "name": "TVE La 1 (DASH)",
+    "url": "https://otte.cache.aiv-cdn.net/iad-nitro/live/clients/dash/enc/c7di7zkdor/out/v1/f7d5b356e048494a8325563e8916d50b/cenc.mpd",
+    "type": "shaka",
+    "keys": {
+      "745cd6ec34a58f2f7ac2af35dc3da6d2": "ae008f1e47e6567fe4201a6ff8f1ae54"
+    },
+    "meta": "Spain World Cup feed",
+    "vpn": "",
+    "enabled": false
+  },
+  "FOX_SPORTS_HD_DASH": {
+    "name": "Fox Sports HD (DASH)",
+    "url": "https://otte.cache.aiv-cdn.net/bom-nitro/live/clients/dash/enc/zpfs5hlgya/out/v1/84b1d591a23640178a8e8aa43c6e59a7/cenc.mpd",
+    "type": "shaka",
+    "keys": {
+      "0cc2f872759c96de70237e6fa6de03d0": "a879b1d38ed002d4018bce96f9219b8d"
+    },
+    "meta": "Premium direct HD feed",
+    "vpn": "",
+    "enabled": false
+  },
+  "FUSSBALL_TV1_4K_DASH": {
+    "name": "Fussball TV1 4K (DASH)",
+    "url": "https://da-50f11b292a028381000001120000000000000009.id.vx.tentcdn.eu/wp/at-live-7.tentcdn.eu/bpk-tv/WM_TV_1_UHD/default/index.mpd",
+    "type": "shaka",
+    "keys": {
+      "4f558eae1b005126b2ac6e9eb1a7849e": "17aea325d91b5e66f06a8c574f2f0b03"
+    },
+    "meta": "Ultra HD World Cup feed",
+    "vpn": "",
+    "enabled": false
+  },
+  "FUSSBALL_TV2_4K_DASH": {
+    "name": "Fussball TV2 4K (DASH)",
+    "url": "https://da-50f11b292a028381000001120000000000000009.id.vx.tentcdn.eu/wp/at-live-7.tentcdn.eu/bpk-tv/WM_TV_2_UHD/default/index.mpd",
+    "type": "shaka",
+    "keys": {
+      "ccdf9f3d9bbf5c508adf04f81918a285": "66cf0524fcc2eb0c7dab8bbbf8829827"
+    },
+    "meta": "Ultra HD World Cup feed",
+    "vpn": "",
+    "enabled": false
+  },
+  "CTV_SPORTS_DASH": {
+    "name": "CTV Sports (DASH)",
+    "url": "https://otte.cache.aiv-cdn.net/bom-nitro/live/clients/dash/enc/72sjo8hygl/out/v1/3079be34d72a4985852d299a02406a0c/cenc.mpd",
+    "type": "shaka",
+    "keys": {
+      "d185684e2330de5bea436daa094a5e86": "014f0116154f5bf0050e03a6b0a23157"
+    },
+    "meta": "Premium direct sports feed",
+    "vpn": "",
+    "enabled": false
+  },
+  "CT_SPORTS_DASH": {
+    "name": "CT Sport (DASH)",
+    "url": "https://dash2.antik.sk/stream/nvidia_ct_sport/playlist_cenc.mpd",
+    "type": "shaka",
+    "keys": {
+      "11223344556677889900112233445566": "4b80724d0ef86bcb2c21f7999d67739d"
+    },
+    "meta": "Direct European feed",
+    "vpn": "",
+    "enabled": false
+  },
+  "BEIN_FRANCE_DASH": {
+    "name": "beIN Sports FR (DASH)",
+    "url": "https://api-proxad.dc2.oqee.net/playlist/v1/live/966/1/live.mpd",
+    "type": "shaka",
+    "keys": {
+      "3acea01244785a6363fc04b25d696392": "f0b8f84dbd93407af6ab0b41fc774249"
+    },
+    "meta": "beIN France feed",
+    "vpn": "",
+    "enabled": false
+  },
+  "HELL_L1": {
+    "name": "Link 1 | Ditu Tv Smooth | HD Stream",
+    "url": "https://mubthaseem-zeta-stream.hf.space/proxy?url=https%3A%2F%2Flive05.bfgrut.app%2Flive%2F24561735.m3u8&type=m3u8",
+    "type": "plyr",
+    "keys": {},
+    "meta": "Ditu Tv Smooth",
+    "vpn": "",
+    "enabled": true
+  },
+  "HELL_L2": {
+    "name": "Link 2 | Arabic | HD Stream",
+    "url": "https://mubthaseem-zeta-stream.hf.space/proxy?url=https%3A%2F%2Fimg.heinzromanigi2.xyz%2Fassets%2Fbg_image.m3u8&type=m3u8",
+    "type": "plyr",
+    "keys": {},
+    "meta": "Arabic HD (Offline)",
+    "vpn": "",
+    "enabled": false
+  },
+  "HELL_L3": {
+    "name": "Link 3 | English | HD (FIFA PPV1)",
+    "url": "https://qp-pldt-live-bpk-ucd-prod.akamaized.net/bpk-tv/fifa_ppv1/default/index.mpd",
+    "type": "shaka",
+    "keys": {
+      "2c338a117d434ce4bbe3569231af90f1": "a9633d901ee8a3f4f58ac314b5c5f4fb"
+    },
+    "meta": "English",
+    "vpn": "",
+    "enabled": true
+  },
+  "HELL_L4": {
+    "name": "Link 4 | Malayalam | HD",
+    "url": "https://mubthaseem-zeta-stream.hf.space/proxy?url=https%3A%2F%2Flordatomic.github.io%2Fuefa%2Far%3Furl%3Dhttps%253A%252F%252Fstream.sports3.win%252Fiptv%252Flive%252Fsignal-4459807-10820.m3u8&type=m3u8",
+    "type": "plyr",
+    "keys": {},
+    "meta": "Malayalam",
+    "vpn": "",
+    "enabled": true
+  },
+  "HELL_L5": {
+    "name": "Link 5 | Engish FOX 4K | HD Quality",
+    "url": "https://mubthaseem-zeta-stream.hf.space/proxy?url=https%3A%2F%2Flordatomic.github.io%2Fuefa%2Far%3Furl%3Dhttps%3A%2F%2F1nyaler.streamhostingcdn.top%2Fstream%2F23%2Findex.m3u8&type=m3u8",
+    "type": "plyr",
+    "keys": {},
+    "meta": "English FOX 4K",
+    "vpn": "",
+    "enabled": true
+  },
+  "HELL_L6": {
+    "name": "Link 6 | Telemundo | HD Quality",
+    "url": "https://mubthaseem-zeta-stream.hf.space/proxy?url=https%3A%2F%2Fapi.zlive.st%2Fp%2F8b7d49cd99094663%2Findex.m3u8&type=m3u8",
+    "type": "plyr",
+    "keys": {},
+    "meta": "Telemundo (Offline)",
+    "vpn": "",
+    "enabled": false
+  },
+  "HELL_L7": {
+    "name": "Link 7 | Dsports | HD Quality",
+    "url": "https://mubthaseem-zeta-stream.hf.space/proxy?url=https%3A%2F%2Fxredsox.s3.eu-central-1.amazonaws.com%2Fmsg.m3u8&type=m3u8",
+    "type": "plyr",
+    "keys": {},
+    "meta": "Dsports (Offline)",
+    "vpn": "",
+    "enabled": false
+  },
+  "HELL_L8": {
+    "name": "Link 8 | Arabic 4K | IOS",
+    "url": "https://mubthaseem-zeta-stream.hf.space/proxy?url=https%3A%2F%2Flordatomic.github.io%2Fuefa%2Far%3Furl%3Dhttps%3A%2F%2F1nyaler.streamhostingcdn.top%2Fstream%2F23%2Findex.m3u8&type=m3u8",
+    "type": "plyr",
+    "keys": {},
+    "meta": "Arabic 4K",
     "vpn": "",
     "enabled": true
   }
