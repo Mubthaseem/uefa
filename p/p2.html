@@ -20,15 +20,19 @@
 </style>
 </head>
 <body>
-<div id="loading"><div class="spinner"></div>Loading stream...</div>
+<div id="loading"><div class="spinner"></div>Fetching stream...</div>
 <div id="container" style="display:none">
   <video id="video" playsinline controls></video>
   <div id="watermark">ZetaSports.blog</div>
 </div>
 <script>
-const STREAM_URL = 'https://pul-tenm.gkykp.com/live/hd-en-1-4459808.m3u8?txSecret=5fd88ea358455fb9a367f04fb0c0e167&txTime=6A515F30';
-const video = document.getElementById('video');
-const loading = document.getElementById('loading');
+// Dynamically extract stream from Blogger page — auto-refreshes, no manual URL updates needed!
+const BLOGGER_PAGE = 'https://fsfsdfssf.blogspot.com/p/l2.html';
+const PROXY_BASE   = 'https://mubthaseem-zeta-stream.hf.space';
+const STREAM_URL   = PROXY_BASE + '/blogger-stream?page=' + encodeURIComponent(BLOGGER_PAGE);
+
+const video     = document.getElementById('video');
+const loading   = document.getElementById('loading');
 const container = document.getElementById('container');
 const watermark = document.getElementById('watermark');
 
@@ -44,39 +48,47 @@ document.addEventListener('mozfullscreenchange', handleFullscreenChange);
 function startPlayer(src) {
   if (Hls.isSupported()) {
     const hls = new Hls({ enableWorker: true, maxBufferLength: 30 });
-    hls.loadSource(src); hls.attachMedia(video);
-    hls.on(Hls.Events.MANIFEST_PARSED, () => {
-      loading.style.display='none'; container.style.display='flex';
-      
-      const availableQualities = hls.levels.map((l) => l.height);
-      availableQualities.unshift(0); // Auto
-      
-      new Plyr(video, { 
+    hls.loadSource(src);
+    hls.attachMedia(video);
+    hls.on(Hls.Events.MANIFEST_PARSED, function() {
+      loading.style.display = 'none';
+      container.style.display = 'flex';
+      const availableQualities = hls.levels.map(function(l) { return l.height; });
+      availableQualities.unshift(0); // 0 = Auto
+      new Plyr(video, {
         controls: ['play', 'progress', 'current-time', 'mute', 'volume', 'settings', 'fullscreen'],
         settings: ['quality', 'speed'],
         quality: {
           default: 0,
           options: availableQualities,
           forced: true,
-          onChange: (newQuality) => {
+          onChange: function(newQuality) {
             if (newQuality === 0) {
               hls.currentLevel = -1;
             } else {
-              hls.levels.forEach((level, idx) => {
+              hls.levels.forEach(function(level, idx) {
                 if (level.height === newQuality) hls.currentLevel = idx;
               });
             }
           }
         },
-        autoplay: true 
+        autoplay: true
       });
-      video.play().catch(()=>{});
+      video.play().catch(function(){});
     });
-    hls.on(Hls.Events.ERROR, (e,data) => { if(data.fatal) loading.innerHTML='<div>⚠️ Stream Error.</div>'; });
+    hls.on(Hls.Events.ERROR, function(e, data) {
+      if (data.fatal) loading.innerHTML = '<div>⚠️ Stream Error. Try refreshing.</div>';
+    });
   } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-    video.src=src; video.addEventListener('loadedmetadata',()=>{ loading.style.display='none'; container.style.display='flex'; video.play(); });
+    video.src = src;
+    video.addEventListener('loadedmetadata', function() {
+      loading.style.display = 'none';
+      container.style.display = 'flex';
+      video.play();
+    });
   }
 }
+
 startPlayer(STREAM_URL);
 </script>
 </body>
