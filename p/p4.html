@@ -48,7 +48,32 @@ function startPlayer(src) {
     hls.loadSource(src); hls.attachMedia(video);
     hls.on(Hls.Events.MANIFEST_PARSED, () => {
       loading.style.display='none'; container.style.display='flex';
-      new Plyr(video, { controls:['play','progress','current-time','mute','volume','fullscreen'], autoplay:true });
+      
+      // Map Hls.js levels to Plyr quality options
+      const availableQualities = hls.levels.map((l) => l.height);
+      availableQualities.unshift(0); // Add 'Auto' (0) option
+      
+      const player = new Plyr(video, { 
+        controls: ['play', 'progress', 'current-time', 'mute', 'volume', 'settings', 'fullscreen'],
+        settings: ['quality', 'speed'],
+        quality: {
+          default: 0,
+          options: availableQualities,
+          forced: true,
+          onChange: (newQuality) => {
+            if (newQuality === 0) {
+              hls.currentLevel = -1; // Auto
+            } else {
+              hls.levels.forEach((level, levelIndex) => {
+                if (level.height === newQuality) {
+                  hls.currentLevel = levelIndex;
+                }
+              });
+            }
+          }
+        },
+        autoplay: true 
+      });
       video.play().catch(()=>{});
     });
     hls.on(Hls.Events.ERROR, (e,data) => { if(data.fatal) loading.innerHTML='<div>⚠️ Stream Error.</div>'; });
