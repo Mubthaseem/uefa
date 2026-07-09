@@ -3,31 +3,32 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Stream P5 - FussballTV (DASH)</title>
-<script src="https://cdn.jsdelivr.net/npm/shaka-player@4.7.11/dist/shaka-player.compiled.js"></script>
+<title>Stream P5 - Malayalam HD</title>
+<link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css">
+<script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1.4.12/dist/hls.min.js"></script>
 <style>
   *{margin:0;padding:0;box-sizing:border-box}
   html,body{width:100%;height:100%;background:#000;overflow:hidden}
-  #container{position:relative;width:100vw;height:100vh}
-  video{width:100%;height:100%;object-fit:contain;display:block}
-  #loading{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;font-family:sans-serif;font-size:18px;text-align:center;z-index:99}
-  .spinner{width:50px;height:50px;border:4px solid rgba(255,255,255,.2);border-top-color:#00e676;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 15px}
+  #container{position:relative;width:100vw;height:100vh;display:flex;align-items:center;justify-content:center}
+  video,#container>.plyr{width:100%;height:100%}
+  #loading{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;font-family:sans-serif;font-size:18px;text-align:center;z-index:10}
+  #loading .spinner{width:50px;height:50px;border:4px solid rgba(255,255,255,.2);border-top-color:#fff;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 15px}
   @keyframes spin{to{transform:rotate(360deg)}}
-  #err{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);color:#f44;font-family:sans-serif;font-size:16px;text-align:center;display:none;z-index:100}
   #watermark{position:absolute;bottom:65px;right:18px;color:rgba(255,255,255,0.55);font-family:'Segoe UI',Arial,sans-serif;font-size:15px;font-weight:600;letter-spacing:1px;pointer-events:none;z-index:9999;text-shadow:0 1px 6px rgba(0,0,0,0.9),0 0 12px rgba(0,0,0,0.7);user-select:none;display:flex;align-items:center;gap:6px}
   #watermark::before{content:'⚽';font-size:13px}
 </style>
 </head>
 <body>
 <div id="loading"><div class="spinner"></div>Loading stream...</div>
-<div id="err">⚠️ Stream failed to load.</div>
-<div id="container">
-  <video id="video" autoplay playsinline controls></video>
+<div id="container" style="display:none">
+  <video id="video" playsinline controls></video>
   <div id="watermark">ZetaSports.blog</div>
 </div>
 <script>
-const MANIFEST = 'https://svc45.main.sl.t-online.de/bpk-tv/KID01037_FUSSBALLTV1_hd/DASH/index.mpd';
-const KEYS = {"1cb20afcd9d979c833cfd208c7d3eeb2":"fef0c15b4a523370892edd5e4133c269"};
+const STREAM_URL = 'https://mubthaseem-zeta-stream.hf.space/proxy?url=https%3A%2F%2Fstream.sports3.win%2Fiptv%2Flive%2Fsignal-4459807-10820.m3u8&type=m3u8';
+const video = document.getElementById('video');
+const loading = document.getElementById('loading');
 const container = document.getElementById('container');
 const watermark = document.getElementById('watermark');
 
@@ -40,20 +41,21 @@ document.addEventListener('fullscreenchange', handleFullscreenChange);
 document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
 document.addEventListener('mozfullscreenchange', handleFullscreenChange);
 
-async function initPlayer() {
-  shaka.polyfill.installAll();
-  if (!shaka.Player.isBrowserSupported()) { document.getElementById('err').style.display='block'; document.getElementById('loading').style.display='none'; return; }
-  const video = document.getElementById('video');
-  const player = new shaka.Player(video);
-  player.configure({ drm: { clearKeys: KEYS } });
-  player.addEventListener('error', () => { document.getElementById('loading').style.display='none'; document.getElementById('err').style.display='block'; });
-  try {
-    await player.load(MANIFEST);
-    document.getElementById('loading').style.display='none';
-    video.play().catch(()=>{});
-  } catch(e) { document.getElementById('loading').style.display='none'; document.getElementById('err').style.display='block'; }
+function startPlayer(src) {
+  if (Hls.isSupported()) {
+    const hls = new Hls({ enableWorker: true, maxBufferLength: 30 });
+    hls.loadSource(src); hls.attachMedia(video);
+    hls.on(Hls.Events.MANIFEST_PARSED, () => {
+      loading.style.display='none'; container.style.display='flex';
+      new Plyr(video, { controls:['play','progress','current-time','mute','volume','fullscreen'], autoplay:true });
+      video.play().catch(()=>{});
+    });
+    hls.on(Hls.Events.ERROR, (e,data) => { if(data.fatal) loading.innerHTML='<div>⚠️ Stream Error.</div>'; });
+  } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+    video.src=src; video.addEventListener('loadedmetadata',()=>{ loading.style.display='none'; container.style.display='flex'; video.play(); });
+  }
 }
-initPlayer();
+startPlayer(STREAM_URL);
 </script>
 </body>
 </html>
