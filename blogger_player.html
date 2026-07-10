@@ -721,7 +721,7 @@
 
     // Fetch stream definitions dynamically from raw.githubusercontent.com for instant updates
     async function loadStreams() {
-      const streamsUrl = 'https://raw.githubusercontent.com/Mubthaseem/uefa/main/streams.json';
+      const streamsUrl = './streams.json';
       try {
         statusText.textContent = 'Loading match configuration...';
         const res = await fetch(streamsUrl + '?t=' + Date.now());

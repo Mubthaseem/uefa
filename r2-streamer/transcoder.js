@@ -145,12 +145,12 @@ function handlePublish(id, streamPath) {
     streamIndex++;
   }
 
-  // HLS output configuration for low-latency (2s segments, 6 segments playlist)
+  // HLS output configuration for low-latency (2s segments, 12 segments playlist)
   ffmpegArgs.push(
     '-f', 'hls',
     '-hls_time', '2',
-    '-hls_list_size', '6',
-    '-hls_flags', 'delete_segments+temp_file',
+    '-hls_list_size', '0',
+    '-hls_flags', 'temp_file',
     '-var_stream_map', varStreamMap.join(' '),
     '-master_pl_name', 'live.m3u8',
     '-hls_segment_filename', path.join(WATCH_DIR, '%v', `seg_${streamId}_%d.ts`),

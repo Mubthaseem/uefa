@@ -3,9 +3,9 @@ const path = require('path');
 const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
 
 // Cloudflare R2 Credentials
-const R2_ACCOUNT_ID = '613d51ec4093f97108f44dc4bfaaf47d';
-const R2_ACCESS_KEY_ID = '12c1ff6dfe253603cf04f5937cef216e';
-const R2_SECRET_ACCESS_KEY = 'eba4ff360c23dd636a8f0f360cbe12a41b631faf823d6263e34b88cb81843a16';
+const R2_ACCOUNT_ID = '116a95baef9e3d97cc2528de6efb3275';
+const R2_ACCESS_KEY_ID = '0adae659eadf891d5a778e7db28e5e8d';
+const R2_SECRET_ACCESS_KEY = '1e2b2c625b1450fe271ca094e12caee101395f4066d716604915f10c459d51a7';
 const R2_BUCKET = 'zeta-stream';
 
 // Initialize S3 client
@@ -92,7 +92,7 @@ async function uploadFile(relativePath) {
 
     const cacheControl = targetPath.endsWith('.ts') 
       ? 'public, max-age=3600' 
-      : 'public, max-age=0, s-maxage=3, must-revalidate';
+      : 'no-cache, no-store, must-revalidate';
 
     const command = new PutObjectCommand({
       Bucket: R2_BUCKET,

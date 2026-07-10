@@ -118,7 +118,7 @@ async function handleRequest(request) {
       const okRes = await fetch(okEmbedUrl, {
         headers: {
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-          'Referer': 'https://hellosports.live/'
+          'Referer': 'https://hellosports.rtps4bihar.com/'
         }
       });
 

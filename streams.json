@@ -304,76 +304,38 @@
     "enabled": false
   },
   "HELL_L1": {
-    "name": "Link 1 | Ditu Tv Smooth | HD Stream",
-    "url": "https://mubthaseem-zeta-stream.hf.space/proxy?url=https%3A%2F%2Flive05.bfgrut.app%2Flive%2F24561735.m3u8&type=m3u8",
+    "name": "Link 1 | English | HD Stream",
+    "url": "https://mubthaseem-zeta-stream.hf.space/proxy?url=https%3A%2F%2Flive05.grita.app%2Flive%2F78905744.m3u8&type=m3u8",
     "type": "plyr",
     "keys": {},
-    "meta": "Ditu Tv Smooth",
+    "meta": "English",
     "vpn": "",
     "enabled": true
   },
   "HELL_L2": {
     "name": "Link 2 | Arabic | HD Stream",
-    "url": "https://mubthaseem-zeta-stream.hf.space/proxy?url=https%3A%2F%2Fimg.heinzromanigi2.xyz%2Fassets%2Fbg_image.m3u8&type=m3u8",
+    "url": "https://mubthaseem-zeta-stream.hf.space/proxy?url=https%3A%2F%2Flordatomic.github.io%2Fuefa%2Far%3Furl%3Dhttps%253A%252F%252Fstream.sports3.win%252Fiptv%252Flive%252Fsignal-4459808-11347.m3u8&type=m3u8",
     "type": "plyr",
     "keys": {},
-    "meta": "Arabic HD (Offline)",
+    "meta": "Arabic",
     "vpn": "",
-    "enabled": false
+    "enabled": true
   },
   "HELL_L3": {
-    "name": "Link 3 | English | HD (FIFA PPV1)",
-    "url": "https://qp-pldt-live-bpk-ucd-prod.akamaized.net/bpk-tv/fifa_ppv1/default/index.mpd",
-    "type": "shaka",
-    "keys": {
-      "2c338a117d434ce4bbe3569231af90f1": "a9633d901ee8a3f4f58ac314b5c5f4fb"
-    },
-    "meta": "English",
+    "name": "Link 5 | CCTV | HD Quality",
+    "url": "https://mubthaseem-zeta-stream.hf.space/proxy?url=https%3A%2F%2Flordatomic.github.io%2Fuefa%2Far%3Furl%3Dhttps%253A%252F%252Fstream.sports3.win%252Fiptv%252Flive%252Fsignal-4459807-10820.m3u8&type=m3u8",
+    "type": "plyr",
+    "keys": {},
+    "meta": "CCTV",
     "vpn": "",
     "enabled": true
   },
   "HELL_L4": {
-    "name": "Link 4 | Malayalam | HD",
-    "url": "https://mubthaseem-zeta-stream.hf.space/proxy?url=https%3A%2F%2Flordatomic.github.io%2Fuefa%2Far%3Furl%3Dhttps%253A%252F%252Fstream.sports3.win%252Fiptv%252Flive%252Fsignal-4459807-10820.m3u8&type=m3u8",
-    "type": "plyr",
-    "keys": {},
-    "meta": "Malayalam",
-    "vpn": "",
-    "enabled": true
-  },
-  "HELL_L5": {
-    "name": "Link 5 | Engish FOX 4K | HD Quality",
+    "name": "Link 8 | Telemundo | IOS",
     "url": "https://mubthaseem-zeta-stream.hf.space/proxy?url=https%3A%2F%2Flordatomic.github.io%2Fuefa%2Far%3Furl%3Dhttps%3A%2F%2F1nyaler.streamhostingcdn.top%2Fstream%2F23%2Findex.m3u8&type=m3u8",
     "type": "plyr",
     "keys": {},
-    "meta": "English FOX 4K",
-    "vpn": "",
-    "enabled": true
-  },
-  "HELL_L6": {
-    "name": "Link 6 | Telemundo | HD Quality",
-    "url": "https://mubthaseem-zeta-stream.hf.space/proxy?url=https%3A%2F%2Fapi.zlive.st%2Fp%2F8b7d49cd99094663%2Findex.m3u8&type=m3u8",
-    "type": "plyr",
-    "keys": {},
-    "meta": "Telemundo (Offline)",
-    "vpn": "",
-    "enabled": false
-  },
-  "HELL_L7": {
-    "name": "Link 7 | Dsports | HD Quality",
-    "url": "https://mubthaseem-zeta-stream.hf.space/proxy?url=https%3A%2F%2Fxredsox.s3.eu-central-1.amazonaws.com%2Fmsg.m3u8&type=m3u8",
-    "type": "plyr",
-    "keys": {},
-    "meta": "Dsports (Offline)",
-    "vpn": "",
-    "enabled": false
-  },
-  "HELL_L8": {
-    "name": "Link 8 | Arabic 4K | IOS",
-    "url": "https://mubthaseem-zeta-stream.hf.space/proxy?url=https%3A%2F%2Flordatomic.github.io%2Fuefa%2Far%3Furl%3Dhttps%3A%2F%2F1nyaler.streamhostingcdn.top%2Fstream%2F23%2Findex.m3u8&type=m3u8",
-    "type": "plyr",
-    "keys": {},
-    "meta": "Arabic 4K",
+    "meta": "Telemundo",
     "vpn": "",
     "enabled": true
   }
