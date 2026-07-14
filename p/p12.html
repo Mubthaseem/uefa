@@ -175,6 +175,11 @@
         new Plyr(video, { 
           controls: ['play', 'progress', 'current-time', 'mute', 'volume', 'settings', 'fullscreen'],
           settings: ['quality', 'speed'],
+          fullscreen: {
+            enabled: true,
+            fallback: true,
+            iosNative: true
+          },
           quality: {
             default: 0,
             options: availableQualities,
@@ -205,6 +210,11 @@
       
       new Plyr(video, {
         controls: ['play', 'progress', 'current-time', 'mute', 'volume', 'settings', 'fullscreen'],
+        fullscreen: {
+          enabled: true,
+          fallback: true,
+          iosNative: true
+        },
         autoplay: true
       });
       video.play().catch(()=>{});

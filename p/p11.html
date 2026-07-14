@@ -296,7 +296,7 @@
     const video = document.getElementById('plyr-video');
     
     if (Hls.isSupported()) {
-      const hls = new Hls({ enableWorker: true, maxBufferLength: 30 });
+      const hls = new Hls({ enableWorker: false, maxBufferLength: 30 });
       hls.loadSource(url);
       hls.attachMedia(video);
       hls.on(Hls.Events.MANIFEST_PARSED, () => {
@@ -308,6 +308,11 @@
         new Plyr(video, { 
           controls: ['play', 'progress', 'current-time', 'mute', 'volume', 'settings', 'fullscreen'],
           settings: ['quality', 'speed'],
+          fullscreen: {
+            enabled: true,
+            fallback: true,
+            iosNative: true
+          },
           quality: {
             default: 0,
             options: availableQualities,
@@ -338,6 +343,11 @@
       
       new Plyr(video, {
         controls: ['play', 'progress', 'current-time', 'mute', 'volume', 'settings', 'fullscreen'],
+        fullscreen: {
+          enabled: true,
+          fallback: true,
+          iosNative: true
+        },
         autoplay: true
       });
       video.play().catch(()=>{});
