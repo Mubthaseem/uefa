@@ -3,81 +3,242 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Stream P7 - Telemundo HD</title>
-<link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css">
-<script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/hls.js@1.4.12/dist/hls.min.js"></script>
+<title>ZetaSports - Backup (CT Sport)</title>
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+
+<!-- Clappr Player (HLS) -->
+<script src="https://cdn.jsdelivr.net/npm/@clappr/player@0.11.16/dist/clappr.min.js"></script>
+
+<!-- Shaka Player UI & Video Engine (DASH / ClearKey) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.3.5/shaka-player.compiled.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.3.5/shaka-player.ui.min.js" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.3.5/controls.min.css" crossorigin="anonymous">
+
 <style>
-  *{margin:0;padding:0;box-sizing:border-box}
-  html,body{width:100%;height:100%;background:#000;overflow:hidden}
-  #container{position:relative;width:100vw;height:100vh;display:flex;align-items:center;justify-content:center}
-  video,#container>.plyr{width:100%;height:100%}
-  #loading{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;font-family:sans-serif;font-size:18px;text-align:center;z-index:10}
-  #loading .spinner{width:50px;height:50px;border:4px solid rgba(255,255,255,.2);border-top-color:#fff;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 15px}
-  @keyframes spin{to{transform:rotate(360deg)}}
-  #watermark{position:absolute;bottom:65px;right:18px;color:rgba(255,255,255,0.55);font-family:'Segoe UI',Arial,sans-serif;font-size:15px;font-weight:600;letter-spacing:1px;pointer-events:none;z-index:9999;text-shadow:0 1px 6px rgba(0,0,0,0.9),0 0 12px rgba(0,0,0,0.7);user-select:none;display:flex;align-items:center;gap:6px}
-  #watermark::before{content:'⚽';font-size:13px}
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  html, body {
+    width: 100%;
+    height: 100%;
+    background: #020617;
+    overflow: hidden;
+    font-family: 'Outfit', sans-serif;
+  }
+  #container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  /* Clappr and Video element styling */
+  #player-clappr, #shaka-video-container {
+    width: 100%;
+    height: 100%;
+  }
+  video {
+    width: 100%;
+    height: 100%;
+    background: #000;
+  }
+
+  /* Shaka UI styling override */
+  .shaka-video-container {
+    width: 100% !important;
+    height: 100% !important;
+  }
+  
+  /* Loading screen */
+  #loading {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #f8fafc;
+    text-align: center;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+  .spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid rgba(255, 255, 255, 0.1);
+    border-top-color: #00e676;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  .loading-text {
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* Watermark Overlay */
+  #watermark {
+    position: absolute;
+    bottom: 60px;
+    right: 20px;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    pointer-events: none;
+    z-index: 99999;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.95), 0 0 15px rgba(0,0,0,0.7);
+    user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-transform: uppercase;
+  }
+  #watermark::before {
+    content: '⚽';
+    font-size: 14px;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+  }
+
+  /* Error state */
+  .error-message {
+    font-size: 1.2rem;
+    color: #ef4444;
+    font-weight: 600;
+  }
 </style>
 </head>
 <body>
-<div id="loading"><div class="spinner"></div>Loading stream...</div>
-<div id="container" style="display:none">
-  <video id="video" playsinline controls></video>
-  <div id="watermark">ZetaSports.blog</div>
+
+<div id="loading">
+  <div class="spinner"></div>
+  <div class="loading-text">Loading Backup (CT Sport)...</div>
 </div>
+
+<div id="container">
+  <!-- Clappr player mount point -->
+  <div id="player-clappr" style="display: none;"></div>
+
+  <!-- Shaka player mount point -->
+  <div id="shaka-video-container" style="display: none;" data-shaka-player-container>
+    <video id="shaka-video" playsinline autoplay data-shaka-player></video>
+  </div>
+
+  <div id="watermark">ZetaSports</div>
+</div>
+
 <script>
-const STREAM_URL = 'https://www.ppvtv.icu/stream/fcebfba0b3f96333dd474b13228bb3ca';
-const video = document.getElementById('video');
-const loading = document.getElementById('loading');
-const container = document.getElementById('container');
-const watermark = document.getElementById('watermark');
+  const streamUrl = "https://dash2.antik.sk/stream/nvidia_ct_sport/playlist_cenc.mpd";
+  const type = "mpd";
+  const clearKeysMap = {"11223344556677889900112233445566":"4b80724d0ef86bcb2c21f7999d67739d"};
 
-function handleFullscreenChange() {
-  const fsEl = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement;
-  if (fsEl) { fsEl.appendChild(watermark); watermark.style.position='fixed'; }
-  else { container.appendChild(watermark); watermark.style.position='absolute'; }
-}
-document.addEventListener('fullscreenchange', handleFullscreenChange);
-document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
-document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+  const loading = document.getElementById('loading');
+  const watermark = document.getElementById('watermark');
+  const clapprContainer = document.getElementById('player-clappr');
+  const shakaContainer = document.getElementById('shaka-video-container');
 
-function startPlayer(src) {
-  if (Hls.isSupported()) {
-    const hls = new Hls({ enableWorker: true, maxBufferLength: 30 });
-    hls.loadSource(src); hls.attachMedia(video);
-    hls.on(Hls.Events.MANIFEST_PARSED, () => {
-      loading.style.display='none'; container.style.display='flex';
-      
-      const availableQualities = hls.levels.map((l) => l.height);
-      availableQualities.unshift(0); // Auto
-      
-      new Plyr(video, { 
-        controls: ['play', 'progress', 'current-time', 'mute', 'volume', 'settings', 'fullscreen'],
-        settings: ['quality', 'speed'],
-        quality: {
-          default: 0,
-          options: availableQualities,
-          forced: true,
-          onChange: (newQuality) => {
-            if (newQuality === 0) {
-              hls.currentLevel = -1;
-            } else {
-              hls.levels.forEach((level, idx) => {
-                if (level.height === newQuality) hls.currentLevel = idx;
-              });
-            }
-          }
-        },
-        autoplay: true 
-      });
-      video.play().catch(()=>{});
-    });
-    hls.on(Hls.Events.ERROR, (e,data) => { if(data.fatal) loading.innerHTML='<div>⚠️ Stream Error.</div>'; });
-  } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-    video.src=src; video.addEventListener('loadedmetadata',()=>{ loading.style.display='none'; container.style.display='flex'; video.play(); });
+  // Robust Fullscreen Watermark Handling
+  function handleFullscreenChange() {
+    const fsElement = document.fullscreenElement || 
+                      document.webkitFullscreenElement || 
+                      document.mozFullScreenElement || 
+                      document.msFullscreenElement;
+    if (fsElement) {
+      fsElement.appendChild(watermark);
+      watermark.style.position = 'fixed';
+    } else {
+      document.getElementById('container').appendChild(watermark);
+      watermark.style.position = 'absolute';
+    }
   }
-}
-startPlayer(STREAM_URL);
+  document.addEventListener('fullscreenchange', handleFullscreenChange);
+  document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+  document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+  document.addEventListener('MSFullscreenChange', handleFullscreenChange);
+
+  function showError(msg) {
+    loading.innerHTML = `<div class="error-message">⚠️ ${msg}</div>`;
+  }
+
+  function startClappr(url) {
+    clapprContainer.style.display = 'block';
+    
+    const player = new Clappr.Player({
+      source: url,
+      parentId: "#player-clappr",
+      width: '100%',
+      height: '100%',
+      autoPlay: true,
+      events: {
+        onReady: function() {
+          loading.style.display = 'none';
+        },
+        onError: function(err) {
+          console.error("Clappr Error:", err);
+          showError("Failed to load stream. Please try again.");
+        }
+      }
+    });
+  }
+
+  function startShaka(url, keysMap) {
+    shakaContainer.style.display = 'block';
+    const video = document.getElementById('shaka-video');
+    const container = document.getElementById('shaka-video-container');
+
+    const player = new shaka.Player();
+    const ui = new shaka.ui.Overlay(player, container, video);
+
+    player.addEventListener('error', (event) => {
+      console.error('Shaka Player Error:', event.detail);
+      showError("Stream error or geo-restriction active.");
+    });
+
+    player.attach(video).then(() => {
+      // Configure DRM if ClearKeys are specified
+      if (Object.keys(keysMap).length > 0) {
+        player.configure({
+          drm: {
+            clearKeys: keysMap
+          }
+        });
+      }
+      return player.load(url);
+    }).then(() => {
+      loading.style.display = 'none';
+      video.play().catch(err => {
+        console.log("Autoplay blocked, offering play option:", err);
+      });
+    }).catch(err => {
+      console.error("Shaka load error:", err);
+      showError("Failed to initialize or decrypt stream.");
+    });
+  }
+
+  // Initialize player
+  try {
+    if (type === 'mpd') {
+      startShaka(streamUrl, clearKeysMap);
+    } else {
+      startClappr(streamUrl);
+    }
+  } catch (e) {
+    console.error(e);
+    showError("An unexpected player error occurred.");
+  }
 </script>
 </body>
 </html>
