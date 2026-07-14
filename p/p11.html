@@ -334,15 +334,13 @@
       });
     } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
       video.src = url;
-      video.addEventListener('loadedmetadata', () => {
-        loading.style.display = 'none';
-        
-        new Plyr(video, {
-          controls: ['play', 'progress', 'current-time', 'mute', 'volume', 'settings', 'fullscreen'],
-          autoplay: true
-        });
-        video.play().catch(()=>{});
+      loading.style.display = 'none';
+      
+      new Plyr(video, {
+        controls: ['play', 'progress', 'current-time', 'mute', 'volume', 'settings', 'fullscreen'],
+        autoplay: true
       });
+      video.play().catch(()=>{});
     }
   }
 
