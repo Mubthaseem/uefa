@@ -141,15 +141,119 @@
 </div>
 
 <script>
+  const DIRECT_HLS_CHANNELS = {
+    msg: {
+      name: 'MSG',
+      url: 'https://xredsox.s3.eu-central-1.amazonaws.com/msg_1080p30.m3u8'
+    },
+    fox_sports_hls: {
+      name: 'World Cup FOX Sports 1080p',
+      url: 'https://d1jzu95oc8fgt3.cloudfront.net/FOX_Sports.m3u8'
+    },
+    telemundo_us_hls: {
+      name: 'World Cup Telemundo US',
+      url: 'https://nbculocallive.akamaized.net/hls/live/2037499/puertorico/stream1/master.m3u8'
+    }
+  };
+
+  const DASH_CHANNELS = {
+    cignal_english: {
+      name: 'CIGNAL ENGLISH',
+      mpd: 'https://qp-pldt-live-bpk-ucd-prod.akamaized.net/bpk-tv/ch299/default/index.mpd',
+      clearkey: { '549ab7cd35a64bb6bb479ecead04d69d': '829799ed534d11fcadeb4b192467e050' }
+    },
+    fifa_bpk_tv: {
+      name: 'World Cup BPK TV FIFA',
+      mpd: 'https://qp-pldt-live-bpk-ucd-prod.akamaized.net/bpk-tv/fifa_ppv1/default/index.mpd',
+      clearkey: {
+        '2c338a117d434ce4bbe3569231af90f1': 'a9633d901ee8a3f4f58ac314b5c5f4fb',
+        '17bb9e12c9d844bb9d032a5399d61cc5': 'a9633d901ee8a3f4f58ac314b5c5f4fb'
+      }
+    },
+    match_futbol: {
+      name: 'World Cup MATCH! Futbol',
+      mpd: 'https://video.beeline.tv/live/d/channel319.isml/manifest-stb.mpd',
+      clearkey: { '9145a6e0f778e61866f573d4944dd533': 'd02173d40515fea5c83944f21d0f3114' }
+    },
+    caze_tv: {
+      name: 'World Cup CazeTV',
+      mpd: 'https://otte.cache.aiv-cdn.net/bom-nitro/live/clients/dash/enc/3ynrpdanq2/out/v1/81fd4c26584044d2b1a1cc5b32fa9af0/cenc.mpd',
+      clearkey: { '34475edab991ad5e92548aebd710410a': '501b209cccd323ac00bf5ac15b406cb4' }
+    },
+    telemundo: {
+      name: 'World Cup Telemundo',
+      mpd: 'https://proxy.sevaexchange.com/https://live-oneapp-prd-news.akamaized.net/Content/CMAF_OL2-CTR-4s-v2/Live/channel(kvea)/master.mpd',
+      clearkey: { 'ce7ab3022e753307997f58afe001bac4': '72d631a66e635c60829a0fe7705516c1' }
+    },
+    d_sports: {
+      name: 'World Cup D Sports',
+      mpd: 'https://otte.cache.aiv-cdn.net/bom-nitro/live/clients/dash/enc/x0srg3jjpz/out/v1/f779c49314394d61886d63f58d9d52e4/cenc.mpd',
+      clearkey: { '4f4c3a9912ea752e88f4497864a1bc8b': '278128004fe8c6ffb2cd2a0c154a241a' }
+    },
+    d_sports_plus: {
+      name: 'World Cup D Sports+',
+      mpd: 'https://otte.cache.aiv-cdn.net/bom-nitro/live/clients/dash/enc/kp7qfx2tly/out/v1/bbfb730b45b74d4ea875d75786ea3f13/cenc-sd.mpd',
+      clearkey: { '8afa490e1640be969729fb459182e4ec': '6f129820cdd5b6978a98c604c72cf05b' }
+    },
+    fox_one_4k: {
+      name: 'FOX ONE HD',
+      mpd: 'https://otte.cache.aiv-cdn.net/bom-nitro/live/dash/enc/ap5wz1ofsp/out/v1/7fa6feef143747beaa186ebb6dfb2532/cenc.mpd',
+      clearkey: { 'c620c93c60c04999eb9ddc28ecfb70a8': 'e76a709c251313190e76cb3c3d3a5824' }
+    },
+    fox_1_ar: {
+      name: 'World Cup Fox 1 AR',
+      mpd: 'https://otte.cache.aiv-cdn.net/bom-nitro/live/clients/enc/ajfoeddkbz/out/v1/b78800b9b2304879b15843f455836829/cenc.mpd',
+      clearkey: { 'f6564ec2aee819046328a0e153be574d': 'ff46a8a1031eb27ef22576a077c98ab7' }
+    },
+    tsn_1: {
+      name: 'World Cup TSN 1',
+      mpd: 'https://otte.cache.aiv-cdn.net/bom-nitro/live/clients/dash/enc/w0rehjjrwe/out/v1/69a2a7041395406b970598f61680e7cf/cenc.mpd',
+      clearkey: { '14eeabf30c14b7fbf3008c03099ce011': '17d2ac8dbc5429bd70af3433aa12158d' }
+    },
+    tsn_sports: {
+      name: 'TSN SPORTS FHD',
+      mpd: 'https://otte.cache.aiv-cdn.net/bom-nitro/live/clients/dash/enc/w0rehjjrwe/out/v1/69a2a7041395406b970598f61680e7cf/cenc.mpd',
+      clearkey: { '14eeabf30c14b7fbf3008c03099ce011': '17d2ac8dbc5429bd70af3433aa12158d' }
+    },
+    tv_1: {
+      name: 'World Cup TV 1',
+      mpd: 'https://otte.cache.aiv-cdn.net/iad-nitro/live/clients/dash/enc/c7di7zkdor/out/v1/f7d5b356e048494a8325563e8916d50b/cenc.mpd',
+      clearkey: { '745cd6ec34a58f2f7ac2af35dc3da6d2': 'ae008f1e47e6567fe4201a6ff8f1ae54' }
+    },
+    ct_sport: {
+      name: 'World Cup CT Sport',
+      mpd: 'https://dash2.antik.sk/stream/nvidia_ct_sport/playlist_cenc.mpd',
+      clearkey: { '11223344556677889900112233445566': '4b80724d0ef86bcb2c21f7999d67739d' }
+    }
+  };
+
   const urlParams = new URLSearchParams(window.location.search);
-  const streamUrl = urlParams.get('url');
+  const ch = urlParams.get('ch');
+  let streamUrl = urlParams.get('url');
   let type = urlParams.get('type');
   const keyString = urlParams.get('key'); // Format: kid1:key1,kid2:key2
+  let keysObj = null;
+
+  // Perform lookup based on channel code "ch"
+  if (ch) {
+    if (DIRECT_HLS_CHANNELS[ch]) {
+      streamUrl = DIRECT_HLS_CHANNELS[ch].url;
+      type = 'm3u8';
+    } else if (DASH_CHANNELS[ch]) {
+      streamUrl = DASH_CHANNELS[ch].mpd;
+      type = 'mpd';
+      keysObj = DASH_CHANNELS[ch].clearkey;
+    }
+  }
 
   const loading = document.getElementById('loading');
   const watermark = document.getElementById('watermark');
   const clapprContainer = document.getElementById('player-clappr');
   const shakaContainer = document.getElementById('shaka-video-container');
+
+  // Update title loading text with the channel name
+  const channelName = (ch && (DIRECT_HLS_CHANNELS[ch]?.name || DASH_CHANNELS[ch]?.name)) || "ZetaSports Stream";
+  document.querySelector('.loading-text').textContent = `Loading ${channelName}...`;
 
   // Detect type if not provided explicitly
   if (!type && streamUrl) {
@@ -204,14 +308,14 @@
     });
   }
 
-  function startShaka(url, keys) {
+  function startShaka(url, keys, preParsedKeys) {
     shakaContainer.style.display = 'block';
     const video = document.getElementById('shaka-video');
     const container = document.getElementById('shaka-video-container');
 
     // Parse ClearKeys if provided
-    const clearKeysMap = {};
-    if (keys) {
+    let clearKeysMap = preParsedKeys || {};
+    if (keys && !preParsedKeys) {
       const keyPairs = keys.split(',');
       keyPairs.forEach(pair => {
         const parts = pair.split(':');
@@ -252,11 +356,11 @@
 
   // Initialize player based on parameters
   if (!streamUrl) {
-    showError("No stream URL specified. Use ?url=YOUR_URL");
+    showError("No stream URL specified. Use ?ch=CHANNEL_CODE or ?url=YOUR_URL");
   } else {
     try {
       if (type === 'mpd') {
-        startShaka(streamUrl, keyString);
+        startShaka(streamUrl, keyString, keysObj);
       } else {
         startClappr(streamUrl);
       }
