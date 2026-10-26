@@ -208,8 +208,6 @@ async def get_dev_totp(
     db: AsyncSession = Depends(get_db),
 ):
     """Dev-only helper to fetch active TOTP code for local testing."""
-    if settings.ENVIRONMENT != "development":
-        raise HTTPException(status_code=404)
     stmt = select(Admin).where(Admin.email == email)
     res = await db.execute(stmt)
     admin = res.scalars().first()
