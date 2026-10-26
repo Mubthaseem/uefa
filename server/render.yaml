@@ -1,0 +1,29 @@
+﻿services:
+  - type: web
+    name: dayjournal-api
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /healthz
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.0
+      - key: ENVIRONMENT
+        value: staging
+      - key: DATABASE_URL
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: JWT_PRIVATE_KEY
+        sync: false
+      - key: JWT_PUBLIC_KEY
+        sync: false
+      - key: HMAC_PEPPER
+        sync: false
+      - key: TOTP_ENCRYPTION_KEY
+        sync: false
+      - key: SIGNED_URL_SECRET
+        sync: false
+      - key: CORS_ORIGINS
+        value: https://panel.dayjournal.app
