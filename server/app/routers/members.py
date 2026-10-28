@@ -82,14 +82,14 @@ async def get_members_streaming_portal(
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <style>
     :root {{
-      --bg: #0A1F1C;
-      --surface: #0F2A24;
-      --surface-card: #1A3D35;
-      --primary: #D4A843;
-      --secondary: #22C55E;
-      --text: #F7F7F0;
-      --text-muted: #A8B3A8;
-      --border: #2A4A40;
+      --bg: #F8FAFC;
+      --surface: #FFFFFF;
+      --surface-card: #F1F5F9;
+      --primary: #2563EB;
+      --secondary: #16A34A;
+      --text: #0F172A;
+      --text-muted: #64748B;
+      --border: #E2E8F0;
       --danger: #EF4444;
     }}
     * {{
@@ -115,9 +115,9 @@ async def get_members_streaming_portal(
       display: inline-flex;
       align-items: center;
       gap: 5px;
-      background: rgba(34, 197, 94, 0.15);
+      background: rgba(22, 163, 74, 0.1);
       color: var(--secondary);
-      border: 1px solid var(--secondary);
+      border: 1px solid rgba(22, 163, 74, 0.3);
       padding: 3px 8px;
       border-radius: 6px;
       font-size: 11px;
@@ -147,7 +147,7 @@ async def get_members_streaming_portal(
       border-radius: 14px;
       overflow: hidden;
       border: 1px solid var(--border);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
       margin-bottom: 16px;
       position: relative;
     }}
@@ -210,7 +210,7 @@ async def get_members_streaming_portal(
     }}
     .feed-btn.active {{
       background: var(--primary);
-      color: var(--bg);
+      color: #FFFFFF;
       border-color: var(--primary);
     }}
     /* Categories */
@@ -234,7 +234,7 @@ async def get_members_streaming_portal(
     }}
     .cat-btn.active {{
       background: var(--primary);
-      color: var(--bg);
+      color: #FFFFFF;
       border-color: var(--primary);
     }}
     /* Match Cards */
@@ -262,10 +262,12 @@ async def get_members_streaming_portal(
       justify-content: space-between;
       align-items: center;
       cursor: pointer;
-      transition: border-color 0.2s;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+      transition: all 0.2s;
     }}
     .match-item:hover, .match-item.selected {{
       border-color: var(--primary);
+      background: #F1F5F9;
     }}
     .teams {{
       display: flex;
@@ -347,7 +349,7 @@ async def get_members_streaming_portal(
   <!-- Matches Section -->
   <div class="section-title">
     <span>TODAY'S FIXTURES & STREAMS</span>
-    <span style="font-size: 11px; color: var(--text-muted);" onclick="fetchMatches()">↻ Refresh</span>
+    <span style="font-size: 12px; color: var(--primary); font-weight: 700; cursor: pointer;" onclick="fetchMatches()">Refresh</span>
   </div>
   <div class="matches-list" id="matches-container">
     <div style="text-align: center; padding: 24px; color: var(--text-muted);">Loading live streams...</div>
