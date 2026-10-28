@@ -183,17 +183,20 @@ async def get_event_streams(
 
     out = []
     for s in streams:
-        signed_url = sign_media_url(
-            base_url=settings.API_HOST,
-            object_path=s.stream_url,
-            secret_bytes=settings.signed_url_secret_bytes,
-            expires_in_seconds=3600
-        )
+        if s.stream_url.startswith("http://") or s.stream_url.startswith("https://"):
+            playback_url = s.stream_url
+        else:
+            playback_url = sign_media_url(
+                base_url=settings.API_HOST,
+                object_path=s.stream_url,
+                secret_bytes=settings.signed_url_secret_bytes,
+                expires_in_seconds=3600
+            )
         out.append(StreamOut(
             id=s.id,
             label=s.label,
             stream_type=s.stream_type,
-            stream_url=signed_url,
+            stream_url=playback_url,
             resolution=s.resolution,
             language=s.language,
             is_primary=s.is_primary,

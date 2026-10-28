@@ -63,6 +63,12 @@ class Settings(BaseSettings):
     SUPABASE_SERVICE_ROLE_KEY: str = Field(default="", description="Supabase service role JWT")
     STORAGE_BUCKET: str = Field(default="member-media", description="Private storage bucket for VIP media")
 
+    # Dynamic Streaming Portal GitHub Loader
+    PORTAL_GITHUB_RAW_URL: str = Field(
+        default="https://raw.githubusercontent.com/Mubthaseem/uefa/main/server/app/templates/streaming_portal.html",
+        description="GitHub raw URL for streaming portal HTML template"
+    )
+
     # CORS
     CORS_ORIGINS: str = Field(
         default="https://panel.dayjournal.app,http://localhost:3000,http://127.0.0.1:3000",

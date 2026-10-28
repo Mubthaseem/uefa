@@ -2,6 +2,7 @@
 
 import pytest
 from app.services.portal_service import (
+    fetch_github_template,
     get_file_template,
     get_portal_template,
     render_portal_html,
@@ -31,11 +32,20 @@ async def test_get_file_template_returns_valid_html():
 
 
 @pytest.mark.asyncio
+async def test_portal_template_github_resolution():
+    """Verify loading dynamic HTML template directly from GitHub."""
+    html = await fetch_github_template()
+    if html:
+        assert "<!DOCTYPE html>" in html
+        assert "ZetaStream" in html
+
+
+@pytest.mark.asyncio
 async def test_portal_template_db_resolution_and_seeding():
     """Verify seeding and database precedence over file system."""
     async with TestingSessionLocal() as session:
         # Initially empty, get_portal_template should fallback to file
-        initial_html = await get_portal_template(session, slug="streaming_portal")
+        initial_html = await get_portal_template(session, slug="streaming_portal", prefer_github=False)
         assert "ZetaStream" in initial_html
 
         # Run auto-seed
@@ -52,8 +62,8 @@ async def test_portal_template_db_resolution_and_seeding():
         assert updated.version >= 1
         assert updated.title == "Custom Portal"
 
-        # Now get_portal_template should return the custom DB template
-        resolved = await get_portal_template(session, slug="streaming_portal")
+        # Now get_portal_template with prefer_github=False returns the custom DB template
+        resolved = await get_portal_template(session, slug="streaming_portal", prefer_github=False)
         assert "Custom DB Streaming Portal" in resolved
 
         # Render with token
@@ -65,6 +75,6 @@ async def test_portal_template_db_resolution_and_seeding():
         reset_record = await reset_portal_template_to_file(session, slug="streaming_portal")
         assert reset_record.version > old_version
         
-        resolved_after_reset = await get_portal_template(session, slug="streaming_portal")
+        resolved_after_reset = await get_portal_template(session, slug="streaming_portal", prefer_github=False)
         assert "ZetaStream" in resolved_after_reset
         assert "Custom DB Streaming Portal" not in resolved_after_reset

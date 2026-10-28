@@ -1,13 +1,16 @@
-"""Portal Template Service: Tiered dynamic HTML loading (Database -> File System -> Embedded Fallback)."""
-
 import logging
 from pathlib import Path
+import time
+from typing import Any
+import httpx
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.config import get_settings
 from app.models.db_models import PortalTemplate
 
 logger = logging.getLogger(__name__)
+settings = get_settings()
 
 TEMPLATES_DIR = Path(__file__).resolve().parent.parent / "templates"
 DEFAULT_STREAMING_TEMPLATE_FILE = TEMPLATES_DIR / "streaming_portal.html"
@@ -26,6 +29,39 @@ EMERGENCY_FALLBACK_HTML = """<!DOCTYPE html>
 </body>
 </html>"""
 
+_github_template_cache: str | None = None
+_github_template_cache_time: float = 0.0
+GITHUB_CACHE_TTL_SECONDS: float = 60.0
+
+
+async def fetch_github_template(url: str | None = None, force_refresh: bool = False) -> str | None:
+    """
+    Fetch streaming portal HTML template directly from GitHub raw URL.
+    Uses an in-memory cache with a 60-second TTL.
+    """
+    global _github_template_cache, _github_template_cache_time
+    target_url = url or getattr(
+        settings,
+        "PORTAL_GITHUB_RAW_URL",
+        "https://raw.githubusercontent.com/Mubthaseem/uefa/main/server/app/templates/streaming_portal.html"
+    )
+    now = time.time()
+    if not force_refresh and _github_template_cache and (now - _github_template_cache_time < GITHUB_CACHE_TTL_SECONDS):
+        return _github_template_cache
+
+    try:
+        async with httpx.AsyncClient(timeout=4.0) as client:
+            resp = await client.get(target_url)
+            if resp.status_code == 200 and len(resp.text.strip()) > 100:
+                _github_template_cache = resp.text
+                _github_template_cache_time = now
+                logger.info(f"Loaded portal template from GitHub ({len(resp.text)} bytes)")
+                return _github_template_cache
+    except Exception as exc:
+        logger.warning(f"Could not fetch portal template from GitHub ({target_url}): {exc}")
+
+    return _github_template_cache
+
 
 def get_file_template(filename: str = "streaming_portal.html") -> str:
     """Read template file from disk, or return emergency fallback."""
@@ -38,13 +74,23 @@ def get_file_template(filename: str = "streaming_portal.html") -> str:
     return EMERGENCY_FALLBACK_HTML
 
 
-async def get_portal_template(db: AsyncSession, slug: str = "streaming_portal") -> str:
+async def get_portal_template(
+    db: AsyncSession,
+    slug: str = "streaming_portal",
+    prefer_github: bool = True
+) -> str:
     """
     Tiered HTML template resolution:
-    1. Query database for active template with matching slug.
-    2. Fallback to template file on disk.
-    3. Fallback to emergency minimal HTML.
+    1. Primary: Load dynamically from GitHub repository (prefer_github=True).
+    2. Fallback: Query Supabase database (portal_templates).
+    3. Fallback: Local template file on disk.
+    4. Fallback: Emergency minimal inline HTML.
     """
+    if prefer_github and slug == "streaming_portal":
+        github_html = await fetch_github_template()
+        if github_html and github_html.strip():
+            return github_html
+
     try:
         stmt = select(PortalTemplate).where(
             PortalTemplate.slug == slug,
