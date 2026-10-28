@@ -11,11 +11,13 @@
       --surface: #FFFFFF;
       --surface-card: #F1F5F9;
       --primary: #2563EB;
+      --primary-hover: #1D4ED8;
       --secondary: #16A34A;
       --text: #0F172A;
       --text-muted: #64748B;
       --border: #E2E8F0;
       --danger: #EF4444;
+      --ad-accent: #D97706;
     }
     * {
       box-sizing: border-box;
@@ -27,23 +29,23 @@
       background: var(--bg);
       color: var(--text);
       padding: 12px;
-      padding-bottom: 40px;
+      padding-bottom: 60px;
     }
     /* Header */
     .top-bar {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
     .badge-live {
       display: inline-flex;
       align-items: center;
-      gap: 5px;
+      gap: 6px;
       background: rgba(22, 163, 74, 0.1);
       color: var(--secondary);
       border: 1px solid rgba(22, 163, 74, 0.3);
-      padding: 3px 8px;
+      padding: 4px 10px;
       border-radius: 6px;
       font-size: 11px;
       font-weight: 800;
@@ -63,17 +65,61 @@
       100% { opacity: 1; transform: scale(1); }
     }
     .status-badge {
-      font-size: 12px;
+      font-size: 11px;
       color: var(--text-muted);
+      font-weight: 600;
     }
-    /* Player Container */
+
+    /* Ad Container (High-RPM Banner) */
+    .ad-banner {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 12px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    }
+    .ad-tag {
+      font-size: 9px;
+      font-weight: 800;
+      background: var(--surface-card);
+      color: var(--text-muted);
+      padding: 2px 6px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .ad-content {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .ad-cta {
+      background: var(--primary);
+      color: #FFFFFF;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+    }
+
+    /* Video Player Card */
     .player-card {
       background: #000;
       border-radius: 14px;
       overflow: hidden;
       border: 1px solid var(--border);
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-      margin-bottom: 16px;
+      margin-bottom: 12px;
       position: relative;
     }
     .video-wrapper {
@@ -90,6 +136,56 @@
       height: 100%;
       object-fit: contain;
     }
+    /* Player Toolbar Overlay */
+    .player-controls-overlay {
+      position: absolute;
+      bottom: 8px;
+      right: 8px;
+      display: flex;
+      gap: 6px;
+      z-index: 10;
+    }
+    .control-btn {
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #FFFFFF;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      backdrop-filter: blur(4px);
+      transition: background 0.2s;
+    }
+    .control-btn:hover {
+      background: var(--primary);
+    }
+    .control-btn svg {
+      width: 16px;
+      height: 16px;
+      fill: currentColor;
+    }
+    .quality-select {
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #FFFFFF;
+      font-size: 11px;
+      font-weight: 700;
+      border-radius: 8px;
+      padding: 0 8px;
+      height: 32px;
+      backdrop-filter: blur(4px);
+      cursor: pointer;
+      outline: none;
+    }
+    .quality-select option {
+      background: #0F172A;
+      color: #FFFFFF;
+    }
+
+    /* Player Info Section */
     .player-info {
       padding: 14px;
       background: var(--surface);
@@ -113,9 +209,39 @@
       color: var(--text-muted);
       margin-top: 4px;
     }
+
+    /* Dual Tab Navigation (Feeds vs Match Stats) */
+    .portal-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      margin-top: 12px;
+      gap: 16px;
+    }
+    .portal-tab-btn {
+      padding: 8px 4px;
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--text-muted);
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .portal-tab-btn.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+    .tab-content {
+      display: none;
+      padding-top: 10px;
+    }
+    .tab-content.active {
+      display: block;
+    }
+
     /* Multi-angle Feed Switcher */
     .feeds-container {
-      margin-top: 12px;
       display: flex;
       gap: 8px;
       overflow-x: auto;
@@ -138,12 +264,52 @@
       color: #FFFFFF;
       border-color: var(--primary);
     }
-    /* Categories */
+
+    /* Match Stats Card */
+    .stats-card {
+      background: var(--surface-card);
+      border-radius: 10px;
+      padding: 12px;
+      border: 1px solid var(--border);
+    }
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+    .stat-label {
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+    .stat-val {
+      font-weight: 800;
+    }
+    .possession-bar {
+      height: 6px;
+      border-radius: 3px;
+      background: #E2E8F0;
+      display: flex;
+      overflow: hidden;
+      margin-top: 4px;
+      margin-bottom: 12px;
+    }
+    .possession-home {
+      background: var(--primary);
+      height: 100%;
+    }
+    .possession-away {
+      background: var(--danger);
+      height: 100%;
+    }
+
+    /* Category Filter Rail with Count Badges */
     .categories {
       display: flex;
       gap: 8px;
       overflow-x: auto;
-      margin-bottom: 14px;
+      margin: 14px 0 10px 0;
       padding-bottom: 4px;
     }
     .cat-btn {
@@ -156,12 +322,28 @@
       font-weight: 700;
       cursor: pointer;
       white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
     .cat-btn.active {
       background: var(--primary);
       color: #FFFFFF;
       border-color: var(--primary);
     }
+    .cat-count {
+      background: var(--surface-card);
+      color: var(--text);
+      font-size: 10px;
+      padding: 1px 6px;
+      border-radius: 10px;
+      font-weight: 800;
+    }
+    .cat-btn.active .cat-count {
+      background: rgba(255, 255, 255, 0.25);
+      color: #FFFFFF;
+    }
+
     /* Match Cards */
     .section-title {
       font-size: 14px;
@@ -227,48 +409,142 @@
       font-weight: 800;
       margin-top: 2px;
     }
-    /* Diagnostics */
-    .diag-box {
-      margin-top: 16px;
-      padding: 12px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
+
+    /* In-feed Native Sponsor Card (High-RPM) */
+    .in-feed-sponsor {
+      background: linear-gradient(135deg, #EFF6FF 0%, #FFFFFF 100%);
+      border: 1px dashed var(--primary);
+      border-radius: 12px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 4px 0;
+    }
+    .sponsor-title {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--primary);
+    }
+    .sponsor-desc {
       font-size: 11px;
       color: var(--text-muted);
-      display: flex;
-      justify-content: space-between;
+      margin-top: 2px;
+    }
+
+    /* Notification Toast */
+    .toast-msg {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #0F172A;
+      color: #FFFFFF;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      display: none;
+      z-index: 100;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     }
   </style>
 </head>
 <body>
+  <!-- Header -->
   <div class="top-bar">
     <div class="badge-live">LIVE BROADCAST NETWORK</div>
     <div class="status-badge" id="conn-status">Connected • HD 1080p</div>
   </div>
 
+  <!-- High-RPM Top Sponsor Banner -->
+  <div class="ad-banner">
+    <div class="ad-content">
+      <span class="ad-tag">Ad</span>
+      <span>ZetaStream VIP • Zero Buffering Ultra HD</span>
+    </div>
+    <button class="ad-cta" onclick="showToast('Ultra HD 60FPS Enabled')">Activate</button>
+  </div>
+
   <!-- Video Player Section -->
-  <div class="player-card">
-    <div class="video-wrapper">
-      <video id="video-player" playsinline controls preload="auto"></video>
+  <div class="player-card" id="player-container">
+    <div class="video-wrapper" id="video-wrapper">
+      <video id="video-player" playsinline preload="auto"></video>
+      <!-- Enhanced Player Controls Overlay -->
+      <div class="player-controls-overlay">
+        <!-- Quality Switcher -->
+        <select class="quality-select" id="quality-selector" onchange="changeQuality(this.value)">
+          <option value="-1">Quality: Auto</option>
+        </select>
+        <!-- Mute/Unmute Button -->
+        <button class="control-btn" id="mute-btn" onclick="toggleMute()" title="Mute/Unmute">
+          <svg id="mute-icon" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+        </button>
+        <!-- Fullscreen Button -->
+        <button class="control-btn" onclick="toggleFullScreen()" title="Fullscreen">
+          <svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+        </button>
+      </div>
     </div>
     <div class="player-info">
       <div class="player-match-title">
         <span id="player-title">Select a live fixture below</span>
         <span class="player-score" id="player-score"></span>
       </div>
-      <div class="player-sub" id="player-sub">FastAPI Server-Rendered Stream Engine</div>
-      <div class="feeds-container" id="feeds-list"></div>
+      <div class="player-sub" id="player-sub">FastAPI Stream Engine • Multi-Angle Production</div>
+
+      <!-- Tabbed Control Bar -->
+      <div class="portal-tabs">
+        <button class="portal-tab-btn active" onclick="switchTab('feeds', this)">Camera Feeds</button>
+        <button class="portal-tab-btn" onclick="switchTab('stats', this)">Match Stats & Lineup</button>
+      </div>
+
+      <!-- Tab 1: Camera Angles -->
+      <div class="tab-content active" id="tab-feeds">
+        <div class="feeds-container" id="feeds-list">
+          <span style="font-size:12px;color:var(--text-muted);">Select a match to load camera feeds</span>
+        </div>
+      </div>
+
+      <!-- Tab 2: Match Stats -->
+      <div class="tab-content" id="tab-stats">
+        <div class="stats-card">
+          <div class="stat-row">
+            <span class="stat-val" id="stat-home-name">Home</span>
+            <span class="stat-label">Possession</span>
+            <span class="stat-val" id="stat-away-name">Away</span>
+          </div>
+          <div class="possession-bar">
+            <div class="possession-home" id="possession-home" style="width: 55%;"></div>
+            <div class="possession-away" id="possession-away" style="width: 45%;"></div>
+          </div>
+          <div class="stat-row">
+            <span class="stat-val" id="stat-shots-home">8</span>
+            <span class="stat-label">Shots on Target</span>
+            <span class="stat-val" id="stat-shots-away">5</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-val" id="stat-fouls-home">11</span>
+            <span class="stat-label">Fouls</span>
+            <span class="stat-val" id="stat-fouls-away">9</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-val" id="stat-corners-home">6</span>
+            <span class="stat-label">Corners</span>
+            <span class="stat-val" id="stat-corners-away">4</span>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- Category Filter Rail -->
+  <!-- Category Filter Rail with Dynamic Count Badges -->
   <div class="categories" id="categories-rail">
-    <button class="cat-btn active" onclick="filterCat('All')">All</button>
-    <button class="cat-btn" onclick="filterCat('Football')">Football</button>
-    <button class="cat-btn" onclick="filterCat('Basketball')">Basketball</button>
-    <button class="cat-btn" onclick="filterCat('Tennis')">Tennis</button>
-    <button class="cat-btn" onclick="filterCat('Cricket')">Cricket</button>
+    <button class="cat-btn active" onclick="filterCat('All')">All <span class="cat-count" id="count-All">0</span></button>
+    <button class="cat-btn" onclick="filterCat('Football')">Football <span class="cat-count" id="count-Football">0</span></button>
+    <button class="cat-btn" onclick="filterCat('Basketball')">Basketball <span class="cat-count" id="count-Basketball">0</span></button>
+    <button class="cat-btn" onclick="filterCat('Tennis')">Tennis <span class="cat-count" id="count-Tennis">0</span></button>
+    <button class="cat-btn" onclick="filterCat('Cricket')">Cricket <span class="cat-count" id="count-Cricket">0</span></button>
   </div>
 
   <!-- Matches Section -->
@@ -280,11 +556,8 @@
     <div style="text-align: center; padding: 24px; color: var(--text-muted);">Loading live streams...</div>
   </div>
 
-  <!-- Server Ping Diagnostics -->
-  <div class="diag-box">
-    <span>Edge Server: OK • Latency: <span id="ping-val">18ms</span></span>
-    <span>Protocol: HLS/HTTP Live</span>
-  </div>
+  <!-- Toast Message -->
+  <div class="toast-msg" id="toast">Notice</div>
 
   <script>
     let TOKEN = "{{ token }}";
@@ -293,22 +566,20 @@
     let allMatches = [];
     let currentCategory = 'All';
     let currentMatchId = null;
+    let currentStreams = [];
+    let currentStreamIndex = 0;
     let hls = null;
 
     const video = document.getElementById('video-player');
 
     async function apiFetch(endpoint) {
-      const headers = {
-        'Accept': 'application/json'
-      };
-      if (TOKEN) {
-        headers['Authorization'] = 'Bearer ' + TOKEN;
-      }
-      if (INSTALL_ID) {
-        headers['X-Install-ID'] = INSTALL_ID;
-      }
+      const headers = { 'Accept': 'application/json' };
+      if (TOKEN) headers['Authorization'] = 'Bearer ' + TOKEN;
+      if (INSTALL_ID) headers['X-Install-ID'] = INSTALL_ID;
+
       const fullUrl = endpoint.startsWith('http') ? endpoint : (API_BASE + endpoint);
       let res = await fetch(fullUrl, { headers });
+
       if (res.status === 401 && INSTALL_ID) {
         try {
           const redeemUrl = API_BASE + '/v1/codes/redeem';
@@ -330,6 +601,7 @@
           }
         } catch (_) {}
       }
+
       if (!res.ok) throw new Error('Status ' + res.status);
       return res.json();
     }
@@ -338,6 +610,7 @@
       try {
         const events = await apiFetch('/v1/events');
         allMatches = events;
+        updateCategoryCounts();
         renderMatches();
         if (events.length > 0 && !currentMatchId) {
           selectMatch(events[0]);
@@ -348,10 +621,21 @@
       }
     }
 
+    function updateCategoryCounts() {
+      const counts = { 'All': allMatches.length, 'Football': 0, 'Basketball': 0, 'Tennis': 0, 'Cricket': 0 };
+      allMatches.forEach(m => {
+        if (counts.hasOwnProperty(m.category)) counts[m.category]++;
+      });
+      for (const cat in counts) {
+        const el = document.getElementById('count-' + cat);
+        if (el) el.innerText = counts[cat];
+      }
+    }
+
     function filterCat(cat) {
       currentCategory = cat;
       document.querySelectorAll('.cat-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.innerText === cat);
+        btn.classList.toggle('active', btn.innerText.startsWith(cat));
       });
       renderMatches();
     }
@@ -364,24 +648,40 @@
         return;
       }
 
-      container.innerHTML = filtered.map(m => `
-        <div class="match-item ${m.id === currentMatchId ? 'selected' : ''}" onclick="selectMatchById('${m.id}')">
-          <div class="teams">
-            <div class="team-row">
-              <img class="team-badge" src="${m.team_home_badge || 'https://via.placeholder.com/20'}" onerror="this.src='https://via.placeholder.com/20'">
-              <span>${m.team_home}</span>
+      let html = '';
+      filtered.forEach((m, idx) => {
+        html += `
+          <div class="match-item ${m.id === currentMatchId ? 'selected' : ''}" onclick="selectMatchById('${m.id}')">
+            <div class="teams">
+              <div class="team-row">
+                <img class="team-badge" src="${m.team_home_badge || 'https://via.placeholder.com/20'}" onerror="this.src='https://via.placeholder.com/20'">
+                <span>${m.team_home}</span>
+              </div>
+              <div class="team-row">
+                <img class="team-badge" src="${m.team_away_badge || 'https://via.placeholder.com/20'}" onerror="this.src='https://via.placeholder.com/20'">
+                <span>${m.team_away}</span>
+              </div>
             </div>
-            <div class="team-row">
-              <img class="team-badge" src="${m.team_away_badge || 'https://via.placeholder.com/20'}" onerror="this.src='https://via.placeholder.com/20'">
-              <span>${m.team_away}</span>
+            <div class="match-status-col">
+              <div class="match-score">${m.score_home || '0'} - ${m.score_away || '0'}</div>
+              <div class="match-minute">${m.status === 'LIVE' ? (m.live_minute ? m.live_minute + "'" : 'LIVE') : m.status}</div>
             </div>
           </div>
-          <div class="match-status-col">
-            <div class="match-score">${m.score_home || '0'} - ${m.score_away || '0'}</div>
-            <div class="match-minute">${m.status === 'LIVE' ? (m.live_minute ? m.live_minute + "'" : 'LIVE') : m.status}</div>
-          </div>
-        </div>
-      `).join('');
+        `;
+        // Insert High-RPM Native Sponsor Card after 2nd fixture
+        if (idx === 1) {
+          html += `
+            <div class="in-feed-sponsor">
+              <div>
+                <div class="sponsor-title">Official Broadcast Sponsor</div>
+                <div class="sponsor-desc">High-speed sports streaming powered by ZetaStream Core</div>
+              </div>
+              <button class="ad-cta" onclick="showToast('Sponsor details loaded')">Learn More</button>
+            </div>
+          `;
+        }
+      });
+      container.innerHTML = html;
     }
 
     function selectMatchById(id) {
@@ -397,36 +697,48 @@
       document.getElementById('player-score').innerText = `${match.score_home || '0'} - ${match.score_away || '0'}`;
       document.getElementById('player-sub').innerText = `${match.league} • ${match.live_minute ? match.live_minute + "'" : match.status}`;
 
+      // Update Match Stats Tab
+      document.getElementById('stat-home-name').innerText = match.team_home;
+      document.getElementById('stat-away-name').innerText = match.team_away;
+      const homePoss = Math.floor(Math.random() * 20) + 45; // 45-65%
+      document.getElementById('possession-home').style.width = homePoss + '%';
+      document.getElementById('possession-away').style.width = (100 - homePoss) + '%';
+
       const feedsContainer = document.getElementById('feeds-list');
       feedsContainer.innerHTML = '<span style="font-size:12px;color:var(--text-muted);">Loading feeds...</span>';
 
       try {
         const streams = await apiFetch('/v1/events/' + match.id + '/streams');
+        currentStreams = streams;
+        currentStreamIndex = 0;
         if (streams.length === 0) {
           feedsContainer.innerHTML = '<span style="font-size:12px;color:var(--text-muted);">No stream feeds available yet</span>';
           return;
         }
 
         feedsContainer.innerHTML = streams.map((s, idx) => `
-          <button class="feed-btn ${idx === 0 ? 'active' : ''}" onclick="playStream('${s.stream_url}', this)">
+          <button class="feed-btn ${idx === 0 ? 'active' : ''}" onclick="selectStreamIndex(${idx})">
             ${s.label} (${s.resolution})
           </button>
         `).join('');
 
-        if (streams.length > 0) {
-          playStream(streams[0].stream_url, feedsContainer.querySelector('.feed-btn'));
-        }
+        playStream(streams[0].stream_url);
       } catch (err) {
         feedsContainer.innerHTML = '<span style="font-size:12px;color:var(--danger);">Failed to load feeds</span>';
       }
     }
 
-    function playStream(url, btnElement) {
-      if (btnElement) {
-        document.querySelectorAll('.feed-btn').forEach(b => b.classList.remove('active'));
-        btnElement.classList.add('active');
+    function selectStreamIndex(index) {
+      if (index >= 0 && index < currentStreams.length) {
+        currentStreamIndex = index;
+        document.querySelectorAll('.feed-btn').forEach((b, idx) => {
+          b.classList.toggle('active', idx === index);
+        });
+        playStream(currentStreams[index].stream_url);
       }
+    }
 
+    function playStream(url) {
       if (Hls.isSupported()) {
         if (hls) hls.destroy();
         hls = new Hls({
@@ -436,8 +748,32 @@
         });
         hls.loadSource(url);
         hls.attachMedia(video);
+
         hls.on(Hls.Events.MANIFEST_PARSED, function () {
+          updateQualitySelector();
           video.play().catch(() => {});
+        });
+
+        // Auto-failover on fatal network error
+        hls.on(Hls.Events.ERROR, function (event, data) {
+          if (data.fatal) {
+            switch (data.type) {
+              case Hls.ErrorTypes.NETWORK_ERROR:
+                if (currentStreams.length > 1 && currentStreamIndex < currentStreams.length - 1) {
+                  showToast('Stream interrupted. Switching to backup feed...');
+                  selectStreamIndex(currentStreamIndex + 1);
+                } else {
+                  hls.startLoad();
+                }
+                break;
+              case Hls.ErrorTypes.MEDIA_ERROR:
+                hls.recoverMediaError();
+                break;
+              default:
+                hls.destroy();
+                break;
+            }
+          }
         });
       } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
         video.src = url;
@@ -445,6 +781,62 @@
           video.play().catch(() => {});
         });
       }
+    }
+
+    function updateQualitySelector() {
+      const selector = document.getElementById('quality-selector');
+      if (!hls || !hls.levels) return;
+      selector.innerHTML = '<option value="-1">Auto</option>';
+      hls.levels.forEach((level, idx) => {
+        const height = level.height || (idx === 0 ? '1080p' : '720p');
+        selector.innerHTML += `<option value="${idx}">${height}p</option>`;
+      });
+    }
+
+    function changeQuality(val) {
+      if (hls) {
+        hls.currentLevel = parseInt(val, 10);
+        showToast(val == -1 ? 'Quality set to Auto' : 'Quality switched');
+      }
+    }
+
+    function toggleMute() {
+      video.muted = !video.muted;
+      const muteIcon = document.getElementById('mute-icon');
+      if (video.muted) {
+        muteIcon.innerHTML = '<path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>';
+        showToast('Muted');
+      } else {
+        muteIcon.innerHTML = '<path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>';
+        showToast('Unmuted');
+      }
+    }
+
+    function toggleFullScreen() {
+      const container = document.getElementById('player-container');
+      if (!document.fullscreenElement) {
+        if (container.requestFullscreen) {
+          container.requestFullscreen();
+        } else if (video.webkitEnterFullscreen) {
+          video.webkitEnterFullscreen();
+        }
+      } else {
+        if (document.exitFullscreen) document.exitFullscreen();
+      }
+    }
+
+    function switchTab(tab, btn) {
+      document.querySelectorAll('.portal-tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      document.getElementById('tab-' + tab).classList.add('active');
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.innerText = msg;
+      toast.style.display = 'block';
+      setTimeout(() => { toast.style.display = 'none'; }, 2500);
     }
 
     // Initial load
