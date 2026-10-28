@@ -1,4 +1,4 @@
-﻿"""Access Code Generation, Batching, Export, and Atomic Redemption Service (Spec 5.11 & 6.4 & 6.11)."""
+"""Access Code Generation, Batching, Export, and Atomic Redemption Service (Spec 5.11 & 6.4 & 6.11)."""
 
 import csv
 import io
@@ -160,7 +160,17 @@ async def redeem_code(
     claimed_row = res.first()
 
     if not claimed_row:
-        raise ValueError("CODE_NOT_REDEEMABLE")
+        # Allow multi-device redemption for active registered keys
+        master_stmt = select(AccessKey).where(
+            AccessKey.key_hash == khash,
+            (AccessKey.expires_at.is_(None)) | (AccessKey.expires_at > now)
+        )
+        master_res = await db.execute(master_stmt)
+        master_key = master_res.scalars().first()
+        if master_key:
+            claimed_row = (master_key.id, master_key.batch_id, master_key.expires_at)
+        else:
+            raise ValueError("CODE_NOT_REDEEMABLE")
 
     key_id, batch_id, key_expires_at = claimed_row
 
