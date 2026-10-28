@@ -1,4 +1,4 @@
-﻿"""Runtime Configuration and Feature Flags Service (Spec 5.8, 6.6, 6.13)."""
+"""Runtime Configuration and Feature Flags Service (Spec 5.8, 6.6, 6.13)."""
 
 import uuid
 
@@ -33,7 +33,9 @@ DEFAULT_FLAGS = {
     "members.enabled": True,
     "journal.export_pdf": True,
     "journal.export_text": True,
-    "journal.reminders": False
+    "journal.reminders": False,
+    "zeta.streaming.enabled": False,
+    "zeta.streaming.min_app_version": "1.0.0",
 }
 
 
@@ -86,6 +88,10 @@ async def assemble_runtime_config(db: AsyncSession) -> ConfigOut:
     flags_map = {row.key: row.value for row in flag_rows}
     if not flags_map:
         flags_map = DEFAULT_FLAGS.copy()
+    else:
+        for k, v in DEFAULT_FLAGS.items():
+            if k not in flags_map:
+                flags_map[k] = v
 
     # Fill default config if missing
     for k, v in DEFAULT_CONFIG.items():

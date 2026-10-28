@@ -11,6 +11,7 @@ from sqlalchemy.orm import selectinload
 
 from app.config import get_settings
 from app.db import get_db
+from app.deps import require_entitlement
 from app.models.db_models import EventStream, LiveEvent
 from app.security import sign_media_url
 from app.services.fotmob_service import get_fotmob_match_details
@@ -57,6 +58,7 @@ async def list_live_events(
     status: str | None = None,
     limit: int = Query(50, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
+    auth: dict[str, Any] = Depends(require_entitlement),
 ):
     """List scheduled, live, and recently ended matches/events."""
     stmt = select(LiveEvent).options(selectinload(LiveEvent.streams)).order_by(
@@ -98,6 +100,7 @@ async def list_live_events(
 async def get_live_event_detail(
     event_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
+    auth: dict[str, Any] = Depends(require_entitlement),
 ):
     """Retrieve full details for an individual event."""
     stmt = select(LiveEvent).where(LiveEvent.id == event_id).options(selectinload(LiveEvent.streams))
@@ -130,6 +133,7 @@ async def get_live_event_detail(
 async def get_live_match_stats(
     event_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
+    auth: dict[str, Any] = Depends(require_entitlement),
 ):
     """Retrieve rich FotMob live details (lineup, live ticker, stats, momentum)."""
     stmt = select(LiveEvent).where(LiveEvent.id == event_id)
@@ -170,6 +174,7 @@ async def get_live_match_stats(
 async def get_event_streams(
     event_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
+    auth: dict[str, Any] = Depends(require_entitlement),
 ):
     """Fetch active stream sources for a match with secure signed playback URLs."""
     stmt = select(EventStream).where(EventStream.event_id == event_id).order_by(EventStream.priority.asc())

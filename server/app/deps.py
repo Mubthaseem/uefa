@@ -1,4 +1,4 @@
-﻿"""FastAPI Security & Authentication Dependencies (Spec 6.0, 6.1, 6.15)."""
+"""FastAPI Security & Authentication Dependencies (Spec 6.0, 6.1, 6.15)."""
 
 import uuid
 from typing import Any
@@ -24,14 +24,17 @@ def get_client_ip(request: Request) -> str:
     return request.client.host if request.client else "127.0.0.1"
 
 
-def get_bearer_token(authorization: str | None = Header(None)) -> str:
-    """Extract Bearer token from Authorization header."""
-    if not authorization or not authorization.startswith("Bearer "):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail={"error": {"code": "unauthorized", "message": "Session expired. Please try again."}}
-        )
-    return authorization.split("Bearer ", 1)[1].strip()
+def get_bearer_token(request: Request, authorization: str | None = Header(None)) -> str:
+    """Extract Bearer token from Authorization header or 'token' query param for WebView."""
+    if authorization and authorization.startswith("Bearer "):
+        return authorization.split("Bearer ", 1)[1].strip()
+    query_token = request.query_params.get("token")
+    if query_token:
+        return query_token.strip()
+    raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail={"error": {"code": "unauthorized", "message": "Session expired. Please try again."}}
+    )
 
 
 def get_public_key() -> str:
