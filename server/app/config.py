@@ -1,4 +1,4 @@
-﻿"""Application Configuration using pydantic-settings."""
+"""Application Configuration using pydantic-settings."""
 
 import base64
 from functools import lru_cache
@@ -35,7 +35,7 @@ class Settings(BaseSettings):
     JWT_PRIVATE_KEY: str = Field(default="", description="Ed25519 Private Key in PEM format")
     JWT_PUBLIC_KEY: str = Field(default="", description="Ed25519 Public Key in PEM format")
     JWT_KID: str = Field(default="k1", description="Key ID for JWT header")
-    ACCESS_TOKEN_EXPIRE_SECONDS: int = Field(default=900, description="Access token lifetime (15 mins)")
+    ACCESS_TOKEN_EXPIRE_SECONDS: int = Field(default=2592000, description="Access token lifetime (30 days)")
     REFRESH_TOKEN_EXPIRE_DAYS: int = Field(default=30, description="Refresh token lifetime (30 days)")
     ADMIN_TOKEN_EXPIRE_SECONDS: int = Field(default=1800, description="Admin token lifetime (30 mins)")
     MFA_PENDING_EXPIRE_SECONDS: int = Field(default=60, description="MFA pending token lifetime (60 secs)")

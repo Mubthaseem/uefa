@@ -1,6 +1,7 @@
 """VIP Members Catalogue & Item Detail Endpoints (Spec 6.7 & 6.8)."""
 
 import uuid
+from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from fastapi.responses import HTMLResponse
@@ -58,26 +59,56 @@ async def get_members_item_detail(
     return item
 
 
+from app.config import get_settings
+from app.security import get_default_keypair, sign_jwt, verify_jwt
 from app.services.portal_service import get_portal_template, render_portal_html
+
+settings = get_settings()
 
 
 @router.get(
     "/streams",
-    response_class=HTMLResponse,
-    dependencies=[Depends(require_entitlement)]
+    response_class=HTMLResponse
 )
 async def get_members_streaming_portal(
     request: Request,
     token: str = Query(None),
     install_id: str = Query(None),
+    auth: dict[str, Any] = Depends(require_entitlement),
     db: AsyncSession = Depends(get_db)
 ):
     """
     Server-rendered streaming portal with HLS.js video playback,
     multi-angle camera feeds, and FotMob live match statistics.
     Resolved dynamically from database (portal_templates) with file fallback.
+    Guarantees a valid access token is always injected into the HTML.
     """
+    active_token = token
+    pub_key = get_default_keypair(settings.JWT_PRIVATE_KEY, settings.JWT_PUBLIC_KEY)[1]
+    is_valid = False
+    if active_token:
+        try:
+            verify_jwt(active_token, pub_key, expected_aud="client")
+            is_valid = True
+        except Exception:
+            is_valid = False
+
+    if not is_valid:
+        priv_key, _ = get_default_keypair(settings.JWT_PRIVATE_KEY, settings.JWT_PUBLIC_KEY)
+        active_token = sign_jwt(
+            payload={
+                "sub": str(auth["sub"]),
+                "aud": "client",
+                "ent": "member",
+                "install_id": str(auth.get("install_id") or install_id or "")
+            },
+            private_key_pem=priv_key,
+            kid=settings.JWT_KID,
+            expires_in_seconds=settings.ACCESS_TOKEN_EXPIRE_SECONDS
+        )
+
+    resolved_install_id = install_id or auth.get("install_id") or ""
     template_str = await get_portal_template(db, slug="streaming_portal")
-    rendered_html = render_portal_html(template_str, token=token or "", install_id=install_id or "")
+    rendered_html = render_portal_html(template_str, token=active_token, install_id=resolved_install_id)
     return HTMLResponse(content=rendered_html)
 
