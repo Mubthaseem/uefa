@@ -19,6 +19,7 @@ from app.routers.health import router as health_router
 from app.routers.members import router as members_router
 from app.services.config_service import seed_defaults_if_empty
 from app.services.fotmob_sync_worker import start_fotmob_worker, stop_fotmob_worker
+from app.services.portal_service import seed_portal_templates_if_empty
 
 settings = get_settings()
 
@@ -35,6 +36,7 @@ async def lifespan(app: FastAPI):
         await init_tables()
     async with AsyncSessionLocal() as session:
         await seed_defaults_if_empty(session)
+        await seed_portal_templates_if_empty(session)
         
     start_fotmob_worker()
 

@@ -1,4 +1,4 @@
-﻿"""Admin Sub-Routers Aggregation."""
+"""Admin Sub-Routers Aggregation."""
 
 from fastapi import APIRouter
 
@@ -10,6 +10,7 @@ from app.routers.admin.config_admin import router as config_router
 from app.routers.admin.content import router as content_router
 from app.routers.admin.devices import router as devices_router
 from app.routers.admin.events import router as events_admin_router
+from app.routers.admin.portal_admin import router as portal_admin_router
 
 admin_router = APIRouter()
 admin_router.include_router(auth_router)
@@ -20,5 +21,6 @@ admin_router.include_router(content_router)
 admin_router.include_router(audit_router)
 admin_router.include_router(admins_router)
 admin_router.include_router(events_admin_router)
+admin_router.include_router(portal_admin_router)
 
 __all__ = ["admin_router"]

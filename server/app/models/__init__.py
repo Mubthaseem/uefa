@@ -1,4 +1,4 @@
-﻿"""Pydantic Schemas and Database Models."""
+"""Pydantic Schemas and Database Models."""
 from app.models.db_models import (
     AccessKey,
     Admin,
@@ -7,9 +7,12 @@ from app.models.db_models import (
     Base,
     Device,
     Entitlement,
+    EventStream,
     FeatureFlag,
     KeyBatch,
+    LiveEvent,
     MembersItem,
+    PortalTemplate,
     RefreshToken,
 )
 
@@ -21,8 +24,11 @@ __all__ = [
     "Base",
     "Device",
     "Entitlement",
+    "EventStream",
     "FeatureFlag",
     "KeyBatch",
+    "LiveEvent",
     "MembersItem",
+    "PortalTemplate",
     "RefreshToken",
 ]
